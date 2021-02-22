@@ -4271,6 +4271,40 @@ class GenMech(bpy.types.Operator):
                     mod.show_expanded = False
                     mod.show_in_editmode = False
 
+
+
+            for OBJName in OBJNameList:
+        
+                ob= bpy.data.objects[OBJName]
+                #name=amProperty.GenMechEnum.split('_')[0]
+                #ob.name=name+OBJName
+                
+                if (amProperty.RandomMaterialBool == True) and (ob.type=='MESH'):
+                    for i in range(0,len(ob.material_slots)):
+                        ob.active_material_index = i
+                        MatOld = ob.active_material
+                        MatNew = MatOld.copy()
+                        MatNew.name=MatNew.name[:-4]+"_"+ob.name
+                        ob.data.materials[i] = MatNew
+                        if i == 0:#从这里设置材质参数
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.9), random.uniform(0, 0.7), random.uniform(0, 1), 1)
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0, 1), random.uniform(0, 0.9), random.uniform(0, 0.8), 1)
+
+                        if i == 1:
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.3), random.uniform(0, 0.3), random.uniform(0, 0.3), 1)
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), 1) 
+                        if i == 2:
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.05), random.uniform(0, 0.05), random.uniform(0, 0.05), 1) 
+                        if i == 3:
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.5), random.uniform(0, 0.5), random.uniform(0, 0.5), 1)
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.4, 1), random.uniform(0.4, 1), random.uniform(0.4, 1), 1)
+
+                        if i == 4:
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.4), random.uniform(0, 0.4), random.uniform(0, 0.4), 1)
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[17].default_value = (random.uniform(0, 0.8), random.uniform(0, 0.8), random.uniform(0, 0.8), 1)
+                
+
+
         '''
         if len(DriversList)>0:#测试打印
             print(DriversList)
@@ -4398,36 +4432,6 @@ class GenMech(bpy.types.Operator):
 
 
 
-
-            for OBJName in OBJNameList:
-    
-                ob= bpy.data.objects[OBJName]
-                ob.name=amProperty.GenMechEnum[:-4]+OBJName
-                
-                if (amProperty.RandomMaterialBool == True) and (ob.type=='MESH'):
-                    for i in range(0,len(ob.material_slots)):
-                        ob.active_material_index = i
-                        MatOld = ob.active_material
-                        MatNew = MatOld.copy()
-                        MatNew.name=MatNew.name[:-4]+"_"+ob.name
-                        ob.data.materials[i] = MatNew
-                        if i == 0:#从这里设置材质参数
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.9), random.uniform(0, 0.7), random.uniform(0, 1), 1)
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0, 1), random.uniform(0, 0.9), random.uniform(0, 0.8), 1)
-
-                        if i == 1:
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.3), random.uniform(0, 0.3), random.uniform(0, 0.3), 1)
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), 1) 
-                        if i == 2:
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.05), random.uniform(0, 0.05), random.uniform(0, 0.05), 1) 
-                        if i == 3:
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.5), random.uniform(0, 0.5), random.uniform(0, 0.5), 1)
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.4, 1), random.uniform(0.4, 1), random.uniform(0.4, 1), 1)
-
-                        if i == 4:
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.4), random.uniform(0, 0.4), random.uniform(0, 0.4), 1)
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[17].default_value = (random.uniform(0, 0.8), random.uniform(0, 0.8), random.uniform(0, 0.8), 1)
-                
 
 
 
