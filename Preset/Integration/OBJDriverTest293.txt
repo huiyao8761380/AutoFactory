@@ -1,0 +1,57 @@
+#PresetName:OBJDriver293
+#Author:
+#Description:Add multiple modifier to a simple object.
+#Version:(2, 93, 0)
+#
+#GeoNode need to active select a mesh object to export.
+#
+#
+*Next|1|9|
+ParentOBJ|Cube|Cube|0.0|0.0|0.0|0.0|0.0|0.0|1.0|1.0|1.0|False|0|0|0|0|0|0|1|1|1|
+1_Nodes|NODES|True|True|2|Node1|True|
+2_Wave|WAVE|False|False|22|True|True|True|True|True|True|True|0.0|2.0|1.5|1.5|''|False|None|0.0|0.0|0.0|0.0|10.0|0.25|None|'LOCAL'|
+3_Mirror|MIRROR|True|True|21|True|True|False|True|True|False|False|False|False|None|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+4_Array|ARRAY|True|True|19|'FIXED_COUNT'|13|True|0.0|0.0|1.0|False|1.0|0.0|0.0|False|None|False|0.009999999776482582|False|0.0|0.0|None|None|
+5_Bevel|BEVEL|False|False|21|'EDGES'|'PERCENT'|1.0708738565444946|1|0.5235987901687622|'ANGLE'|''|False|'SUPERELLIPSE'|0.5|'MITER_SHARP'|'MITER_SHARP'|0.10000000149011612|'ADJ'|True|True|False|False|False|-1|'FSTR_NONE'|
+6_Simple_deform|SIMPLE_DEFORM|True|True|11|'TAPER'|-0.30000001192092896|None|'Z'|0.0|1.0|False|False|False|''|False|
+7_Nodes|NODES|True|True|2|Node2|True|
+8_Array|ARRAY|False|False|19|'FIXED_COUNT'|1|True|0.0|0.0|5.499999523162842|False|1.0|0.0|0.0|False|None|False|0.009999999776482582|False|0.0|0.0|None|None|
+9_Displace|DISPLACE|True|True|7|bpy.data.textures['Texture']|'NORMAL'|'LOCAL'|1.0|0.5|''|False|
+1_Floor|Con_FLOOR|False|Plane||6.0999979972839355|FLOOR_Z|False|WORLD|WORLD|None||0.0||
+*Next|2|21|
+AddOBJ|Plane|Plane|0.0|0.0|0.0|0.0|0.0|0.0|1.0|1.0|1.0|False|0|0|0|0|0|0|1|1|1|
+*Next|3|23|
+AddOBJ|Empty|Empty|84.349365234375|0.0|55.01749801635742|0.0|0.0|0.0|1.0|1.0|1.0||0|0|0|0|0|0|1|1|1|
+*Next|4|25|
+Texture|Texture|STUCCI|BLENDER_ORIGINAL|PLASTIC|SOFT_NOISE|84.599365234375|5.0|True|1.0|1.0|1.0|1.0|1.0|1.0|False||
+GeometryNode|Node1|Transform.001|GeometryNodeTransform|-77.34367370605469|-755.7590942382812|4|1|0|0|1.399999976158142|0.0|0.0|-0.9651669859886169|0.0|0.0|1.0|1.0|1.0|NoLinks||
+GeometryNode|Node1|Transform.002|GeometryNodeTransform|-806.4095458984375|216.38973999023438|4|1|0|1|1.5|4.400000095367432|0.10000008344650269|0.0|0.0|1.5707963705062866|4.399999618530273|3.5999996662139893|2.799999713897705|1|Boolean|Geometry 1||
+GeometryNode|Node1|Transform.003|GeometryNodeTransform|145.1211395263672|71.60033416748047|4|1|0|1|1.0|16.599998474121094|1.0|0.0|0.0|1.5707963705062866|1.0|0.40000006556510925|1.0|1|Boolean.001|Geometry 2||
+GeometryNode|Node1|Transform.004|GeometryNodeTransform|339.6647033691406|68.47466278076172|4|1|0|1|19.89999771118164|9.600000381469727|-7.299999713897705|0.0|1.5707963705062866|0.0|2.200000047683716|16.700000762939453|3.299999713897705|1|Boolean.002|Geometry 2||
+GeometryNode|Node1|Boolean.002|GeometryNodeBoolean|336.64373779296875|220.69189453125|2|1|1|DIFFERENCE|1|1|1|Boolean.003|Geometry 1||
+GeometryNode|Node1|Group Output|NodeGroupOutput|1319.5255126953125|250.5233154296875|2|0|0|1||
+GeometryNode|Node1|Transform.005|GeometryNodeTransform|627.3131713867188|128.2374725341797|4|1|0|1|19.499998092651367|6.100000381469727|-1.5|0.0|0.0|0.0|7.700001239776611|16.700000762939453|0.30000007152557373|1|Boolean.003|Geometry 2||
+GeometryNode|Node1|Boolean.003|GeometryNodeBoolean|641.8865966796875|272.9065246582031|2|1|1|DIFFERENCE|1|1|1|Group Output|Geometry||
+GeometryNode|Node1|Boolean.001|GeometryNodeBoolean|183.36412048339844|228.13705444335938|2|1|1|UNION|1|1|1|Boolean.002|Geometry 1||
+GeometryNode|Node1|Transform|GeometryNodeTransform|-579.9061279296875|-13.905975341796875|4|1|0|1|0.49999991059303284|1.5999999046325684|0.3999999761581421|0.0|0.0|0.0|1.0|16.599998474121094|1.0|1|Boolean.004|Geometry 1||
+GeometryNode|Node1|Transform.007|GeometryNodeTransform|-583.06884765625|-337.6090087890625|4|1|0|1|19.499998092651367|6.100000381469727|4.40000057220459|0.0|0.0|0.0|19.30000114440918|17.899999618530273|3.4000000953674316|1|Boolean.004|Geometry 2||
+GeometryNode|Node1|Boolean.004|GeometryNodeBoolean|-298.4911193847656|-62.457191467285156|2|1|1|DIFFERENCE|1|1|1|Boolean|Geometry 2||
+GeometryNode|Node1|Boolean|GeometryNodeBoolean|-190.944580078125|231.97805786132812|2|1|1|UNION|1|1|1|Boolean.001|Geometry 1||
+GeometryNode|Node1|Group Input|NodeGroupInput|-1288.5802001953125|216.4467315673828|0|2|0|6|NoLinks|Transform|Geometry|Transform.003|Geometry|Transform.002|Geometry|Transform.004|Geometry|Transform.005|Geometry|Transform.007|Geometry||
+GeometryNode|Node1|Vector|FunctionNodeInputVector|-1252.3505859375|15.168432235717773|0|1|3|15.399995803833008|22.799997329711914|6.499998092651367|2|Transform|Scale|Transform.003|Translation||
+GeometryNode|Node1|Vector.002|FunctionNodeInputVector|-999.5037231445312|115.80916595458984|0|1|3|13.399995803833008|20.799997329711914|2.799999952316284|2|Transform.002|Translation|Transform.004|Translation||
+GeometryNode|Node2|Transform.001|GeometryNodeTransform|-77.34367370605469|-755.7590942382812|4|1|0|0|1.399999976158142|0.0|0.0|-0.9651669859886169|0.0|0.0|1.0|1.0|1.0|NoLinks||
+GeometryNode|Node2|Group Output|NodeGroupOutput|-582.2296142578125|261.46966552734375|2|0|0|1||
+GeometryNode|Node2|Boolean|GeometryNodeBoolean|-1060.5125732421875|336.61846923828125|2|1|1|UNION|1|1|NoLinks||
+GeometryNode|Node2|Vector|FunctionNodeInputVector|-1727.928955078125|2.7069091796875|0|1|3|1.100000023841858|1.0|0.05000000074505806|1|Transform|Scale||
+GeometryNode|Node2|Group Input|NodeGroupInput|-1780.2008056640625|269.0033874511719|0|2|0|3|NoLinks|Transform|Geometry|Boolean|Geometry 1|Join Geometry|Geometry||
+GeometryNode|Node2|Join Geometry|GeometryNodeJoinGeometry|-843.5534057617188|167.3397216796875|1|1|0|2|1|Group Output|Geometry||
+GeometryNode|Node2|Transform|GeometryNodeTransform|-1196.08642578125|90.74760437011719|4|1|0|1|0.09999999403953552|0.0|168.8000030517578|0.0|0.0|0.0|1.0|16.599998474121094|1.0|2|Boolean|Geometry 2|Join Geometry|Geometry||
+Drivers|OBJECT|Cube|constraints["1_Floor"].offset|0|SCRIPTED|var -0.4|2|SINGLE_PROP|var|NODETREE|Node1|nodes["Vector"].vector[2]|LOC_X|WORLD_SPACE|AUTO|ROTATION_DIFF|var_001|OBJECT|Cube||ROT_Z|WORLD_SPACE|AUTO|ROTATION_DIFF|var_001|OBJECT|Empty||LOC_X|WORLD_SPACE|AUTO|
+Drivers|OBJECT|Cube|constraints["1_Floor"].influence|0|SCRIPTED|var + 0.0|1|TRANSFORMS|var|OBJECT|||LOC_X|WORLD_SPACE|AUTO|
+Drivers|OBJECT|Cube|modifiers["6_Simple_deform"].factor|0|SCRIPTED|var + -0.3|1|TRANSFORMS|var|OBJECT|Empty||ROT_Z|WORLD_SPACE|AUTO|
+Drivers|TEXTURE|Texture|noise_scale|0|SCRIPTED|var + 0.25|1|TRANSFORMS|var|OBJECT|Empty||LOC_X|WORLD_SPACE|AUTO|
+Drivers|NODETREE|Node1|nodes["Vector.002"].vector|2|SCRIPTED|2.8 if (var -16)<2.8 else (var -16)|1|SINGLE_PROP|var|NODETREE|Node1|nodes["Vector"].vector[2]|LOC_Z|WORLD_SPACE|AUTO|
+Drivers|NODETREE|Node1|nodes["Vector.002"].vector|1|SCRIPTED|var -2|1|SINGLE_PROP|var|NODETREE|Node1|nodes["Vector"].vector[1]|LOC_X|WORLD_SPACE|AUTO|
+Drivers|NODETREE|Node1|nodes["Vector.002"].vector|0|SCRIPTED|var -2|1|SINGLE_PROP|var|NODETREE|Node1|nodes["Vector"].vector[0]|LOC_X|WORLD_SPACE|AUTO|
+Drivers|NODETREE|Node2|nodes["Transform"].inputs[1].default_value|2|SCRIPTED|var*13.6-24/(var+3)-var_001*var*10|2|SINGLE_PROP|var|OBJECT|Cube|modifiers["4_Array"].count|LOC_X|WORLD_SPACE|AUTO|SINGLE_PROP|var_001|NODETREE|Node2|nodes["Vector"].vector[2]|LOC_X|WORLD_SPACE|AUTO|

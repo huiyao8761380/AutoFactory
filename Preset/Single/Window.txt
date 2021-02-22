@@ -1,0 +1,26 @@
+#PresetName:Window
+#Author:
+#Description:Add multiple modifier to a simple object|this object maybe look like a Cube at first.
+#ChuangHu Sheng Cheng Qi|Because need Decode|we can't use most other language in here.
+#OBJInitialType:Circle|Icosphere|Grid|Suzanne...Uncheck Preferences->Interface->Translation->New Data at first.
+#add OBJ|OBJName|OBJInitialType|Xlocation|Ylocation|Zlocation|Xrotation|Yrotation|Zrotation|Xscale|Yscale|Zscale|AutoSmooth
+#ModifierName|ModifierType|show_viewport|show_render|parameterCount|parameter[0]|parameter[1]|parameter[2]...
+#We start form 9 line to generate.In theory|if We don't have select any OBJ|we will generate 11 line OBJ's initial type mesh.If OBJ's initial type not a simple mesh|Yeah!We generate a Cube again.
+*Next|1|9|
+ParentOBJ|Cube|Cube|0.0|0.0|3.0|1.5708|0.0|0.0|1|1|0.5|False|1|0|0|0|0|0|6|1|6|
+1_Wireframe|WIREFRAME|True|True|12|0.05400000140070915|-0.12068963050842285|True|False|False|True|False|1.0|1|''|False|0.0|
+2_Skin|SKIN|False|False|5|0.0|True|False|False|False|
+3_Displace|DISPLACE|True|True|7|None|'NORMAL'|'LOCAL'|0.009999999776482582|0.5|''|False|
+4_Remesh|REMESH|True|True|6|'SHARP'|5|0.8368000388145447|True|1.0|False|
+5_Wave|WAVE|False|False|22|True|True|True|False|True|True|True|0.0|0.5|1.5|1.5|''|False|None|0.0|0.0|0.0|0.0|10.0|0.25|None|'LOCAL'|
+6_OceanSEED|OCEAN|False|False|26|'DISPLACE'|1|1|7|1.0|200.0|2.0|50|0|False|1.0|0.009999999776482582|1.0|30.0|0.0|0.0|0.5|False|''|0.0|False|''|False|'PHILLIPS'|0.0|120.0|
+7_Bevel|BEVEL|True|True|21|'VERTICES'|'PERCENT'|37.0|1|0.5235987901687622|'NONE'|''|False|'SUPERELLIPSE'|0.5|'MITER_SHARP'|'MITER_SHARP'|0.10000000149011612|'ADJ'|True|True|False|False|False|1|'FSTR_NONE'|
+8_Decimate|DECIMATE|True|True|12|'COLLAPSE'|0.019999999552965164|False|'X'|False|''|False|1.0|0|0.0872664600610733|set()|False|
+9_Decimate|DECIMATE|True|True|12|'DISSOLVE'|1.0|False|'X'|False|''|False|1.0|0|0.0872664600610733|set()|False|
+10_Bevel|BEVEL|True|True|21|'VERTICES'|'PERCENT'|33.0|1|0.5235987901687622|'NONE'|''|False|'SUPERELLIPSE'|0.5|'MITER_SHARP'|'MITER_SHARP'|0.10000000149011612|'ADJ'|True|True|False|False|False|3|'FSTR_NONE'|
+11_Edge_split|EDGE_SPLIT|True|True|3|True|0.5235987901687622|True|
+12_Solidify|SOLIDIFY|True|True|25|'EXTRUDE'|'CONSTRAINTS'|'NONE'|-0.019999999552965164|-1.0|9.999999747378752e-05|True|True|''|False|0.0|False|False|0|2|0.0|0.0|False|''|''|False|False|0.0|0.0|0.0|
+13_Bevel|BEVEL|True|True|21|'EDGES'|'OFFSET'|0.05000000074505806|1|0.5235987901687622|'NONE'|''|False|'SUPERELLIPSE'|0.5|'MITER_SHARP'|'MITER_SHARP'|0.10000000149011612|'ADJ'|True|True|False|False|False|3|'FSTR_NONE'|
+14_Displace|DISPLACE|True|True|7|None|'NORMAL'|'LOCAL'|0.05000000074505806|0.5|''|False|
+15_Mirror|MIRROR|True|True|21|True|False|False|False|False|False|False|False|False|None|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+*Next|2|26|

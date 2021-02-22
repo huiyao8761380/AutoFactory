@@ -1,0 +1,47 @@
+#PresetName:OldGenerator
+#Author:Hui
+#Description:Add multiple modifier to a simple object|this object maybe look like a Suzanne at first.
+#
+#Uncheck Preferences->Interface->Translation->New Data at first.
+#
+#Hi,the helmet generator is iterated from here, and you also make other parts based on it.
+#
+*Next|1|9|
+ParentOBJ|Suzanne|Suzanne|0.0|0.0|0.0|0.0|0.0|0.0|1.0|1.0|1.0|True|0|0|0|0|0|0|1|1|1|
+1_Skin|SKIN|False|True|5|0.48399996757507324|True|False|False|False|
+2_Displace|DISPLACE|True|True|7|None|'NORMAL'|'LOCAL'|1.100000023841858|0.5|''|False|
+3_Displace|DISPLACE|True|True|7|None|'NORMAL'|'LOCAL'|1.100000023841858|0.5|''|False|
+4_Cast|CAST|True|True|12|'CYLINDER'|True|True|True|-0.7241382598876953|4.869999885559082|5.699999809265137|True|''|False|None|False|
+5_Displace|DISPLACE|True|True|7|None|'NORMAL'|'LOCAL'|1.0|0.5|''|False|
+6_Bevel|BEVEL|True|True|21|'EDGES'|'OFFSET'|0.5|1|0.5235987901687622|'NONE'|''|False|'SUPERELLIPSE'|0.5|'MITER_SHARP'|'MITER_SHARP'|0.0|'ADJ'|True|True|False|False|False|-1|'FSTR_NONE'|
+7_Displace|DISPLACE|True|True|7|None|'NORMAL'|'LOCAL'|1.2999999523162842|0.5|''|False|
+8_Wave|WAVE|False|False|22|True|True|True|False|True|True|True|1.0|0.5|1.5|1.5|''|False|None|0.0|0.0|0.0|0.0|10.0|0.25|None|'LOCAL'|
+9_Remesh|REMESH|True|True|6|'SMOOTH'|4|0.8680999875068665|True|1.0|False|
+10_Displace|DISPLACE|True|True|7|None|'NORMAL'|'LOCAL'|1.0|0.5|''|False|
+11_Decimate|DECIMATE|True|True|12|'UNSUBDIV'|0.40400001406669617|False|'X'|False|''|False|1.0|1|0.27925264835357666|set()|False|
+12_Build|BUILD|False|False|5|0.800000011920929|1.100000023841858|False|True|65|
+13_Displace|DISPLACE|False|False|7|None|'NORMAL'|'LOCAL'|1.0|0.5|''|False|
+14_Smooth|SMOOTH|True|True|7|True|True|True|1.0|1|''|False|
+15_Displace|DISPLACE|False|False|7|None|'NORMAL'|'LOCAL'|1.0|0.5|''|False|
+16_Screw|SCREW|False|False|15|1.9198622703552246|9.899999618530273|3|'Z'|None|False|16|16|False|0.009999999776482582|False|False|True|False|False|
+17_Subsurf|SUBSURF|True|True|9|'CATMULL_CLARK'|1|2|False|False|2|PRESERVE_CORNERS|True|False|
+18_Decimate|DECIMATE|False|False|12|'COLLAPSE'|0.40400001406669617|False|'X'|False|''|False|1.0|6|0.05235987901687622|set()|False|
+19_Screw|SCREW|False|False|15|1.884955644607544|15.0|3|'Z'|None|False|16|16|False|0.009999999776482582|False|False|True|False|False|
+20_Displace|DISPLACE|True|True|7|None|'NORMAL'|'LOCAL'|1.0|0.5|''|False|
+21_Smooth|SMOOTH|True|True|7|True|True|True|1.0|1|''|False|
+22_Decimate|DECIMATE|True|True|12|'COLLAPSE'|0.4860000014305115|False|'X'|False|''|False|1.0|2|0.0872664600610733|set()|False|
+23_Screw|SCREW|True|True|15|2.055997848510742|20.200000762939453|1|'Z'|None|False|16|16|False|0.009999999776482582|False|False|True|False|False|
+24_Edge_split|EDGE_SPLIT|True|True|3|True|0.47822022438049316|True|
+25_Displace|DISPLACE|False|False|7|None|'NORMAL'|'LOCAL'|1.0|0.5|''|False|
+26_Screw|SCREW|False|False|15|1.7453292608261108|0.0|1|'Z'|None|False|16|16|False|0.009999999776482582|False|False|True|False|False|
+27_Displace|DISPLACE|False|False|7|None|'NORMAL'|'LOCAL'|1.0|0.5|''|False|
+28_Smooth|SMOOTH|True|True|7|True|True|True|3.0|1|''|False|
+29_Wave|WAVE|True|False|22|True|True|True|False|True|True|True|0.0|0.5|1.5|1.5|''|False|None|0.0|0.0|3.8|0|10.0|0.25|None|'LOCAL'|
+30_OceanSEED|OCEAN|False|False|26|'DISPLACE'|1|1|6|1.0|200.0|1.0|50|5|False|1.0|0.009999999776482582|1.0|30.0|0.0|0.0|0.5|False|''|0.0|False|''|False|'PHILLIPS'|0.0|120.0|
+31_Cast|CAST|False|False|12|'CYLINDER'|True|True|True|0.32456207275390625|0.0|0.0|True|''|False|None|False|
+32_Displace|DISPLACE|True|True|7|None|'NORMAL'|'LOCAL'|1.0|0.5|''|False|
+33_Cast|CAST|False|False|12|'CYLINDER'|True|True|True|0.32456207275390625|0.0|0.0|True|''|False|None|False|
+34_Remesh|REMESH|True|True|6|'SMOOTH'|4|0.9056999683380127|True|1.0|True|
+35_Smooth|SMOOTH|True|True|7|True|True|True|2.0|1|''|False|
+36_Mirror|MIRROR|True|True|21|True|False|False|False|False|False|False|False|False|None|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+*Next|2|47|

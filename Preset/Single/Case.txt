@@ -1,0 +1,25 @@
+#PresetName:Case
+#Author:
+#Description:Add multiple modifier to a simple object|this object maybe look like a Cube at first.
+#
+#OBJInitialType:Circle|Icosphere|Grid|Suzanne...Uncheck Preferences->Interface->Translation->New Data at first.
+#
+#
+#
+*Next|1|9|
+ParentOBJ|Cube|Cube|0.0|0.0|3.0|0.0|0.0|0.0|1.0|1.0|1.0|False|0|0|0|0|0|0|3|1|3|
+1_Wireframe|WIREFRAME|True|True|12|0.18599998950958252|0.0|False|True|True|True|False|1.0|0|''|False|0.0|
+2_Wave|WAVE|True|True|22|True|True|True|False|True|True|True|0.0|0.5|1.5|1.5|''|False|None|0.0|0.0|0.0|0.0|10.0|0.25|None|'LOCAL'|
+3_OceanSEED|OCEAN|False|False|26|'DISPLACE'|1|1|5|1.0|198.63999938964844|0.7099999785423279|50|53|False|1.0|0.009999999776482582|1.0|30.0|0.0|0.0|0.5|False|''|0.0|False|''|False|'PHILLIPS'|0.0|120.0|
+4_OceanSEED|OCEAN|True|True|26|'DISPLACE'|1|1|5|1.0|198.63999938964844|0.7099999785423279|50|53|False|0.10000002384185791|0.009999999776482582|1.0|30.0|0.0|0.0|0.5|False|''|0.0|False|''|False|'PHILLIPS'|0.0|120.0|
+5_Remesh|REMESH|True|True|6|'SMOOTH'|4|0.8600999712944031|True|1.0|False|
+6_Bevel|BEVEL|True|True|21|'VERTICES'|'PERCENT'|37.0|1|0.5235987901687622|'NONE'|''|False|'SUPERELLIPSE'|0.5|'MITER_SHARP'|'MITER_SHARP'|0.10000000149011612|'ADJ'|True|True|False|False|False|1|'FSTR_NONE'|
+7_Decimate|DECIMATE|True|True|12|'COLLAPSE'|0.019999999552965164|False|'X'|False|''|False|1.0|0|0.0872664600610733|set()|False|
+8_Decimate|DECIMATE|True|True|12|'DISSOLVE'|1.0|False|'X'|False|''|False|1.0|0|0.0872664600610733|set()|False|
+9_Bevel|BEVEL|True|True|21|'VERTICES'|'PERCENT'|33.0|1|0.5235987901687622|'NONE'|''|False|'SUPERELLIPSE'|0.5|'MITER_SHARP'|'MITER_SHARP'|0.10000000149011612|'ADJ'|True|True|False|False|False|3|'FSTR_NONE'|
+10_Edge_split|EDGE_SPLIT|True|True|3|True|0.5235987901687622|True|
+11_Solidify|SOLIDIFY|True|True|25|'EXTRUDE'|'CONSTRAINTS'|'NONE'|-0.019999999552965164|-1.0|9.999999747378752e-05|True|True|''|False|0.0|False|False|0|2|0.0|0.0|False|''|''|False|False|0.0|0.0|0.0|
+12_Bevel|BEVEL|True|True|21|'EDGES'|'OFFSET'|0.05000000074505806|1|0.5235987901687622|'NONE'|''|False|'SUPERELLIPSE'|0.5|'MITER_SHARP'|'MITER_SHARP'|0.10000000149011612|'ADJ'|True|True|False|False|False|3|'FSTR_NONE'|
+13_Displace|DISPLACE|True|True|7|None|'NORMAL'|'LOCAL'|0.05000000074505806|0.5|''|False|
+14_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|None|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+*Next|2|25|
