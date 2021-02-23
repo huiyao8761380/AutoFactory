@@ -1059,7 +1059,7 @@ class GenMech(bpy.types.Operator):
                     Simpledeform006 = ob.modifiers.new("006_&&&&Simpledeform", "SIMPLE_DEFORM")
 
                     Displace007 = ob.modifiers.new("007_____________Displace", "DISPLACE")
-                    Array008 = ob.modifiers.new("008_###Array###", "ARRAY")
+                    Array008 = ob.modifiers.new("008_$$$Array$$$", "ARRAY")
                     Cast009 = ob.modifiers.new("009_//////////Cast//////////", "CAST")
 
                     Warp010_x0 = ob.modifiers.new('010_Warp_x0', 'WARP')
@@ -1085,7 +1085,7 @@ class GenMech(bpy.types.Operator):
 
                     Cast027 = ob.modifiers.new("027_//////////Cast//////////", "CAST")
 
-                    Array028 = ob.modifiers.new("028_###Array###", "ARRAY")
+                    Array028 = ob.modifiers.new("028_$$$Array$$$", "ARRAY")
 
                     Simpledeform029 = ob.modifiers.new("029_&&&&Simpledeform", "SIMPLE_DEFORM")
                     Simpledeform030 = ob.modifiers.new("030_&&&&Simpledeform", "SIMPLE_DEFORM")
@@ -1095,7 +1095,7 @@ class GenMech(bpy.types.Operator):
 
 
 
-                    Array033 = ob.modifiers.new("033_###Array###", "ARRAY")
+                    Array033 = ob.modifiers.new("033_$$$Array$$$", "ARRAY")
                     Screw034 = ob.modifiers.new("034_Screw", "SCREW")
 
                     Simpledeform035 = ob.modifiers.new("035_&&&&Simpledeform", "SIMPLE_DEFORM")
@@ -1151,7 +1151,7 @@ class GenMech(bpy.types.Operator):
 
                     Triangulate066 = ob.modifiers.new("066_Triangulate", "TRIANGULATE")
 
-                    Array067 = ob.modifiers.new("067_###Array###", "ARRAY")
+                    Array067 = ob.modifiers.new("067_$$$Array$$$", "ARRAY")
                     Curve068 = ob.modifiers.new("068_(((((((Curve)))))))", "CURVE")
                     Simpledeform069 = ob.modifiers.new("069_&&&&Simpledeform", "SIMPLE_DEFORM")
                     Simpledeform070 = ob.modifiers.new("070_&&&&Simpledeform", "SIMPLE_DEFORM")
@@ -1162,7 +1162,7 @@ class GenMech(bpy.types.Operator):
                     Simpledeform074 = ob.modifiers.new("074_&&&&Simpledeform", "SIMPLE_DEFORM")
 
                     Cast075 = ob.modifiers.new("075_//////////Cast//////////", "CAST")
-                    Array076 = ob.modifiers.new("076_###Array###", "ARRAY")
+                    Array076 = ob.modifiers.new("076_$$$Array$$$", "ARRAY")
                     Curve077 = ob.modifiers.new("077_(((((((Curve)))))))", "CURVE")
                     Simpledeform078 = ob.modifiers.new("078_&&&&Simpledeform", "SIMPLE_DEFORM")
                     Simpledeform079 = ob.modifiers.new("079_&&&&Simpledeform", "SIMPLE_DEFORM")
@@ -1210,7 +1210,7 @@ class GenMech(bpy.types.Operator):
                     Mirror106 = ob.modifiers.new('106_Mirror_x', 'MIRROR')
 
                     Bool107 = ob.modifiers.new("107_Bool_sub++++++++++", "BOOLEAN")
-                    Array108 = ob.modifiers.new("108_###Array###", "ARRAY")
+                    Array108 = ob.modifiers.new("108_$$$Array$$$", "ARRAY")
                     Curve109 = ob.modifiers.new("109_(((((((Curve)))))))", "CURVE")
 
                     Simpledeform110 = ob.modifiers.new("110_&&&&Simpledeform", "SIMPLE_DEFORM")
@@ -2457,7 +2457,7 @@ class GenMech(bpy.types.Operator):
                     ob.modifiers.clear()
 
                     Skin001 = ob.modifiers.new("Skin001", "SKIN")#0
-                    Array002 = ob.modifiers.new("002_###Array###", "ARRAY")
+                    Array002 = ob.modifiers.new("002_$$$Array$$$", "ARRAY")
                     Displace003 = ob.modifiers.new("Displace003", "DISPLACE")
                     Displace004 = ob.modifiers.new("Displace004", "DISPLACE")
                     Cast005 = ob.modifiers.new("Cast005", "CAST")
@@ -2519,7 +2519,7 @@ class GenMech(bpy.types.Operator):
                     Solidify60 = ob.modifiers.new("SOLIDIFY043", "SOLIDIFY")
                     Solidify61 = ob.modifiers.new("SOLIDIFY043", "SOLIDIFY")#0
                     Mirror062 = ob.modifiers.new('Mirror', 'MIRROR')
-                    Array063 = ob.modifiers.new("002_###Array###", "ARRAY")#0
+                    Array063 = ob.modifiers.new("002_$$$Array$$$", "ARRAY")#0
                     Curve064 = ob.modifiers.new("Curve057", "CURVE")#0
                     Simpledeform065 = ob.modifiers.new("078_&&&&Simpledeform", "SIMPLE_DEFORM")
                     Simpledeform066 = ob.modifiers.new("078_&&&&Simpledeform", "SIMPLE_DEFORM")#0
@@ -3089,6 +3089,10 @@ class GenMech(bpy.types.Operator):
                         Mod.operation=real_str(Modparam[4+int(next(ModCount))])#int(next(ModCount))
                         Mod.object = str_to_obj(Modparam[4+int(next(ModCount))])
                         Mod.double_threshold = float(Modparam[4+int(next(ModCount))])
+                        if (bpy.app.version >= (2, 92, 0)) and (len(Modparam)>=10):
+                            Mod.solver =Modparam[4+int(next(ModCount))]
+                            Mod.use_self = str_to_bool(Modparam[4+int(next(ModCount))])
+
                     elif Modparam[1] == "REMESH":#real_str str_to_obj str_to_bool float int
                         ModCount=count(1, 1)
                         Mod = ob.modifiers.new(Modparam[0],Modparam[1])
@@ -4273,38 +4277,6 @@ class GenMech(bpy.types.Operator):
 
 
 
-            for OBJName in OBJNameList:
-        
-                ob= bpy.data.objects[OBJName]
-                #name=amProperty.GenMechEnum.split('_')[0]
-                #ob.name=name+OBJName
-                
-                if (amProperty.RandomMaterialBool == True) and (ob.type=='MESH'):
-                    for i in range(0,len(ob.material_slots)):
-                        ob.active_material_index = i
-                        MatOld = ob.active_material
-                        MatNew = MatOld.copy()
-                        MatNew.name=MatNew.name[:-4]+"_"+ob.name
-                        ob.data.materials[i] = MatNew
-                        if i == 0:#从这里设置材质参数
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.9), random.uniform(0, 0.7), random.uniform(0, 1), 1)
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0, 1), random.uniform(0, 0.9), random.uniform(0, 0.8), 1)
-
-                        if i == 1:
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.3), random.uniform(0, 0.3), random.uniform(0, 0.3), 1)
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), 1) 
-                        if i == 2:
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.05), random.uniform(0, 0.05), random.uniform(0, 0.05), 1) 
-                        if i == 3:
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.5), random.uniform(0, 0.5), random.uniform(0, 0.5), 1)
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.4, 1), random.uniform(0.4, 1), random.uniform(0.4, 1), 1)
-
-                        if i == 4:
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.4), random.uniform(0, 0.4), random.uniform(0, 0.4), 1)
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[17].default_value = (random.uniform(0, 0.8), random.uniform(0, 0.8), random.uniform(0, 0.8), 1)
-                
-
-
         '''
         if len(DriversList)>0:#测试打印
             print(DriversList)
@@ -4433,6 +4405,38 @@ class GenMech(bpy.types.Operator):
 
 
 
+
+        if len(OBJNameList) != 0:
+            for OBJName in OBJNameList:
+        
+                ob= bpy.data.objects[OBJName]
+                name=amProperty.GenMechEnum.split('_')[0]
+                ob.name=name+OBJName
+                
+                if (amProperty.RandomMaterialBool == True) and (ob.type=='MESH'):
+                    for i in range(0,len(ob.material_slots)):
+                        ob.active_material_index = i
+                        MatOld = ob.active_material
+                        MatNew = MatOld.copy()
+                        MatNew.name=MatNew.name[:-4]+"_"+ob.name
+                        ob.data.materials[i] = MatNew
+                        if i == 0:#从这里设置材质参数
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.9), random.uniform(0, 0.7), random.uniform(0, 1), 1)
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0, 1), random.uniform(0, 0.9), random.uniform(0, 0.8), 1)
+
+                        if i == 1:
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.3), random.uniform(0, 0.3), random.uniform(0, 0.3), 1)
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), 1) 
+                        if i == 2:
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.05), random.uniform(0, 0.05), random.uniform(0, 0.05), 1) 
+                        if i == 3:
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.5), random.uniform(0, 0.5), random.uniform(0, 0.5), 1)
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.4, 1), random.uniform(0.4, 1), random.uniform(0.4, 1), 1)
+
+                        if i == 4:
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.4), random.uniform(0, 0.4), random.uniform(0, 0.4), 1)
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[17].default_value = (random.uniform(0, 0.8), random.uniform(0, 0.8), random.uniform(0, 0.8), 1)
+                
 
 
 

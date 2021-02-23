@@ -401,8 +401,8 @@ msgid "重命名物体数据"
 msgstr "Rename object data"
 
 #:  文件名：代码行数
-msgid "导出时重命名修改器、约束,重命名可能无法再次导入驱动器"
-msgstr "Rename modifiers and constraints when exporting, renaming may not be able to import the drive again"
+msgid "导出时重命名修改器、约束,如果不重命名数据名称请不要包含'|,#'"
+msgstr "Rename modifiers and constraints when exporting, do not include '|,#' if you do not rename the data name"
 
 #:  文件名：代码行数
 msgid "执行布尔操作时设置活动对象为父级"

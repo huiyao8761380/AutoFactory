@@ -1547,11 +1547,15 @@ def ModInput(mod):
                     str(Mod.use_transform)
 
     elif Mod.type == 'BOOLEAN':
-        parameter = 3#
+        parameter = 5#
         ModInputList=str(parameter)+'|'+\
                     str(Mod.operation)+'|'+\
                     str("bpy.data.objects['"+Mod.object.name+"']" if Mod.object != None else Mod.object)+'|'+\
                     str(Mod.double_threshold)
+
+        if bpy.app.version >= (2, 92, 0):
+            ModInputList+='|'+str(Mod.solver)+'|'+str(Mod.use_self)
+
 
     elif Mod.type == 'REMESH':
         parameter = 6

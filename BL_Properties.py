@@ -389,7 +389,7 @@ class AMProperties(PropertyGroup):
 
     FakeRigBool: BoolProperty(name="虚假绑定",description="虚假绑定含有修改器的物体，（注意：需要用到很多性能，请在视图层关闭所有含有多重修改器的物体并绑定其他物体以进行预览）",default = True)
 
-    ReDataNameBool: BoolProperty(name="重命名物体数据",description="导出时重命名修改器、约束,重命名可能无法再次导入驱动器",default = True)
+    ReDataNameBool: BoolProperty(name="重命名物体数据",description="导出时重命名修改器、约束,如果不重命名数据名称请不要包含'|,#'",default = True)
 
     BoolParentBool: BoolProperty(name="执行布尔操作时设置活动对象为父级",description="",default = True)
 
