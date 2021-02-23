@@ -890,88 +890,7 @@ class GenMech(bpy.types.Operator):
 
 
 
-                
-
-                if amProperty.GenMechEnum =='MechfyHigh':
-                    ob.modifiers.clear()
-                    mod_Skin = ob.modifiers.new("Skin", "SKIN")
-
-                    #bpy.ops.object.modifier_add(type='REMESH')
-                    mod_Remesh = ob.modifiers.new("Remesh", "REMESH")
-                    mod_Remesh.mode = 'SMOOTH'#'SMOOTH'!!!!!!!!!!amProperty.GenMechRemeshEnum
-
-
-                    #bpy.context.object.modifiers["Remesh"].mode = 'SHARP'
-                    mod_Remesh.octree_depth = 6 #
-                    mod_Remesh.scale = 0.88 #0.75
-
-                    mod_Bevel = ob.modifiers.new("Bevel", "BEVEL")
-                    mod_Bevel.offset_type = 'PERCENT'
-                    mod_Bevel.width_pct = 37 #动画
-                    #mod_Bevel.use_only_vertices = True
-                    mod_Bevel.affect = 'VERTICES'
-
-                    mod_Bevel.use_clamp_overlap = True
-                    mod_Bevel.loop_slide = True
-                    mod_Bevel.material = 1         #0 1323\ 4
-
-                    mod_Decimate = ob.modifiers.new("Decimate", "DECIMATE")
-                    mod_Decimate.ratio = 0.02
-
-                    mod_Decimate2 = ob.modifiers.new("Decimate.001", "DECIMATE")
-                    mod_Decimate2.decimate_type = 'DISSOLVE'
-                    mod_Decimate2.delimit = {'MATERIAL'}
-
-                    mod_Bevel1 = ob.modifiers.new("Bevel.001", "BEVEL")
-                    mod_Bevel1.offset_type = 'PERCENT'
-                    mod_Bevel1.width_pct = 33
-                    mod_Bevel1.affect = 'VERTICES'
-                    mod_Bevel1.use_clamp_overlap = True
-                    mod_Bevel1.loop_slide = True
-                    mod_Bevel1.material = 3         #1
-
-                    mod_EdgeSplit = ob.modifiers.new("EdgeSplit", "EDGE_SPLIT")
-
-                    mod_Solidify = ob.modifiers.new("Solidify", "SOLIDIFY")
-                    mod_Solidify.thickness = -0.02
-                    mod_Solidify.use_rim_only = True
-                    mod_Solidify.material_offset_rim = 2  #1
-
-                    mod_Bevel2 = ob.modifiers.new("Bevel.002", "BEVEL")
-                    mod_Bevel2.offset_type = 'OFFSET'
-                    mod_Bevel2.width = 0.05
-                    mod_Bevel2.material = 3            #
-
-                    mod_Displace = ob.modifiers.new("Displace", "DISPLACE")
-                    mod_Displace.direction = 'NORMAL'
-                    mod_Displace.mid_level = 0.5
-                    mod_Displace.strength = 0.05
-
-                    if amProperty.MOD_MIRROR_Bool == True:
-                        
-                        #ob.modifiers.remove(Mirror)
-                        mod_Mirror = ob.modifiers.new("Mirror", "MIRROR")
-                        if '_l' in ob.name:
-                            mod_Mirror.use_axis[0] = False
-                            mod_Mirror.use_axis[1] = True
-                            mod_Mirror.use_bisect_axis[0] = False
-                            mod_Mirror.use_bisect_flip_axis[0] = False
-                            if 'thigh_l' in ob.name:
-                                mod_Mirror.use_axis[0] = True
-                                mod_Mirror.use_axis[1] = False
-                            elif 'calf_l' in ob.name:
-                                mod_Mirror.use_axis[0] = True
-                                mod_Mirror.use_axis[1] = False
-                            elif 'foot_l' in ob.name:
-                                mod_Mirror.use_axis[0] = True
-                                mod_Mirror.use_axis[1] = False
-                            
-                    #else:
-                        #if Mirror:
-                            #ob.modifiers.remove(Mirror)
-
-
-                elif amProperty.GenMechEnum =='Mechfy':
+                if amProperty.GenMechEnum =='Mechfy':
                     ob.modifiers.clear()
                     mod_Skin = ob.modifiers.new("Skin", "SKIN")
 
@@ -2456,76 +2375,76 @@ class GenMech(bpy.types.Operator):
                 elif amProperty.GenMechEnum =='Helmet':
                     ob.modifiers.clear()
 
-                    Skin001 = ob.modifiers.new("Skin001", "SKIN")#0
-                    Array002 = ob.modifiers.new("002_$$$Array$$$", "ARRAY")
-                    Displace003 = ob.modifiers.new("Displace003", "DISPLACE")
-                    Displace004 = ob.modifiers.new("Displace004", "DISPLACE")
-                    Cast005 = ob.modifiers.new("Cast005", "CAST")
-                    Displace006 = ob.modifiers.new("Displace007", "DISPLACE")
-                    Bevel007 = ob.modifiers.new("Bevel043", "BEVEL")
-                    Displace08 = ob.modifiers.new("Displace007", "DISPLACE")
-                    Wave009 = ob.modifiers.new('Wave040', 'WAVE')
-                    Wireframe010 = ob.modifiers.new('Wireframe40', 'WIREFRAME')#0
-                    Screw011 = ob.modifiers.new("Screw034", "SCREW")#0
-                    Remesh012 = ob.modifiers.new("Remesh004","REMESH")
-                    Displace013 = ob.modifiers.new("Displace007", "DISPLACE")
-                    Bool014 = ob.modifiers.new("050_Bool_sub++++++++++", "BOOLEAN")#0
-                    Decimate015 = ob.modifiers.new("Decimate059", "DECIMATE")#0
-                    Build016 = ob.modifiers.new("Build1", "BUILD")
-                    Displace017 = ob.modifiers.new("Displace007", "DISPLACE")
-                    Smooth018 = ob.modifiers.new("Smooth060", "SMOOTH")
-                    Displace019 = ob.modifiers.new("Displace007", "DISPLACE")
-                    Subsurf020 = ob.modifiers.new("Subsurf063", "SUBSURF")#0
-                    Decimate021 = ob.modifiers.new("Decimate059", "DECIMATE")#0
-                    Displace022 = ob.modifiers.new("Displace059", "DISPLACE")
-                    Smooth023 = ob.modifiers.new("Smooth060", "SMOOTH")
-                    Decimate024 = ob.modifiers.new("Decimate059", "DECIMATE")
-                    Screw025 = ob.modifiers.new("Screw034", "SCREW")
-                    Bool026 = ob.modifiers.new("085_Bool_sub++++++++++", "BOOLEAN")#0
-                    Simpledeform027 = ob.modifiers.new("078_&&&&Simpledeform", "SIMPLE_DEFORM")
-                    Simpledeform028 = ob.modifiers.new("078_&&&&Simpledeform", "SIMPLE_DEFORM")#0
-                    Simpledeform029 = ob.modifiers.new("078_&&&&Simpledeform", "SIMPLE_DEFORM")#0
-                    Edgesplit030 = ob.modifiers.new("Edgesplit097", "EDGE_SPLIT")
-                    Displace031 = ob.modifiers.new("Displace007", "DISPLACE")#0
-                    Screw032 = ob.modifiers.new("Screw034", "SCREW")#0
-                    Decimate033 = ob.modifiers.new("Decimate059", "DECIMATE")#0
-                    Displace034 = ob.modifiers.new("Displace007", "DISPLACE")#0
-                    Smooth035 = ob.modifiers.new("Smooth060", "SMOOTH")
-                    Wave036 = ob.modifiers.new('Wave040', 'WAVE')#0
-                    Ocean037 = ob.modifiers.new('Ocean037', 'OCEAN')#0
-                    Cast038 = ob.modifiers.new("Cast002", "CAST")
-                    Displace039 = ob.modifiers.new("Displace007", "DISPLACE")
-                    Bool040 = ob.modifiers.new("090_Bool_sub++++++++++", "BOOLEAN")#0
-                    Cast041 = ob.modifiers.new("Cast002", "CAST")
-                    Simpledeform042 = ob.modifiers.new("078_&&&&Simpledeform", "SIMPLE_DEFORM")
-                    Remesh043 = ob.modifiers.new("Remesh004","REMESH")
-                    Simpledeform070 = ob.modifiers.new("070_&&&&Simpledeform", "SIMPLE_DEFORM")
-                    Smooth044 = ob.modifiers.new("Smooth060", "SMOOTH")#0
-                    Laplaciansmooth45 = ob.modifiers.new("Laplaciansmooth46", "LAPLACIANSMOOTH")
-                    Bool046 = ob.modifiers.new("095_Bool_sub++++++++++", "BOOLEAN")#0
-                    Cast047 = ob.modifiers.new("Cast002", "CAST")
-                    Cast048 = ob.modifiers.new("Cast002", "CAST")
+                    Skin001 = ob.modifiers.new("1_Skin", "SKIN")
+                    Array002 = ob.modifiers.new("2_$$$Array$$$", "ARRAY")
+                    Displace003 = ob.modifiers.new("3_Displace", "DISPLACE")
+                    Displace004 = ob.modifiers.new("4_Displace", "DISPLACE")
+                    Cast005 = ob.modifiers.new("5_Cast", "CAST")
+                    Displace006 = ob.modifiers.new("6_Displace", "DISPLACE")
+                    Bevel007 = ob.modifiers.new("7_Bevel", "BEVEL")
+                    Displace08 = ob.modifiers.new("8_Displace", "DISPLACE")
+                    Wave009 = ob.modifiers.new('9_Wave', 'WAVE')
+                    Wireframe010 = ob.modifiers.new('10_Wireframe', 'WIREFRAME')
+                    Screw011 = ob.modifiers.new("11_Screw", "SCREW")
+                    Remesh012 = ob.modifiers.new("121Remesh","REMESH")
+                    Displace013 = ob.modifiers.new("Displace013", "DISPLACE")
+                    Bool014 = ob.modifiers.new("Bool014++++++++++", "BOOLEAN")
+                    Decimate015 = ob.modifiers.new("Decimate015", "DECIMATE")
+                    Build016 = ob.modifiers.new("Build016", "BUILD")
+                    Displace017 = ob.modifiers.new("Displace017", "DISPLACE")
+                    Smooth018 = ob.modifiers.new("Smooth018", "SMOOTH")
+                    Displace019 = ob.modifiers.new("Displace019", "DISPLACE")
+                    Subsurf020 = ob.modifiers.new("Subsurf020", "SUBSURF")
+                    Decimate021 = ob.modifiers.new("Decimate021", "DECIMATE")
+                    Displace022 = ob.modifiers.new("Displace022", "DISPLACE")
+                    Smooth023 = ob.modifiers.new("Smooth023", "SMOOTH")
+                    Decimate024 = ob.modifiers.new("Decimate024", "DECIMATE")
+                    Screw025 = ob.modifiers.new("Screw025", "SCREW")
+                    Bool026 = ob.modifiers.new("Bool026++++++++++", "BOOLEAN")
+                    Simpledeform027 = ob.modifiers.new("27_&&&&Simpledeform", "SIMPLE_DEFORM")
+                    Simpledeform028 = ob.modifiers.new("28_&&&&Simpledeform", "SIMPLE_DEFORM")
+                    Simpledeform029 = ob.modifiers.new("29_&&&&Simpledeform", "SIMPLE_DEFORM")
+                    Edgesplit030 = ob.modifiers.new("Edgesplit030", "EDGE_SPLIT")
+                    Displace031 = ob.modifiers.new("Displace031", "DISPLACE")
+                    Screw032 = ob.modifiers.new("Screw032", "SCREW")
+                    Decimate033 = ob.modifiers.new("Decimate033", "DECIMATE")
+                    Displace034 = ob.modifiers.new("Displace034", "DISPLACE")
+                    Smooth035 = ob.modifiers.new("Smooth035", "SMOOTH")
+                    Wave036 = ob.modifiers.new('Wave036', 'WAVE')
+                    Ocean037 = ob.modifiers.new('Ocean037', 'OCEAN')
+                    Cast038 = ob.modifiers.new("Cast038", "CAST")
+                    Displace039 = ob.modifiers.new("Displace039", "DISPLACE")
+                    Bool040 = ob.modifiers.new("Bool040++++++++++", "BOOLEAN")
+                    Cast041 = ob.modifiers.new("Cast041", "CAST")
+                    Simpledeform042 = ob.modifiers.new("42_&&&&Simpledeform", "SIMPLE_DEFORM")
+                    Remesh043 = ob.modifiers.new("Remesh043","REMESH")
+                    Simpledeform070 = ob.modifiers.new("70_&&&&Simpledeform", "SIMPLE_DEFORM")
+                    Smooth044 = ob.modifiers.new("Smooth044", "SMOOTH")
+                    Laplaciansmooth45 = ob.modifiers.new("Laplaciansmooth45", "LAPLACIANSMOOTH")
+                    Bool046 = ob.modifiers.new("Bool046++++++++++", "BOOLEAN")
+                    Cast047 = ob.modifiers.new("Cast047", "CAST")
+                    Cast048 = ob.modifiers.new("Cast048", "CAST")
                     Simpledeform049 = ob.modifiers.new("049_&&&&Simpledeform", "SIMPLE_DEFORM")
                     Simpledeform050 = ob.modifiers.new("050_&&&&Simpledeform", "SIMPLE_DEFORM")
                     Simpledeform051 = ob.modifiers.new("051_&&&&Simpledeform", "SIMPLE_DEFORM")
-                    Simpledeform052 = ob.modifiers.new("052_&&&&Simpledeform", "SIMPLE_DEFORM")#0
-                    Simpledeform053 = ob.modifiers.new("053_&&&&Simpledeform", "SIMPLE_DEFORM")#0
-                    Simpledeform054 = ob.modifiers.new("054_&&&&Simpledeform", "SIMPLE_DEFORM")#0
-                    Bool055 = ob.modifiers.new("107_Bool_sub++++++++++", "BOOLEAN")#0
-                    Decimate056 = ob.modifiers.new("Decimate059", "DECIMATE")
-                    Bevel057 = ob.modifiers.new("Bevel043", "BEVEL")
-                    Triangulate058 = ob.modifiers.new("Triangulate043", "TRIANGULATE")#0
-                    Edgesplit059 = ob.modifiers.new("Edgesplit043", "EDGE_SPLIT")#0
-                    Solidify60 = ob.modifiers.new("SOLIDIFY043", "SOLIDIFY")
-                    Solidify61 = ob.modifiers.new("SOLIDIFY043", "SOLIDIFY")#0
-                    Mirror062 = ob.modifiers.new('Mirror', 'MIRROR')
-                    Array063 = ob.modifiers.new("002_$$$Array$$$", "ARRAY")#0
-                    Curve064 = ob.modifiers.new("Curve057", "CURVE")#0
-                    Simpledeform065 = ob.modifiers.new("078_&&&&Simpledeform", "SIMPLE_DEFORM")
-                    Simpledeform066 = ob.modifiers.new("078_&&&&Simpledeform", "SIMPLE_DEFORM")#0
-                    Simpledeform067 = ob.modifiers.new("078_&&&&Simpledeform", "SIMPLE_DEFORM")#0
-                    Cast068 = ob.modifiers.new("Cast002", "CAST")#0
-                    Mirror069 = ob.modifiers.new('Mirror', 'MIRROR')
+                    Simpledeform052 = ob.modifiers.new("052_&&&&Simpledeform", "SIMPLE_DEFORM")
+                    Simpledeform053 = ob.modifiers.new("053_&&&&Simpledeform", "SIMPLE_DEFORM")
+                    Simpledeform054 = ob.modifiers.new("054_&&&&Simpledeform", "SIMPLE_DEFORM")
+                    Bool055 = ob.modifiers.new("Bool055++++++++++", "BOOLEAN")
+                    Decimate056 = ob.modifiers.new("Decimate056", "DECIMATE")
+                    Bevel057 = ob.modifiers.new("Bevel057", "BEVEL")
+                    Triangulate058 = ob.modifiers.new("Triangulate058", "TRIANGULATE")
+                    Edgesplit059 = ob.modifiers.new("Edgesplit059", "EDGE_SPLIT")
+                    Solidify60 = ob.modifiers.new("Solidify60", "SOLIDIFY")
+                    Solidify61 = ob.modifiers.new("Solidify61", "SOLIDIFY")
+                    Mirror062 = ob.modifiers.new('Mirror062', 'MIRROR')
+                    Array063 = ob.modifiers.new("63_$$$Array$$$", "ARRAY")
+                    Curve064 = ob.modifiers.new("Curve064", "CURVE")
+                    Simpledeform065 = ob.modifiers.new("65_&&&&Simpledeform", "SIMPLE_DEFORM")
+                    Simpledeform066 = ob.modifiers.new("66_&&&&Simpledeform", "SIMPLE_DEFORM")
+                    Simpledeform067 = ob.modifiers.new("67_&&&&Simpledeform", "SIMPLE_DEFORM")
+                    Cast068 = ob.modifiers.new("Cast068", "CAST")
+                    Mirror069 = ob.modifiers.new('Mirror069', 'MIRROR')
 
 
                     for mod in ob.modifiers:
