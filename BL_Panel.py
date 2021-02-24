@@ -39,6 +39,8 @@ class AutoFactoryPanel(bpy.types.Panel):
     def draw(self, context):
         sampleProperty = context.scene.AMOldPropertyGroup
         amProperty = context.scene.amProperties
+        OpenScripts = bpy.context.preferences.addons.keys()
+
         layout = self.layout
         #pie = layout
         #pie.label(text='Auto Mech')
@@ -200,7 +202,7 @@ class AutoFactoryPanel(bpy.types.Panel):
             #col8.operator("object.mechclean" , text = "4.MechClean(Edit)")
 
             if amProperty.AutoToolBool ==True:
-                row8.prop(amProperty, "GenMechBemeshClean")
+                #row8.prop(amProperty, "GenMechBemeshClean")
                 row8.prop(amProperty, "GenMechUVPackmaster")
 
 
@@ -231,21 +233,22 @@ class AutoFactoryPanel(bpy.types.Panel):
         row4a.prop(amProperty, 'AutoRigifyBool',  text="Auto Rigify",icon = 'TRIA_DOWN' if amProperty.AutoRigifyBool else 'TRIA_RIGHT')
         if amProperty.AutoRigifyBool:
             row10a.operator("am.mirrorselect" , text = "MirrorX Select")
-            if (amProperty.GenMechEnum =='MechfyHigh') or (amProperty.GenMechEnum =='Mechfy'):
-                row10b.operator("aw.addrig" , text = "AddRig(Rigify)")
-                row10c.operator("aw.bindrig" , text = "BindAllRig")
-                row10d.operator("aw.weightrig" , text = "WeightRig")
-            row10j.prop(amProperty, 'StepRigBool',  text="",icon = 'TRIA_DOWN' if amProperty.AutoRigifyBool else 'TRIA_RIGHT')
-            row10j.operator("am.oneclickaddue4rig" , text = "Add UE4 Rig")
-            if amProperty.StepRigBool ==True:
-                row10e.operator("am.rigrename" , text = "0.Rename")
-                row10f.operator("am.rigreface" , text = "1.Reface")
-                row10g.operator("am.ue4typebone" , text = "2.UE4Bone")
-                row10h.operator("am.rebone" , text = "3.ReBone")
-                row10i.operator("am.repose" , text = "4.RePose")
-            row10l.operator("am.rigmechbyname" , text = "RigMechByName")
-            row10l.prop(amProperty, 'FakeRigBool',  text="",icon = 'MOD_ARMATURE')
-            row10k.operator("am.removeikbonegroup" , text = "Reset IK Weight")
+            if 'rigify' in OpenScripts:
+                if amProperty.GenMechEnum =='Mechfy':
+                    row10b.operator("aw.addrig" , text = "AddRig(Rigify)")
+                    row10c.operator("aw.bindrig" , text = "BindAllRig")
+                    row10d.operator("aw.weightrig" , text = "WeightRig")
+                row10j.prop(amProperty, 'StepRigBool',  text="",icon = 'TRIA_DOWN' if amProperty.AutoRigifyBool else 'TRIA_RIGHT')
+                row10j.operator("am.oneclickaddue4rig" , text = "Add UE4 Rig")
+                if amProperty.StepRigBool ==True:
+                    row10e.operator("am.rigrename" , text = "0.Rename")
+                    row10f.operator("am.rigreface" , text = "1.Reface")
+                    row10g.operator("am.ue4typebone" , text = "2.UE4Bone")
+                    row10h.operator("am.rebone" , text = "3.ReBone")
+                    row10i.operator("am.repose" , text = "4.RePose")
+                row10l.operator("am.rigmechbyname" , text = "RigMechByName")
+                row10l.prop(amProperty, 'FakeRigBool',  text="",icon = 'MOD_ARMATURE')
+                row10k.operator("am.removeikbonegroup" , text = "Reset IK Weight")
 
 
 '''

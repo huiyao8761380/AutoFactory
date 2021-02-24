@@ -1397,9 +1397,9 @@ class SavePreset(bpy.types.Operator):
         file = open(full_path, 'w')
         file.write("#PresetName:"+FinalFileName+"\n")
         file.write("#Author:\n")
-        file.write("#Description:"+"Add multiple modifier to a simple object.\n")
+        file.write("#Description:"+"Add multiple modifier to object.\n")
         file.write("#Version:"+str(bpy.app.version)+"\n")
-        file.write("#OBJInitialType:Circle,Icosphere,Grid,Suzanne...Uncheck Preferences->Interface->Translation->New Data at first.\n")
+        file.write("#\n")
         file.write("#\n")#file.write("#add OBJ,OBJName,OBJInitialType,Xlocation,Ylocation,Zlocation,Xrotation,Yrotation,Zrotation,Xscale,Yscale,Zscale,AutoSmooth,EditXloc,EditYloc,EditZloc,EditXrot,EditYrot,EditZrot,EditXscale,EditYscale,EditZscale.\n")
         file.write("#\n")#file.write("#ModifierName,ModifierType,show_viewport,show_render,parameterCount,parameter[0],parameter[1],parameter[2]...\n")
         file.write("#\n")
@@ -1447,8 +1447,9 @@ class SavePreset(bpy.types.Operator):
             file.write('Texture'+"|"+TexInput(Tex)+"|\n")
 
         for Geo in bpy.data.node_groups:
-            for Node in Geo.nodes:
-                file.write('GeometryNode'+"|"+Geo.name+"|"+GeoNodeInput(Node)+"|\n")
+            if Geo.type=='GEOMETRY':
+                for Node in Geo.nodes:
+                    file.write('GeometryNode'+"|"+Geo.name+"|"+GeoNodeInput(Node)+"|\n")
 
         
         for ob in sel:
@@ -1488,7 +1489,7 @@ class SavePreset(bpy.types.Operator):
                     file.write(OBJDriver+'\n')
 
         for Geo in bpy.data.node_groups:
-            if Geo.animation_data !=None:
+            if (Geo.animation_data !=None) and (Geo.type=='GEOMETRY'):
                 for d in Geo.animation_data.drivers:
                     OBJDriver=''
                     dType='NODETREE'#Geo.type
@@ -2060,7 +2061,7 @@ def ModInput(mod):
         parameter = 4
         ModInputList=str(parameter)+'|'+\
                     str(Mod.merge_threshold)+'|'+\
-                    str(Mod.max_interactions)+'|'+\
+                    str(Mod.mode)+'|'+\
                     str("'"+Mod.vertex_group+"'")+'|'+\
                     str(Mod.invert_vertex_group)
 

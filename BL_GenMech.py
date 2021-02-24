@@ -3331,14 +3331,10 @@ class GenMech(bpy.types.Operator):
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
                         Mod.merge_threshold = float(Modparam[4+int(next(ModCount))])
-                        if bpy.app.version < (2, 92, 0):
-                            Mod.max_interactions = int(Modparam[4+int(next(ModCount))])
+                        if bpy.app.version >= (2, 92, 0):
+                            Mod.mode = Modparam[4+int(next(ModCount))]
                         else:
-                            modeInt=int(Modparam[4+int(next(ModCount))])
-                            if modeInt<=1:
-                                Mod.mode = 'ALL'
-                            else:
-                                Mod.mode = 'CONNECTED'
+                            next(ModCount)
                         Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
                         Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
                     elif Modparam[1] == "MIRROR":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
