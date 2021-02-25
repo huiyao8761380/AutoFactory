@@ -1,0 +1,32 @@
+#PresetName:HornsCurve_023
+#Author:
+#Description:Add multiple modifier to a simple object.
+#
+#OBJInitialType:Circle,Icosphere,Grid,Suzanne...Uncheck Preferences->Interface->Translation->New Data at first.
+#
+#
+#
+*Next|1|9|
+ParentOBJ|NurbsCurve|NurbsCurve|-0.5|1.0|2.5|0.0|-2.094395160675049|0.0|0.800000011920929|1.0|1.0|True|0|0|0|0|0|0|1|1|1|
+1_Screw|SCREW|False|False|15|6.2831854820251465|1.5|6|'X'|None|False|8|8|False|0.009999999776482582|False|False|True|False|False|
+2_Screw|SCREW|True|True|15|6.2831854820251465|0.0|1|'X'|None|False|8|8|False|0.009999999776482582|False|False|True|False|False|
+3_Array|ARRAY|True|True|19|'FIXED_COUNT'|6|True|1.0|0.0|0.0|False|0.0|0.0|0.0|False|None|False|0.009999999776482582|False|0.0|0.0|None|None|
+4_Subsurf|SUBSURF|True|True|9|'CATMULL_CLARK'|1|1|True|True|3|PRESERVE_CORNERS|True|False|
+5_Solidify|SOLIDIFY|True|True|25|'EXTRUDE'|'CONSTRAINTS'|'NONE'|-0.10000000149011612|-1.0|9.999999747378752e-05|True|False|''|False|0.0|False|False|0|0|0.0|0.0|False|''|''|False|False|0.0|0.0|0.0|
+6_Simple_deform|SIMPLE_DEFORM|True|True|11|'TAPER'|-1.0800000429153442|None|'X'|0.0|1.0|False|False|False|''|False|
+7_Simple_deform|SIMPLE_DEFORM|True|True|11|'TWIST'|0.144862562417984|None|'Z'|0.0|1.0|False|False|False|''|False|
+8_Simple_deform|SIMPLE_DEFORM|True|True|11|'TWIST'|0.235619455575943|bpy.data.objects['BezierCircle']|'Y'|0.0|1.0|False|False|False|''|False|
+9_Wave|WAVE|True|True|22|True|True|True|False|True|True|True|0.0|1.0|1.5|0.9811320900917053|''|False|None|0.0|0.0|0.0|0.0|10.0|0.25|None|'LOCAL'|
+10_Array|ARRAY|False|False|19|'FIXED_COUNT'|2|True|0.0|0.7999999523162842|-0.9999998807907104|False|0.0|0.0|0.0|False|None|False|0.009999999776482582|False|0.0|0.0|None|None|
+11_Curve|CURVE|False|False|4|bpy.data.objects['BezierCircle']|'NEG_Z'|''|False|
+12_Simple_deform|SIMPLE_DEFORM|True|False|11|'TAPER'|-0.5|bpy.data.objects['BezierCircle']|'Z'|0.0|1.0|False|False|False|''|False|
+13_Simple_deform|SIMPLE_DEFORM|True|False|11|'BEND'|0.7853981852531433|bpy.data.objects['BezierCircle']|'X'|0.0|1.0|False|False|False|''|False|
+14_Simple_deform|SIMPLE_DEFORM|True|True|11|'BEND'|2.094395160675049|None|'Z'|0.0|1.0|False|False|False|''|False|
+15_Simple_deform|SIMPLE_DEFORM|True|False|11|'TWIST'|-1.5306527614593506|None|'Y'|0.0|1.0|False|False|False|''|False|
+16_Mirror|MIRROR|True|True|21|False|True|False|False|False|False|False|False|False|bpy.data.objects['BezierCircle']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+*Next|2|27|
+AddOBJ|BezierCircle|BezierCircle|0.0|0.0|2.0|0.0|0.0|0.0|1.0|1.0|1.0||0|0|0|0|0|0|1|1|1|
+*Next|3|29|
+AddOBJ|Suzanne|Suzanne|0.0|0.0|0.0|0.0|0.0|-1.5707963705062866|3.0|3.0|3.0|False|0|0|0|0|0|0|1|1|1|
+1_Subsurf|SUBSURF|True|True|9|'CATMULL_CLARK'|1|2|True|True|3|PRESERVE_CORNERS|True|False|
+*Next|4|32|

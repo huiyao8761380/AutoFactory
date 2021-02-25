@@ -384,6 +384,19 @@ class GenMech(bpy.types.Operator):
                             bpy.ops.object.armature_add(radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
                             bpy.context.object.name=Param[1]
 
+                    elif 'GenLine' in OBJType:
+                        if 'GenLineKit' in OBJType:
+                            bpy.context.scene.amProperties.GenLineEnum = 'GenLineKit'
+                        elif 'GenLineStruct' in OBJType:
+                            bpy.context.scene.amProperties.GenLineEnum = 'GenLineStruct'
+                        elif 'GenLineWeapon' in OBJType:
+                            bpy.context.scene.amProperties.GenLineEnum = 'GenLineWeapon'
+                        else:
+                            bpy.context.scene.amProperties.GenLineEnum = 'GenLineStruct'
+                        bpy.ops.object.bl_genline()
+                        bpy.context.object.name=Param[1]
+
+
                     elif len(OBJParmList)>1:#集成这里绕道算了
                         bpy.ops.object.select_all(action='DESELECT')
                         bpy.ops.mesh.primitive_cube_add(enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))
