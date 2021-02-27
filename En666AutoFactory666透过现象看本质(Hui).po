@@ -410,6 +410,10 @@ msgstr "Set the active object as the parent when performing Boolean operations"
 
 
 #:  文件名：代码行数
+msgid "导入预设时设置父级"
+msgstr "Set parent when importing presets"
+
+#:  文件名：代码行数
 #:  msgid ""
 #:  msgstr "DisplaceTexture"
 
