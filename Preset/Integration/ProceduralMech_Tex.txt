@@ -7,7 +7,7 @@
 #and rigify not work in 2.93A
 #
 *Next|1|9|
-AddOBJ|Spine.02|Spine|0.0|-6.614602565765381|116.4905014038086|0.0|-0.0|0.0|1.178900957107544|1.178900957107544|1.178900957107544|True|0|0|0|0|0|0|1|1|1|
+AddOBJ|spine_03|Spine|0.0|-6.614602565765381|116.4905014038086|0.0|-0.0|0.0|1.178900957107544|1.178900957107544|1.178900957107544|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
 2_Array|ARRAY|True|True|19|'FIXED_COUNT'|2|True|0.0|0.0|0.4000000059604645|False|0.0|0.0|0.0|False|None|False|0.009999999776482582|False|0.0|0.0|None|None|
 3_Displace|DISPLACE|True|True|7|None|'NORMAL'|'LOCAL'|5.0|0.5|''|False|
@@ -151,7 +151,7 @@ ParentOBJ|Head|Head|0.0|-2.230698585510254|161.7845458984375|0.0|0.0|0.0|1.17890
 67_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 68_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
 *Next|3|153|
-AddOBJ|Spine|Spine|0.0|3.8619422912597656|91.32245635986328|0.0|-0.0|-3.141592502593994|1.178900957107544|1.178900957107544|1.178900957107544|True|0|0|0|0|0|0|1|1|1|
+AddOBJ|spine_01|Spine|0.0|3.8619422912597656|91.32245635986328|0.0|-0.0|-3.141592502593994|1.178900957107544|1.178900957107544|1.178900957107544|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
 2_Array|ARRAY|True|True|19|'FIXED_COUNT'|2|True|0.0|0.0|0.4000000059604645|False|0.0|0.0|0.0|False|None|False|0.009999999776482582|False|0.0|0.0|None|None|
 3_Displace|DISPLACE|True|True|7|None|'NORMAL'|'LOCAL'|5.0|0.5|''|False|
@@ -367,7 +367,7 @@ AddOBJ|Clavicle_l|Clavicle_l|16.402048110961914|4.530625343322754|137.0290527343
 68_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 70_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|6|371|
 AddOBJ|Lowerarm_l|Lowerarm_l|42.26240539550781|5.942120552062988|116.32857513427734|2.1235718727111816|-1.9788744509696699e-07|1.5009835958480835|0.35367029905319214|0.3536703288555145|0.589450478553772|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -440,7 +440,7 @@ AddOBJ|Lowerarm_l|Lowerarm_l|42.26240539550781|5.942120552062988|116.32857513427
 68_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.8726644515991211|None|'X'|0.0|1.0|False|False|False|''|False|
 70_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|7|444|
 AddOBJ|Hand_l1|Hand_l1|58.989410400390625|2.497659206390381|99.94915008544922|2.4313414096832275|-1.491731893565884e-07|1.5707966089248657|0.05069577693939209|0.058541979640722275|0.5541136860847473|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -514,7 +514,7 @@ AddOBJ|Hand_l1|Hand_l1|58.989410400390625|2.497659206390381|99.94915008544922|2.
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'TAPER'|0.60999995470047|None|'Y'|0.0|1.0|False|False|False|''|False|
 70_Simple_deform|SIMPLE_DEFORM|False|False|11|'TWIST'|0.2809980511665344|None|'Z'|0.0|1.0|False|False|False|''|False|
 71_Cast|CAST|False|False|12|'SPHERE'|True|True|True|0.010714530944824219|0.0|0.0|True|''|False|None|False|
-72_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+72_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|8|518|
 AddOBJ|Hand_l2|Hand_l2|57.106353759765625|2.3871445655822754|100.22991180419922|2.8481733798980713|0.2071978747844696|1.470205307006836|0.058945052325725555|0.058945052325725555|0.47156044840812683|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -588,7 +588,7 @@ AddOBJ|Hand_l2|Hand_l2|57.106353759765625|2.3871445655822754|100.22991180419922|
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'TAPER'|0.60999995470047|None|'Y'|0.0|1.0|False|False|False|''|False|
 70_Simple_deform|SIMPLE_DEFORM|True|True|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 71_Cast|CAST|True|True|12|'SPHERE'|True|True|True|0.10000000149011612|0.0|0.0|True|''|False|None|False|
-72_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+72_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|9|592|
 AddOBJ|Hand_l3|Hand_l3|55.148193359375|4.879688262939453|101.07879638671875|-2.0118706226348877|-2.066611592965728e-08|-1.640609860420227|0.294725239276886|0.3536703288555145|0.3536703288555145|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -662,7 +662,7 @@ AddOBJ|Hand_l3|Hand_l3|55.148193359375|4.879688262939453|101.07879638671875|-2.0
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 70_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 71_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-72_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+72_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|10|666|
 AddOBJ|Upperarm_l1|Upperarm_l1|21.283828735351562|4.36830472946167|139.27320861816406|2.290316343307495|-0.06981325149536133|1.5707966089248657|0.8252307176589966|0.5894506573677063|0.5894506573677063|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -736,7 +736,7 @@ AddOBJ|Upperarm_l1|Upperarm_l1|21.283828735351562|4.36830472946167|139.273208618
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 70_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 71_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-72_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+72_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|11|740|
 AddOBJ|Calf_l1|Calf_l1|10.0|-1.86153244972229|6.008676528930664|-0.03490658476948738|3.051008778953701e-09|-3.141592264175415|0.47156041860580444|0.47156041860580444|0.47156041860580444|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -810,7 +810,7 @@ AddOBJ|Calf_l1|Calf_l1|10.0|-1.86153244972229|6.008676528930664|-0.0349065847694
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 70_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 71_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-72_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+72_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|12|814|
 AddOBJ|Pelvis|Pelvis|2.06976580619812|0.05131375789642334|80.41348266601562|0.0|-0.0|-3.141592502593994|0.47156041860580444|0.47156041860580444|0.47156041860580444|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -883,7 +883,7 @@ AddOBJ|Pelvis|Pelvis|2.06976580619812|0.05131375789642334|80.41348266601562|0.0|
 68_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 70_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-71_Mirror|MIRROR|True|True|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+71_Mirror|MIRROR|True|True|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|13|887|
 AddOBJ|Calf_l2|Calf_l2|10.0|-0.7980648279190063|25.595170974731445|0.03490658476948738|-0.0|0.0|0.3536703288555145|0.3538215458393097|0.4613315761089325|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -956,7 +956,7 @@ AddOBJ|Calf_l2|Calf_l2|10.0|-0.7980648279190063|25.595170974731445|0.03490658476
 68_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 70_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|14|960|
 AddOBJ|Thigh_l|Thigh_l|10.5|-2.0081093311309814|64.04888916015625|0.03490658476948738|-3.0510101112213306e-09|-3.141592264175415|0.4814334809780121|0.4817030131816864|0.550000011920929|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -1031,7 +1031,7 @@ AddOBJ|Thigh_l|Thigh_l|10.5|-2.0081093311309814|64.04888916015625|0.034906584769
 70_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 71_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 72_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-73_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+73_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|15|1035|
 AddOBJ|Foot_l1|Foot_l1|10.0|-1.9885711669921875|3.76505184173584|-0.03490658476948738|3.0510101112213306e-09|-3.141592264175415|0.3536703288555145|0.3536703288555145|0.3536703288555145|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -1104,7 +1104,7 @@ AddOBJ|Foot_l1|Foot_l1|10.0|-1.9885711669921875|3.76505184173584|-0.034906584769
 68_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 70_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|16|1108|
 AddOBJ|Foot_l2|Foot_l2|10.0|-8.774063110351562|2.427210807800293|1.463450312614441|-2.431618462139795e-08|-3.141592264175415|0.3536703288555145|0.35367029905319214|0.35367029905319214|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -1177,7 +1177,7 @@ AddOBJ|Foot_l2|Foot_l2|10.0|-8.774063110351562|2.427210807800293|1.4634503126144
 68_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 70_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|17|1181|
 AddOBJ|Upperarm_l2|Upperarm_l2|28.250991821289062|4.604027271270752|135.7157440185547|0.8223128318786621|0.06981315463781357|-1.5707964897155762|0.3536703288555145|0.3536703586578369|0.3536703586578369|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -1250,7 +1250,7 @@ AddOBJ|Upperarm_l2|Upperarm_l2|28.250991821289062|4.604027271270752|135.71574401
 68_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 70_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|18|1254|
 AddOBJ|Upperarm_l3|Upperarm_l3|29.167680740356445|3.9897844791412354|135.4720001220703|0.7874065637588501|0.0698133111000061|-1.5707966089248657|0.3536703288555145|0.3536703586578369|0.5894506573677063|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -1323,9 +1323,9 @@ AddOBJ|Upperarm_l3|Upperarm_l3|29.167680740356445|3.9897844791412354|135.4720001
 68_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 70_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|19|1327|
-AddOBJ|Spine.01|Spine|0.0|-1.6562626361846924|107.44065856933594|3.141592502593994|-8.74227694680485e-08|8.742278367890322e-08|0.3536703288555145|0.3536703288555145|0.3536703288555145|True|0|0|0|0|0|0|1|1|1|
+AddOBJ|spine_02|Spine|0.0|-1.6562626361846924|107.44065856933594|3.141592502593994|-8.74227694680485e-08|8.742278367890322e-08|0.3536703288555145|0.3536703288555145|0.3536703288555145|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
 2_Array|ARRAY|True|True|19|'FIXED_COUNT'|2|True|0.0|0.0|0.4000000059604645|False|0.0|0.0|0.0|False|None|False|0.009999999776482582|False|0.0|0.0|None|None|
 3_Displace|DISPLACE|True|True|7|None|'NORMAL'|'LOCAL'|5.0|0.5|''|False|
@@ -1396,7 +1396,7 @@ AddOBJ|Spine.01|Spine|0.0|-1.6562626361846924|107.44065856933594|3.1415925025939
 68_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 69_Simple_deform|SIMPLE_DEFORM|True|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 70_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+71_Mirror|MIRROR|False|False|21|True|False|False|False|False|False|False|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|20|1400|
 AddOBJ|Pelvis_l|Pelvis_l|4.090853691101074|-0.5223321914672852|80.26653289794922|1.4049900770187378|1.0892834723108535e-07|1.5707963705062866|-0.3536703288555145|0.3536703288555145|0.589450478553772|True|0|0|0|0|0|0|1|1|1|
 1_Skin|SKIN|False|False|5|0.0|True|False|False|False|
@@ -1469,7 +1469,7 @@ AddOBJ|Pelvis_l|Pelvis_l|4.090853691101074|-0.5223321914672852|80.26653289794922
 68_Simple_deform|SIMPLE_DEFORM|False|False|11|'STRETCH'|0.20000000298023224|None|'Z'|0.0|1.0|False|False|False|''|False|
 69_Simple_deform|SIMPLE_DEFORM|False|False|11|'BEND'|-0.785398006439209|None|'Z'|0.0|1.0|False|False|False|''|False|
 70_Cast|CAST|False|False|12|'SPHERE'|True|True|True|-0.23558199405670166|0.0|0.0|True|''|False|None|False|
-71_Mirror|MIRROR|False|False|21|True|False|False|True|False|False|True|False|False|bpy.data.objects['Spine.02']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
+71_Mirror|MIRROR|False|False|21|True|False|False|True|False|False|True|False|False|bpy.data.objects['spine_03']|False|True|0.0010000000474974513|False|False|0.0|0.0|0.0|0.0|True|False|
 *Next|21|1473|
 Texture|Texture|BLEND|EASING|HORIZONTAL|True|1.0|1.0|1.0|1.0|1.0|1.0|False||
 Texture|Texture.001|MARBLE|BLENDER_ORIGINAL|SOFT|SIN|SOFT_NOISE|0.6200000047683716|3|11.299999237060547|0.02500000037252903|True|1.0|1.0|1.0|1.0|1.0|1.0|False||
