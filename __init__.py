@@ -3,7 +3,7 @@ bl_info = {
     "author" : "透过现象看本质(Hui)",
     "description" : "(N键显示菜单)尽可能的自动做硬表面建模，导入导出修改器预设参数来方便管理使用等。",
     "blender" : (2, 90, 1),
-    "version" : (0, 0, 9),
+    "version" : (0, 9, 2),
     "location" : "View3D > Tools > AutoFactory",
     "warning" : "如果不能正确安装使用，请重命名插件文件夹名为'AutoFactory'.",
     "category" : "Object"
