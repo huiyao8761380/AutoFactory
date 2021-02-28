@@ -29,7 +29,7 @@ class MechClean(bpy.types.Operator):
 
     def select_box_up(self):
         self.select_box_up_counter +=1
-        print("select_box_up")
+        #print("select_box_up")
         bpy.ops.view3d.view_orbit(self.context,angle=0.2, type='ORBITUP')
         bpy.ops.view3d.select_box(self.context,xmin=-2160, xmax=2160, ymin=-2160, ymax=2160, wait_for_input=True, mode='ADD')
         if self.select_box_up_counter >= bpy.context.scene.amProperties.CleanScanTimes_Int:
@@ -39,7 +39,7 @@ class MechClean(bpy.types.Operator):
 
     def select_box_left(self):
         self.select_box_left_counter +=1
-        print("select_box_left")
+        #print("select_box_left")
         bpy.ops.view3d.view_orbit(self.context,angle=0.2, type='ORBITLEFT')
         bpy.ops.view3d.select_box(self.context,xmin=-2160, xmax=2160, ymin=-2160, ymax=2160, wait_for_input=True, mode='ADD')
         if self.select_box_left_counter >= bpy.context.scene.amProperties.CleanScanTimes_Int:
@@ -49,7 +49,7 @@ class MechClean(bpy.types.Operator):
 
     def select_box_down(self):
         self.select_box_down_counter +=1
-        print("select_box_down")
+        #print("select_box_down")
         bpy.ops.view3d.view_orbit(self.context,angle=0.2, type='ORBITDOWN')
         bpy.ops.view3d.select_box(self.context,xmin=-2160, xmax=2160, ymin=-2160, ymax=2160, wait_for_input=True, mode='ADD')
         if self.select_box_down_counter >= bpy.context.scene.amProperties.CleanScanTimes_Int:
@@ -59,7 +59,7 @@ class MechClean(bpy.types.Operator):
 
     def select_box_right(self):
         self.select_box_right_counter +=1
-        print("select_box_right")
+        #print("select_box_right")
         bpy.ops.view3d.view_orbit(self.context,angle=0.2, type='ORBITRIGHT')
         bpy.ops.view3d.select_box(self.context,xmin=-2160, xmax=2160, ymin=-2160, ymax=2160, wait_for_input=True, mode='ADD')
         if self.select_box_right_counter >= bpy.context.scene.amProperties.CleanScanTimes_Int:

@@ -1093,7 +1093,7 @@ class RenderScene(bpy.types.Operator):
         #bpy.ops.node.add_node(type="ShaderNodeBackground", use_transform=True)
         #bpy.ops.node.add_node(type="ShaderNodeOutputWorld", use_transform=True)
 
-        self.report({'INFO'}, "Add a Render Scene")
+        self.report({'INFO'}, "添加渲染预设场景")
         return {'FINISHED'}
 
 
@@ -1297,7 +1297,7 @@ class OpenPresetFolder(bpy.types.Operator):
         #FolderPath=os.path.dirname(__file__)+'\Preset'#//
         path = os.path.realpath(FolderPath)
         os.startfile(path)
-        self.report({'INFO'}, "Open Preset Folder")
+        self.report({'INFO'}, "打开预设文件夹")
         return {'FINISHED'}
 
 '''
@@ -1520,7 +1520,7 @@ class SavePreset(bpy.types.Operator):
 
 
 
-        self.report({'INFO'}, "Save Preset")
+        self.report({'INFO'}, "保存预设")
         return {'FINISHED'}
 
 
@@ -3553,6 +3553,10 @@ def GeoNodeInput(node):
     if Node.type=='FRAME':
         GeoNodeList+=str(Node.label_size)+'|'+str(Node.shrink)+'|'
 
+    if (Node.type=='GROUP_INPUT') and (len(Node.outputs)>=3):
+        #max=len(Node.outputs>=3)
+        for GInum in Node.outputs:
+            GeoNodeList+=GInum.name+'|'
 
     return GeoNodeList
 

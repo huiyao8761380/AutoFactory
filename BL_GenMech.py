@@ -481,6 +481,8 @@ class GenMech(bpy.types.Operator):
             OutLink=[]
             IntName=[]
             IntLink=[]
+            NodeInputsNum=0
+            NodeInputsName=[]
             f = open(File, encoding='utf-8')#f = open(File, "r")
             for line in f:
                 NodeParm = line.split("|")
@@ -784,23 +786,85 @@ class GenMech(bpy.types.Operator):
                                 Node.label_size = int(NodeParm[8+int(next(NodeCount))])
                                 Node.shrink = str_to_bool(NodeParm[8+int(next(NodeCount))])
 
+                        
+                        if (Node.type=='GROUP_INPUT') and (OutputsNum>=3):
+                            NodeInputsNum=OutputsNum
+                            for i in range(OutputsNum):
+                                
+                                NodeInputsName.append(NodeParm[8+int(next(NodeCount))])
+                                #bpy.ops.node.tree_socket_add(in_out='IN')
+                            
 
 
-            #print('节点组: '+str(nodegroupName))
-            #print('节点1总数: '+str(OutName))
-            #print('节点1出口总数: '+str(OutLink))
-            #print('节点2总数: '+str(IntName))
-            #print('节点2进口总数: '+str(IntLink))
-            for NodeLink in range(len(OutName)):
+
+            outputNode=[]
+            #print('节点组: '+str(nodegroupName))#列出来 节点1连节点2尾
+            print('节点1: '+str(OutName))
+            print('节点1出口: '+str(OutLink))#0
+            print('节点2: '+str(IntName))
+            print('节点2进口: '+str(IntLink))
+            print(NodeInputsName)
+            #try:
+            LinkNum=len(OutName)
+
+            for NodeLink in range(LinkNum):
                 Link_group=bpy.data.node_groups[nodegroupName[NodeLink]]
 
+                
                 OutNode=Link_group.nodes[OutName[NodeLink]]
-                LinkOut=OutNode.outputs[OutLink[NodeLink]]
+                if (OutNode.type=='GROUP_INPUT') and (NodeInputsNum!=0):# and (LinkOut.type!='GEOMETRY'):
+                    outputNode.append(OutNode)
+                    LinkOutint=len(OutNode.outputs)-1
+                    #LinkOutint=OutNode#int(next(InputNumCount))
+                    #print(LinkOutint)
+                    LinkOut=OutNode.outputs[LinkOutint]
+                    if LinkOut.type=='GEOMETRY':
+                        LinkOut=OutNode.outputs[0]
+
+
+                else:
+                    LinkOut=OutNode.outputs[OutLink[NodeLink]]#尾outputs
 
                 IntNode=Link_group.nodes[IntName[NodeLink]]
-                LinkInt=IntNode.inputs[IntLink[NodeLink]]
+                if IntLink[NodeLink].isdigit():
+                    LinkInt=IntNode.inputs[int(IntLink[NodeLink])]#头inputs
+                else:
+                    LinkInt=IntNode.inputs[IntLink[NodeLink]]
 
-                Link_group.links.new(LinkOut,LinkInt)
+                if OutName[NodeLink]=='Value':
+                    print('尾')
+                    print(OutNode)
+                    print(LinkOut)
+
+                    print('头')
+                    print(IntNode)
+                    print(LinkInt)
+
+
+                Link_group.links.new(LinkOut,LinkInt)#尾连头
+            '''
+            InputNumCount=count(0, 1)
+            if outputNode:
+                for groupnode in outputNode:
+                    thisintput=groupnode.outputs
+                    for intputout in thisintput:
+                        intputout.name=NodeInputsName[int(next(InputNumCount))]
+            '''
+
+
+            '''
+            except:#抛出异常时读取的可能是前一批次节点的
+                print(NodeLink)
+                print(len(OutName))
+                print('尾')
+                print(OutNode)
+                print(LinkOut)
+
+                print('头')
+                print(IntNode)#bpy.data.node_groups['Geometry Nodes'].nodes['Math'].select=True
+                print(LinkInt)#凶手是Math 
+            '''
+
 
 
             if len(NodeName)>0:
@@ -881,12 +945,12 @@ class GenMech(bpy.types.Operator):
                         with bpy.data.libraries.load(filepath, link=False,relative=True) as (data_from, data_to):
                             #data_to.materials = ["3.001"]
                             data_to.materials = data_from.materials #  append all materials from blend
-                            print(data_to.materials)
+                            #print(data_to.materials)
                             #Datamaterials
 
 
                     for materials,value in  bpy.data.materials.items():
-                        print(materials)
+                        #print(materials)
                         #bpy.data.materials['3.001'].use_fake_user = True
                         if ("PreM"  in materials) and ("_" not in materials):
                             if "." not in materials:
