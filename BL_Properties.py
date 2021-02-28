@@ -21,10 +21,9 @@ def GenMechFolder_Item(self, context):#self, context
 def GenMechEnum_Item(self, context):#self, context
     amProperty = context.scene.amProperties
     enum_items = [
-            ('MechPro', "MechPro", "Multiple Modifier",1),
-            ('Helmet', "Helmet", "GenMech low poly procedural helmet mesh.",2),
-            #('MechfyHigh', "MechfyHigh", "Higher Mesh"),
-            ('Mechfy', "Mechfy", "Lower Mesh",3)
+            ('MechPro', "MechPro", "多重修改器",1),
+            ('Helmet', "Helmet", "低聚程序化头盔样式修改器",2),
+            ('Mechfy', "Mechfy", "首次由Emiliano Colantoni制作的修改器",3)
         ]
 
     FileList=[]

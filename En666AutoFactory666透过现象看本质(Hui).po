@@ -98,7 +98,7 @@ msgstr "Modifier successfully"
 
 #:  文件名：MechClean
 msgid "清理并展UV"
-msgstr "Do Clean and spread UV"
+msgstr "Do MeshClean and spread UV"
 
 #:  文件名：MechClean
 msgid "清理非流形、展光照UV(使用前建议设为正交视图、保存文件，容易崩溃：在2.90中打开UV编辑器窗口执行自动展UV时会崩溃)"
@@ -408,10 +408,27 @@ msgstr "Rename modifiers and constraints when exporting, do not include '|,#' if
 msgid "执行布尔操作时设置活动对象为父级"
 msgstr "Set the active object as the parent when performing Boolean operations"
 
-
 #:  文件名：代码行数
 msgid "导入预设时设置父级"
 msgstr "Set parent when importing presets"
+
+
+#:  文件名：代码行数
+msgid "多重修改器"
+msgstr "Multiple Modifier"
+
+#:  文件名：代码行数
+msgid "低聚程序化头盔样式修改器"
+msgstr "GenMech low poly procedural helmet mesh"
+
+#:  文件名：代码行数
+msgid "首次由Emiliano Colantoni制作的修改器"
+msgstr "Created by Emiliano Colantoni for the first time"
+
+
+
+
+
 
 #:  文件名：代码行数
 #:  msgid ""

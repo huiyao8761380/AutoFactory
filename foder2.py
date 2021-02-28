@@ -40,8 +40,7 @@ FileList=[]
 enum_items = [
         ('MechPro', 'MechPro', "Multiple Modifier"),
         ('Helmet', "Helmet", "GenMech low poly procedural helmet mesh."),
-        ('MechfyHigh', "MechfyHigh", "Higher Mesh"),
-        ('Mechfy', "Mechfy", "Lower Mesh")
+        ('Mechfy', "Mechfy", "Created by Emiliano Colantoni for the first time")
     ]
     
 FolderPath=os.path.dirname(__file__)+'//Preset//'
