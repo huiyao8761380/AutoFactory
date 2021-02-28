@@ -1,12 +1,13 @@
 bl_info = {
-    "name" : "AutoFactory", "AutoFactory-2_90"
+    "name" : "AutoFactory",  "AutoFactory-main"
     "author" : "透过现象看本质(Hui)",
     "description" : "(N键显示菜单)尽可能的自动做硬表面建模，导入导出修改器预设参数来方便管理使用等。",
     "blender" : (2, 90, 1),
     "version" : (0, 9, 2),
     "location" : "View3D > Tools > AutoFactory",
     "warning" : "如果不能正确安装使用，请重命名插件文件夹名为'AutoFactory'.",
-    "category" : "Object"
+    "category" : "Object",
+    "wiki_url" : "https://github.com/huiyao8761380/AutoFactory"
 }
 #ReadMe:如果出现切换着色方式卡顿或是想要变更预览材质，可以备份并修改AMpresets.blend下的PreMColor材质节点(已用黄色标记，不要删除)，或是查询PreMColor代码进行修改。
 
@@ -14,6 +15,7 @@ import bpy
 from bpy.utils import register_class, unregister_class
 from bpy.props import *
 
+import webbrowser
 
 from . BL_Panel import *
 from . BL_GenLine import GenLine
@@ -62,7 +64,8 @@ class ExampleAddonPreferences(AddonPreferences):
 
     filepath: StringProperty(
         name="Example File Path",
-        subtype='FILE_PATH',
+        default=''
+        #subtype='FILE_PATH',
     )
     number: IntProperty(
         name="Example Number",
@@ -78,10 +81,12 @@ class ExampleAddonPreferences(AddonPreferences):
         layout = self.layout
 
         #layout.label(text="This is a preferences view for our add-on") 
-        layout.prop(self, "filepath")
-        layout.prop(self, "number")
-        layout.prop(self, "boolean")#self为这个py文件里的 属性
+        #layout.prop(self, "filepath")
+        #layout.prop(self, "number")
+        #layout.prop(self, "boolean")#self为这个py文件里的 属性
         #layout.prop(bpy.context.scene.amProperties, "UIPositionBool",text="将插件UI放于条目中")#,icon='DUPLICATE'
+
+
 
 class OBJECT_OT_addon_prefs_example(Operator):
     """Display example preferences"""
@@ -93,13 +98,15 @@ class OBJECT_OT_addon_prefs_example(Operator):
         preferences = context.preferences
         addon_prefs = preferences.addons[__name__].preferences
 
-        info = ("Path: %s, Number: %d, Boolean %r" %
-                (addon_prefs.filepath, addon_prefs.number, addon_prefs.boolean))
 
-        self.report({'INFO'}, info)
+        #info = ("Path: %s, Number: %d, Boolean %r" %
+                #(addon_prefs.filepath, addon_prefs.number, addon_prefs.boolean))
+
+        #self.report({'INFO'}, info)
         print(info)
 
         return {'FINISHED'}
+
 
 
 
