@@ -675,18 +675,6 @@ class GenMech(bpy.types.Operator):
                             bpy.data.node_groups["GeometryNodes"].nodes["Math"].use_clamp = True
                             '''
 
-                        elif Node.type=='FRAME':
-                            #if bpy.app.version >= (2, 93, 0):#2.93以下的不识别中文
-                            Node.label = NodeParm[8+int(next(NodeCount))]
-                            Node.use_custom_color = str_to_bool(NodeParm[8+int(next(NodeCount))])
-                            Node.color[0] = float(NodeParm[8+int(next(NodeCount))])
-                            Node.color[1] = float(NodeParm[8+int(next(NodeCount))])
-                            Node.color[2] = float(NodeParm[8+int(next(NodeCount))])
-                            Node.label_size = int(NodeParm[8+int(next(NodeCount))])
-                            Node.shrink = str_to_bool(NodeParm[8+int(next(NodeCount))])
-                            Node.height = float(NodeParm[8+int(next(NodeCount))])
-                            Node.width = float(NodeParm[8+int(next(NodeCount))])
-
                         elif (Node.type=='ATTRIBUTE_COMBINE_XYZ') and (bpy.app.version >= (2, 93, 0)):
                             Node.input_type_x = NodeParm[8+int(next(NodeCount))]
                             Node.input_type_y = NodeParm[8+int(next(NodeCount))]
@@ -779,6 +767,24 @@ class GenMech(bpy.types.Operator):
                                         
                                         IntName.append(NodeParm[8+int(next(NodeCount))+DiffValue])#节点2
                                         IntLink.append(NodeParm[8+int(next(NodeCount))+DiffValue])#节点2进口
+
+
+
+                        if 'Node_Label' in NodeParm:
+                            #if bpy.app.version >= (2, 93, 0):#2.93以下的不识别中文
+                            NodeParm[8+int(next(NodeCount))]
+                            Node.label = NodeParm[8+int(next(NodeCount))]
+                            Node.use_custom_color = str_to_bool(NodeParm[8+int(next(NodeCount))])
+                            Node.color[0] = float(NodeParm[8+int(next(NodeCount))])
+                            Node.color[1] = float(NodeParm[8+int(next(NodeCount))])
+                            Node.color[2] = float(NodeParm[8+int(next(NodeCount))])
+                            Node.height = float(NodeParm[8+int(next(NodeCount))])
+                            Node.width = float(NodeParm[8+int(next(NodeCount))])
+                            if Node.type=='FRAME':
+                                Node.label_size = int(NodeParm[8+int(next(NodeCount))])
+                                Node.shrink = str_to_bool(NodeParm[8+int(next(NodeCount))])
+
+
 
             #print('节点组: '+str(nodegroupName))
             #print('节点1总数: '+str(OutName))

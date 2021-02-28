@@ -1505,12 +1505,12 @@ class SavePreset(bpy.types.Operator):
                     file.write(OBJDriver+'\n')
 
 
-                
-
-
-
-
         file.close()
+
+
+
+
+        
 
         #amProperty.GenMechEnum=FinalFileName
         #GenMechEnum_Item()
@@ -3450,17 +3450,6 @@ def GeoNodeInput(node):
         bpy.data.node_groups["GeometryNodes"].nodes["Math"].operation = 'CEIL'
         bpy.data.node_groups["GeometryNodes"].nodes["Math"].use_clamp = True
         '''
-    elif Node.type=='FRAME':
-        GeoNodeList+='9|'+str(Node.label)+'|'+str(Node.use_custom_color)+'|'+str(Node.color[0])+'|'+str(Node.color[1])+'|'+str(Node.color[2])+'|'+str(Node.label_size)+'|'+str(Node.shrink)+'|'+str(Node.height)+'|'+str(Node.width)+'|'
-        '''
-        bpy.data.node_groups["Nodes"].nodes["Frame"].label = "属性"
-        >>> bpy.data.node_groups["Nodes"].nodes["Frame"].use_custom_color = True
-        >>> bpy.data.node_groups["Nodes"].nodes["Frame"].color[0] = (0.311498, 0.371446, 0.589418)
-        >>> bpy.data.node_groups["Nodes"].nodes["Frame"].label_size = 55
-        >>> bpy.data.node_groups["Nodes"].nodes["Frame"].shrink = False
-        bpy.data.node_groups['GeometryNodes'].nodes.active.height
-        bpy.data.node_groups['GeometryNodes'].nodes.active.width
-        '''
 
     elif Node.type=='ATTRIBUTE_COMBINE_XYZ':
         GeoNodeList+='3|'+str(Node.input_type_x)+'|'+str(Node.input_type_y)+'|'+str(Node.input_type_z)+'|'
@@ -3490,6 +3479,17 @@ def GeoNodeInput(node):
 
         #bpy.data.node_groups["Nodes"].nodes["Volume to Mesh"].resolution_mode = 'GRID'
 
+    #elif Node.type=='FRAME':
+        #GeoNodeList+='9|'+str(Node.label)+'|'+str(Node.use_custom_color)+'|'+str(Node.color[0])+'|'+str(Node.color[1])+'|'+str(Node.color[2])+'|'+str(Node.label_size)+'|'+str(Node.shrink)+'|'+str(Node.height)+'|'+str(Node.width)+'|'
+        '''
+        bpy.data.node_groups["Nodes"].nodes["Frame"].label = "属性"
+        >>> bpy.data.node_groups["Nodes"].nodes["Frame"].use_custom_color = True
+        >>> bpy.data.node_groups["Nodes"].nodes["Frame"].color[0] = (0.311498, 0.371446, 0.589418)
+        >>> bpy.data.node_groups["Nodes"].nodes["Frame"].label_size = 55
+        >>> bpy.data.node_groups["Nodes"].nodes["Frame"].shrink = False
+        bpy.data.node_groups['GeometryNodes'].nodes.active.height
+        bpy.data.node_groups['GeometryNodes'].nodes.active.width
+        '''
 
 
 
@@ -3548,6 +3548,10 @@ def GeoNodeInput(node):
                         GeoNodeList+=str(Link.to_node.name)+'|'+str(Link.to_socket.name)+'|'
                     #GeoNodeList+=str(Link.to_socket.name)+'|'
 
+    #if (Node.type!='GROUP_INPUT') and (Node.type!='GROUP_OUTPUT') and (Node.type!='REROUTE') and ('ATTRIBUTE' not in Node.type):
+    GeoNodeList+='Node_Label'+'|'+str(Node.label)+'|'+str(Node.use_custom_color)+'|'+str(Node.color[0])+'|'+str(Node.color[1])+'|'+str(Node.color[2])+'|'+str(Node.height)+'|'+str(Node.width)+'|'
+    if Node.type=='FRAME':
+        GeoNodeList+=str(Node.label_size)+'|'+str(Node.shrink)+'|'
 
 
     return GeoNodeList
