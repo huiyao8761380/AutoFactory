@@ -16,9 +16,11 @@ Blender File
 
 # Bug
 
-click Auto Save Button can't use in MeshClean
+ Click Auto Save Button can't use in MeshClean
 
  The rigify addon can't use in 2.93A.
+
+ The geometry node cannot add Node[group input].outputs to join
 
 # other
 
