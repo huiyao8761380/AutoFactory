@@ -812,18 +812,22 @@ class GenMech(bpy.types.Operator):
 
                 
                 OutNode=Link_group.nodes[OutName[NodeLink]]
-                if (OutNode.type=='GROUP_INPUT') and (NodeInputsNum!=0):# and (LinkOut.type!='GEOMETRY'):
+                '''
+                if (OutNode.type=='GROUP_INPUT') and (NodeInputsNum!=0) and (OutName[NodeLink] !='Geometry'):# and (LinkOut.type!='GEOMETRY'):
                     outputNode.append(OutNode)
                     LinkOutint=len(OutNode.outputs)-1
                     #LinkOutint=OutNode#int(next(InputNumCount))
                     #print(LinkOutint)
+                    #if LinkOut.name
                     LinkOut=OutNode.outputs[LinkOutint]
-                    if LinkOut.type=='GEOMETRY':
-                        LinkOut=OutNode.outputs[0]
 
-
+                    #if 'Geometry' in LinkOut.name:#LinkOut.type=='GEOMETRY':
+                        #LinkOut=OutNode.outputs[0]
+                    #else:
+                    #LinkOut=OutNode.outputs[LinkOutint]
                 else:
-                    LinkOut=OutNode.outputs[OutLink[NodeLink]]#尾outputs
+                '''
+                LinkOut=OutNode.outputs[OutLink[NodeLink]]#尾outputs
 
                 IntNode=Link_group.nodes[IntName[NodeLink]]
                 if IntLink[NodeLink].isdigit():
