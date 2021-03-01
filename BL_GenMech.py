@@ -732,7 +732,7 @@ class GenMech(bpy.types.Operator):
                                 elif Node.inputs[Input].type == 'STRING':
                                     Node.inputs[Input].default_value=NodeParm[8+int(next(NodeCount))]
                                 elif Node.inputs[Input].type == 'OBJECT':
-                                    Node.inputs[Input].default_value=str_to_obj(NodeParm[8+int(next(NodeCount))])
+                                    Node.inputs[Input].default_value=to_Obj(NodeParm[8+int(next(NodeCount))])
                                 elif Node.inputs[Input].type == 'COLLECTION':
                                     Node.inputs[Input].default_value=to_Col(NodeParm[8+int(next(NodeCount))])
                                 elif Node.inputs[Input].type == 'BOOLEAN':
