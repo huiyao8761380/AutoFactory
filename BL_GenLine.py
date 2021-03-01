@@ -2,8 +2,7 @@ import bpy
 from bpy.types import Operator,PropertyGroup
 from bpy.props import FloatProperty, PointerProperty,StringProperty
 
-from . BL_Panel import * #
-from . BL_EdgesGen import EdgesGen
+from .BL_EdgesGen import EdgesGen
 
 
 
@@ -319,3 +318,11 @@ class GenLine(bpy.types.Operator):
 
         self.report({'INFO'}, "Gen Line")
         return {'FINISHED'}
+
+
+def register():
+    bpy.utils.register_class(GenLine)
+
+
+def unregister():
+    bpy.utils.register_class(GenLine)
