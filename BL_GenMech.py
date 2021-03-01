@@ -772,7 +772,7 @@ class GenMech(bpy.types.Operator):
 
 
 
-                        if 'Node_Label' in NodeParm:
+                        if ('Node_Label' in NodeParm) and ((bpy.app.version >= (2, 93, 0)) or (Node.type=='FRAME')):#2.92这有问题，先不弄节点颜色等
                             #if bpy.app.version >= (2, 93, 0):#2.93以下的不识别中文
                             NodeParm[8+int(next(NodeCount))]
                             Node.label = NodeParm[8+int(next(NodeCount))]
