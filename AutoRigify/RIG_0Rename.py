@@ -9,7 +9,7 @@ class RigRename(bpy.types.Operator):
     bl_idname = "am.rigrename"
     bl_label = "Rig Rename"
     bl_description = "将Rigify生成的materig重命名为UE4常用绑定格式" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         sel = bpy.context.selected_objects

@@ -11,7 +11,7 @@ class GenLine(bpy.types.Operator):
     bl_idname = "object.bl_genline"
     bl_label = "Do Edges Gen"
     bl_description = "根据参数随机生成线段并添加到场景中" #Just do Edges line generate~Operator
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         sampleProperty = context.scene.AMOldPropertyGroup

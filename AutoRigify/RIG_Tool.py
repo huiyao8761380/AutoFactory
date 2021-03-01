@@ -179,7 +179,7 @@ class OneClickAddUE4Rig(bpy.types.Operator):
     bl_idname = "am.oneclickaddue4rig"
     bl_label = "One Click Add UE4Rig"
     bl_description = "通过调用Rigify一键生成UE4格式的绑定骨骼。" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
 
@@ -197,7 +197,7 @@ class RemoveIKBoneGroup(bpy.types.Operator):
     bl_idname = "am.removeikbonegroup"
     bl_label = "Remove IKBone Group"
     bl_description = "选择Ctrl+P自动绑定好的模型，删除IK顶点组的权重。" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         #执行顺序5 点击绑定好的人体模型清理含有ik昵称的顶点组ik权重
@@ -225,7 +225,7 @@ class RigMechByName(bpy.types.Operator):
     bl_idname = "am.rigmechbyname"
     bl_label = "Rig Mech By Name"
     bl_description = "选择要绑定的非合并物体，并选择骨骼为活动项，如果顶点组名称包含在该物体名称则生成权重,适合机械类绑定。" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         amProperty = bpy.context.scene.amProperties

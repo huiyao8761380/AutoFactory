@@ -76,7 +76,7 @@ class HideChildObj(bpy.types.Operator):
     bl_idname = "am.hidechildobj"
     bl_label = "HideChildObj"
     bl_description = "开/关显示子物体,仅限非相机或灯光的物体" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         amProperty = context.scene.amProperties
@@ -112,7 +112,7 @@ class UnrealSize(bpy.types.Operator):
     bl_idname = "am.unrealsize"
     bl_label = "UnrealSize"
     bl_description = "设置UE4引擎缩放单位" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         amProperty = context.scene.amProperties
@@ -263,7 +263,7 @@ class FaceOrient(bpy.types.Operator):
     bl_idname = "am.faceorient"
     bl_label = "FaceOrient"
     bl_description = "简易设置显示模式" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         amProperty = context.scene.amProperties
@@ -298,7 +298,7 @@ class AddBoolModifier(bpy.types.Operator):
     bl_idname = "am.addboolmodifier"
     bl_label = "AddBoolModifier"
     bl_description = "选择物体，然后添加布尔到活动物体设定的修改器位置" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         amProperty = context.scene.amProperties
@@ -422,7 +422,7 @@ class ApplyModify(bpy.types.Operator):
     bl_idname = "am.applymodify"
     bl_label = "应用修改器"
     bl_description = "应用修改器至当前排序位置" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         amProperty = context.scene.amProperties
@@ -502,7 +502,7 @@ class ApplyClean(bpy.types.Operator):#bpy.ops.mesh.fill_holes() 使用网格下�
     bl_idname = "object.applyclean"
     bl_label = "Apply Clean"
     bl_description = "Only One direction now,apply Clean Operator UV，mirror" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         #find_object('4MechClean', '4MechClean',"5ApplyClean")
@@ -656,7 +656,7 @@ class ReName(bpy.types.Operator):
     bl_idname = "am.rename"
     bl_label = "ReName"
     bl_description = "如果名称中含有“.”则重命名" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         for reobj in bpy.context.selected_objects:
@@ -673,7 +673,7 @@ class MirrorSelect(bpy.types.Operator):
     bl_idname = "am.mirrorselect"
     bl_label = "Mirror Select"
     bl_description = "MirrorX Select,rename '_l  _r  ' OBJ" #_L _R .l .L .r .R r_ R_ l_ L_
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         #if bpy.context.mode !='OBJECT':
@@ -1009,7 +1009,7 @@ class RenderScene(bpy.types.Operator):
     bl_idname = "am.renderscene"
     bl_label = "添加渲染预设场景"
     bl_description = "添加一个渲染环境预设,之前设置的某些参数会覆盖，使用前保存。" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER','UNDO'}
 
     def execute(self, context):
         world = bpy.context.scene.world
@@ -1101,7 +1101,7 @@ class HightoLowRemesh(bpy.types.Operator):
     bl_idname = "am.hightolowremesh"
     bl_label = "精简重构网格"
     bl_description = "重构该物体至低模并自动光滑,谨慎使用，会很卡。" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         amProperty=amProperty = bpy.context.scene.amProperties
@@ -1233,7 +1233,7 @@ class DeleteUnusedModifier(bpy.types.Operator):#添加一个删除所选物体�
     bl_idname = "am.deleteunusedmodifier"
     bl_label = "Delete Unused Modifier"
     bl_description = "删除当前物体未在视图层、渲染层使用的修改器。" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         sel = bpy.context.selected_objects
@@ -1255,7 +1255,7 @@ class RandomIndexModifier(bpy.types.Operator):
     bl_idname = "am.randomindexmodifier"
     bl_label = "随机排序至当前编号的修改器"
     bl_description = "随机排序选择物体的修改器,0为随机所有(使用前务必保存文件，预计无法回撤)" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         sel = bpy.context.selected_objects
@@ -1285,7 +1285,7 @@ class OpenPresetFolder(bpy.types.Operator):
     bl_idname = "am.openpresetfolder"
     bl_label = "打开预设文件夹"
     bl_description = "打开预设资源文件夹,编辑或删除预设。" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         amProperty = bpy.context.scene.amProperties
@@ -1348,7 +1348,7 @@ class SavePreset(bpy.types.Operator):
     bl_idname = "am.savepreset"
     bl_label = "保存预设"
     bl_description = "保存该物体修改器,文本内容不能含有中文，会乱码。" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         amProperty = context.scene.amProperties

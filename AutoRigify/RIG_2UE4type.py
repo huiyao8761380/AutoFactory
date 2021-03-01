@@ -71,7 +71,7 @@ class UE4TypeBone(bpy.types.Operator):#当骨骼物体名称为Rig时，导出�
     bl_idname = "am.ue4typebone"
     bl_label = "UE4 Type Bone"
     bl_description = "在Rig层级添加要导出使用的UE4骨骼。" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         bpy.context.object.name='Armature'#骨骼名称为Armature时才会删掉

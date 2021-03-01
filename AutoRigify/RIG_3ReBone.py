@@ -21,7 +21,7 @@ class ReBone(bpy.types.Operator):
     bl_idname = "am.rebone"
     bl_label = "ReBone"
     bl_description = "设置要导出的UE4骨骼父级指向" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
 
