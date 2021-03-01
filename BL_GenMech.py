@@ -1,28 +1,29 @@
 import bpy
 import random
 import os
-from itertools import count,islice
+from itertools import count, islice
 
-from . BL_Tool import *
-from . BL_EdgesGen import EdgesGen
+from .BL_Tool import *
+from .BL_EdgesGen import EdgesGen
 
-from bpy.types import Operator,PropertyGroup
-from bpy.props import FloatProperty, PointerProperty,StringProperty
+from bpy.types import Operator, PropertyGroup
+from bpy.props import FloatProperty, PointerProperty, StringProperty
 
 
 def str_to_bool(str):
     return True if str.lower() == 'true' else False
 
+
 def str_to_obj(str):
     if 'bpy.data.textures' in str:
-        OBJname=str[:-2].replace("bpy.data.textures['","")
+        OBJname = str[:-2].replace("bpy.data.textures['", "")
         if OBJname in bpy.data.textures:
             OBJ = bpy.data.textures[OBJname]
             return OBJ
         else:
             return None
     elif 'bpy.data.objects' in str:
-        OBJname=str[:-2].replace("bpy.data.objects['","")
+        OBJname = str[:-2].replace("bpy.data.objects['", "")
         if OBJname in bpy.data.objects:
             OBJ = bpy.data.objects[OBJname]
             return OBJ
@@ -31,209 +32,214 @@ def str_to_obj(str):
     else:
         return None
 
+
 def to_Tex(str):
-    Texname=str
+    Texname = str
     if Texname in bpy.data.textures:
         Tex = bpy.data.textures[Texname]
         return Tex
     else:
         return None
 
+
 def to_Col(str):
-    Colname=str
+    Colname = str
     if Colname in bpy.data.collections:
         Col = bpy.data.collections[Colname]
         return Col
     else:
         return None
 
+
 def to_Obj(str):
-    Objname=str
+    Objname = str
     if Objname in bpy.data.objects:
         Obj = bpy.data.objects[Objname]
         return Obj
     else:
         return None
 
+
 def Dict_str(str):
-    #这里{}还没想好怎么转换
-    #if 'set()' in str:
+    # 这里{}还没想好怎么转换
+    # if 'set()' in str:
     return set()
 
 
 def real_str(str):
-    return str.replace("'","")
+    return str.replace("'", "")
+
 
 class GenMech(bpy.types.Operator):
     bl_idname = "object.bl_genmech"
     bl_label = "生成修改器预设"
-    bl_description = "点击生成当前预设修改器的物体，该插件的核心之一。" 
+    bl_description = "点击生成当前预设修改器的物体，该插件的核心之一。"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        
-        col_name='0AutoMech'
 
-        #3NEW col 将合集交给1GenLine
-        #rename_object('GenMech')
+        col_name = '0AutoMech'
+
+        # 3NEW col 将合集交给1GenLine
+        # rename_object('GenMech')
 
         sel = bpy.context.selected_objects
         amProperty = context.scene.amProperties
-        OBJType=None
-        #FolderPath=os.path.dirname(__file__)+'\\Preset\\'
+        OBJType = None
+        # FolderPath=os.path.dirname(__file__)+'\\Preset\\'
 
-        if (amProperty.GenMechFolder=='Preset') or (amProperty.GenMechFolder==''):
-            FolderPath=os.path.dirname(__file__)+'//Preset//'
+        if (amProperty.GenMechFolder == 'Preset') or (amProperty.GenMechFolder == ''):
+            FolderPath = os.path.dirname(__file__) + '//Preset//'
         else:
-            FolderPath=os.path.dirname(__file__)+'//Preset//'+amProperty.GenMechFolder+'//'
+            FolderPath = os.path.dirname(__file__) + '//Preset//' + amProperty.GenMechFolder + '//'
 
-        File=FolderPath + amProperty.GenMechEnum + ".txt"
+        File = FolderPath + amProperty.GenMechEnum + ".txt"
 
-        OBJModEndList=[]
+        OBJModEndList = []
         OBJNameList = []
         OBJParmList = []
-        OBJParentName =''
-        DriversList=[]
+        OBJParentName = ''
+        DriversList = []
 
-        #如果不是文本修改器生成则自动创建Cube
-        if not ((amProperty.GenMechEnum == 'MechPro') or (amProperty.GenMechEnum == 'Helmet') or (amProperty.GenMechEnum == 'Mechfy') or (amProperty.GenMechEnum == '')):
-            f = open(File, encoding='utf-8')# "r")
+        # 如果不是文本修改器生成则自动创建Cube
+        if not ((amProperty.GenMechEnum == 'MechPro') or (amProperty.GenMechEnum == 'Helmet') or (
+                amProperty.GenMechEnum == 'Mechfy') or (amProperty.GenMechEnum == '')):
+            f = open(File, encoding='utf-8')  # "r")
             for line in f:
                 parameter = line.split("|")
                 if "*Next" in line:
                     OBJModEnd = parameter[2]
                     OBJModEndList.append(OBJModEnd)
-                elif ("AddOBJ" in parameter[0]) or ("ParentOBJ" in parameter[0]):#elif "ParentOBJ" in line:#else:#ADD 如果是父级就选为活动元素
-                    Param=parameter
-                    OBJType=parameter[2]
+                elif ("AddOBJ" in parameter[0]) or (
+                        "ParentOBJ" in parameter[0]):  # elif "ParentOBJ" in line:#else:#ADD 如果是父级就选为活动元素
+                    Param = parameter
+                    OBJType = parameter[2]
                     OBJParmList.append(line)
                     OBJNameList.append(parameter[1])
                 elif 'Texture' in parameter[0]:
-                    TexCount=count(1, 1)
-                    if parameter[2]!='None':
-                        Tex=bpy.data.textures.new(parameter[1], type=parameter[2])
-                        
+                    TexCount = count(1, 1)
+                    if parameter[2] != 'None':
+                        Tex = bpy.data.textures.new(parameter[1], type=parameter[2])
+
                         if Tex.type == 'BLEND':
-                            Tex.progression = parameter[2+int(next(TexCount))]
-                            Tex.use_flip_axis = parameter[2+int(next(TexCount))]
+                            Tex.progression = parameter[2 + int(next(TexCount))]
+                            Tex.use_flip_axis = parameter[2 + int(next(TexCount))]
 
 
                         elif Tex.type == 'CLOUDS':
-                            Tex.noise_basis = parameter[2+int(next(TexCount))]
-                            Tex.noise_type = parameter[2+int(next(TexCount))]
-                            Tex.noise_scale = float(parameter[2+int(next(TexCount))])
-                            Tex.noise_depth = int(parameter[2+int(next(TexCount))])
-                            Tex.nabla = float(parameter[2+int(next(TexCount))])
-                            Tex.cloud_type = parameter[2+int(next(TexCount))]
+                            Tex.noise_basis = parameter[2 + int(next(TexCount))]
+                            Tex.noise_type = parameter[2 + int(next(TexCount))]
+                            Tex.noise_scale = float(parameter[2 + int(next(TexCount))])
+                            Tex.noise_depth = int(parameter[2 + int(next(TexCount))])
+                            Tex.nabla = float(parameter[2 + int(next(TexCount))])
+                            Tex.cloud_type = parameter[2 + int(next(TexCount))]
 
                         elif Tex.type == 'DISTORTED_NOISE':
-                            Tex.noise_basis = parameter[2+int(next(TexCount))]
-                            Tex.noise_distortion = parameter[2+int(next(TexCount))]
-                            Tex.distortion = float(parameter[2+int(next(TexCount))])
-                            Tex.noise_scale = float(parameter[2+int(next(TexCount))])
-                            Tex.nabla = float(parameter[2+int(next(TexCount))])
+                            Tex.noise_basis = parameter[2 + int(next(TexCount))]
+                            Tex.noise_distortion = parameter[2 + int(next(TexCount))]
+                            Tex.distortion = float(parameter[2 + int(next(TexCount))])
+                            Tex.noise_scale = float(parameter[2 + int(next(TexCount))])
+                            Tex.nabla = float(parameter[2 + int(next(TexCount))])
 
 
                         elif Tex.type == 'IMAGE':
-                            Tex.use_alpha = str_to_bool(parameter[2+int(next(TexCount))])
-                            Tex.use_calculate_alpha = str_to_bool(parameter[2+int(next(TexCount))])
-                            Tex.invert_alpha = str_to_bool(parameter[2+int(next(TexCount))])
-                            Tex.use_flip_axis = str_to_bool(parameter[2+int(next(TexCount))])
-                            Tex.extension = parameter[2+int(next(TexCount))]
-                            Tex.crop_min_x = float(parameter[2+int(next(TexCount))])
-                            Tex.crop_min_y = float(parameter[2+int(next(TexCount))])
-                            Tex.crop_max_x = float(parameter[2+int(next(TexCount))])
-                            Tex.crop_max_y = float(parameter[2+int(next(TexCount))])
-                            Tex.repeat_x = int(parameter[2+int(next(TexCount))])
-                            Tex.repeat_y = int(parameter[2+int(next(TexCount))])
-                            Tex.use_mirror_x = str_to_bool(parameter[2+int(next(TexCount))])
-                            Tex.use_mirror_y = str_to_bool(parameter[2+int(next(TexCount))])
-                            Tex.extension = parameter[2+int(next(TexCount))]
-                            Tex.checker_distance = float(parameter[2+int(next(TexCount))])
-                            Tex.use_checker_even = str_to_bool(parameter[2+int(next(TexCount))])
-                            Tex.use_checker_odd = str_to_bool(parameter[2+int(next(TexCount))])
+                            Tex.use_alpha = str_to_bool(parameter[2 + int(next(TexCount))])
+                            Tex.use_calculate_alpha = str_to_bool(parameter[2 + int(next(TexCount))])
+                            Tex.invert_alpha = str_to_bool(parameter[2 + int(next(TexCount))])
+                            Tex.use_flip_axis = str_to_bool(parameter[2 + int(next(TexCount))])
+                            Tex.extension = parameter[2 + int(next(TexCount))]
+                            Tex.crop_min_x = float(parameter[2 + int(next(TexCount))])
+                            Tex.crop_min_y = float(parameter[2 + int(next(TexCount))])
+                            Tex.crop_max_x = float(parameter[2 + int(next(TexCount))])
+                            Tex.crop_max_y = float(parameter[2 + int(next(TexCount))])
+                            Tex.repeat_x = int(parameter[2 + int(next(TexCount))])
+                            Tex.repeat_y = int(parameter[2 + int(next(TexCount))])
+                            Tex.use_mirror_x = str_to_bool(parameter[2 + int(next(TexCount))])
+                            Tex.use_mirror_y = str_to_bool(parameter[2 + int(next(TexCount))])
+                            Tex.extension = parameter[2 + int(next(TexCount))]
+                            Tex.checker_distance = float(parameter[2 + int(next(TexCount))])
+                            Tex.use_checker_even = str_to_bool(parameter[2 + int(next(TexCount))])
+                            Tex.use_checker_odd = str_to_bool(parameter[2 + int(next(TexCount))])
 
                         elif Tex.type == 'MAGIC':
-                            Tex.noise_depth = int(parameter[2+int(next(TexCount))])
-                            Tex.turbulence = float(parameter[2+int(next(TexCount))])
+                            Tex.noise_depth = int(parameter[2 + int(next(TexCount))])
+                            Tex.turbulence = float(parameter[2 + int(next(TexCount))])
 
                         elif Tex.type == 'MARBLE':
-                            Tex.noise_basis = parameter[2+int(next(TexCount))]
-                            Tex.marble_type = parameter[2+int(next(TexCount))]
-                            Tex.noise_basis_2 = parameter[2+int(next(TexCount))]
-                            Tex.noise_type = parameter[2+int(next(TexCount))]
-                            Tex.noise_scale = float(parameter[2+int(next(TexCount))])
-                            Tex.noise_depth = int(parameter[2+int(next(TexCount))])
-                            Tex.turbulence = float(parameter[2+int(next(TexCount))])
-                            Tex.nabla = float(parameter[2+int(next(TexCount))])
+                            Tex.noise_basis = parameter[2 + int(next(TexCount))]
+                            Tex.marble_type = parameter[2 + int(next(TexCount))]
+                            Tex.noise_basis_2 = parameter[2 + int(next(TexCount))]
+                            Tex.noise_type = parameter[2 + int(next(TexCount))]
+                            Tex.noise_scale = float(parameter[2 + int(next(TexCount))])
+                            Tex.noise_depth = int(parameter[2 + int(next(TexCount))])
+                            Tex.turbulence = float(parameter[2 + int(next(TexCount))])
+                            Tex.nabla = float(parameter[2 + int(next(TexCount))])
 
                         elif Tex.type == 'MUSGRAVE':
-                            Tex.noise_basis = parameter[2+int(next(TexCount))]
-                            Tex.musgrave_type = parameter[2+int(next(TexCount))]
-                            Tex.noise_scale = float(parameter[2+int(next(TexCount))])
-                            Tex.nabla = float(parameter[2+int(next(TexCount))])
-                            Tex.dimension_max = float(parameter[2+int(next(TexCount))])
-                            Tex.lacunarity = float(parameter[2+int(next(TexCount))])
-                            Tex.octaves = float(parameter[2+int(next(TexCount))])
-                            Tex.offset = float(parameter[2+int(next(TexCount))])#
-                            Tex.noise_intensity = float(parameter[2+int(next(TexCount))])
-                            Tex.gain = float(parameter[2+int(next(TexCount))])#
+                            Tex.noise_basis = parameter[2 + int(next(TexCount))]
+                            Tex.musgrave_type = parameter[2 + int(next(TexCount))]
+                            Tex.noise_scale = float(parameter[2 + int(next(TexCount))])
+                            Tex.nabla = float(parameter[2 + int(next(TexCount))])
+                            Tex.dimension_max = float(parameter[2 + int(next(TexCount))])
+                            Tex.lacunarity = float(parameter[2 + int(next(TexCount))])
+                            Tex.octaves = float(parameter[2 + int(next(TexCount))])
+                            Tex.offset = float(parameter[2 + int(next(TexCount))])  #
+                            Tex.noise_intensity = float(parameter[2 + int(next(TexCount))])
+                            Tex.gain = float(parameter[2 + int(next(TexCount))])  #
 
-                        #elif Tex.type == 'NOISE':
-
+                        # elif Tex.type == 'NOISE':
 
                         elif Tex.type == 'STUCCI':
-                            Tex.noise_basis = parameter[2+int(next(TexCount))]
-                            Tex.stucci_type = parameter[2+int(next(TexCount))]
-                            Tex.noise_type = parameter[2+int(next(TexCount))]
-                            Tex.noise_scale = float(parameter[2+int(next(TexCount))])
-                            Tex.turbulence = float(parameter[2+int(next(TexCount))])
+                            Tex.noise_basis = parameter[2 + int(next(TexCount))]
+                            Tex.stucci_type = parameter[2 + int(next(TexCount))]
+                            Tex.noise_type = parameter[2 + int(next(TexCount))]
+                            Tex.noise_scale = float(parameter[2 + int(next(TexCount))])
+                            Tex.turbulence = float(parameter[2 + int(next(TexCount))])
 
                         elif Tex.type == 'VORONOI':
-                            Tex.distance_metric = parameter[2+int(next(TexCount))]
-                            Tex.minkovsky_exponent = float(parameter[2+int(next(TexCount))])
-                            Tex.color_mode = parameter[2+int(next(TexCount))]
-                            Tex.noise_intensity = float(parameter[2+int(next(TexCount))])
-                            Tex.noise_scale = float(parameter[2+int(next(TexCount))])
-                            Tex.nabla = float(parameter[2+int(next(TexCount))])
-                            Tex.weight_1 = float(parameter[2+int(next(TexCount))])
-                            Tex.weight_2 = float(parameter[2+int(next(TexCount))])
-                            Tex.weight_3 = float(parameter[2+int(next(TexCount))])
-                            Tex.weight_4 = float(parameter[2+int(next(TexCount))])
+                            Tex.distance_metric = parameter[2 + int(next(TexCount))]
+                            Tex.minkovsky_exponent = float(parameter[2 + int(next(TexCount))])
+                            Tex.color_mode = parameter[2 + int(next(TexCount))]
+                            Tex.noise_intensity = float(parameter[2 + int(next(TexCount))])
+                            Tex.noise_scale = float(parameter[2 + int(next(TexCount))])
+                            Tex.nabla = float(parameter[2 + int(next(TexCount))])
+                            Tex.weight_1 = float(parameter[2 + int(next(TexCount))])
+                            Tex.weight_2 = float(parameter[2 + int(next(TexCount))])
+                            Tex.weight_3 = float(parameter[2 + int(next(TexCount))])
+                            Tex.weight_4 = float(parameter[2 + int(next(TexCount))])
 
                         elif Tex.type == 'WOOD':
-                            Tex.noise_basis = parameter[2+int(next(TexCount))]
-                            Tex.wood_type = parameter[2+int(next(TexCount))]
-                            Tex.noise_basis_2 = parameter[2+int(next(TexCount))]
-                            Tex.noise_type = parameter[2+int(next(TexCount))]
-                            Tex.noise_scale = float(parameter[2+int(next(TexCount))])
-                            Tex.turbulence = float(parameter[2+int(next(TexCount))])
-                            Tex.nabla = float(parameter[2+int(next(TexCount))])
+                            Tex.noise_basis = parameter[2 + int(next(TexCount))]
+                            Tex.wood_type = parameter[2 + int(next(TexCount))]
+                            Tex.noise_basis_2 = parameter[2 + int(next(TexCount))]
+                            Tex.noise_type = parameter[2 + int(next(TexCount))]
+                            Tex.noise_scale = float(parameter[2 + int(next(TexCount))])
+                            Tex.turbulence = float(parameter[2 + int(next(TexCount))])
+                            Tex.nabla = float(parameter[2 + int(next(TexCount))])
 
-                        
-                        Tex.use_clamp = str_to_bool(parameter[2+int(next(TexCount))])
-                        Tex.factor_red = float(parameter[2+int(next(TexCount))])
-                        Tex.factor_green = float(parameter[2+int(next(TexCount))])
-                        Tex.factor_blue = float(parameter[2+int(next(TexCount))])
-                        Tex.intensity = float(parameter[2+int(next(TexCount))])
-                        Tex.contrast = float(parameter[2+int(next(TexCount))])
-                        Tex.saturation = float(parameter[2+int(next(TexCount))])
-                        Tex.use_color_ramp = str_to_bool(parameter[2+int(next(TexCount))])
+                        Tex.use_clamp = str_to_bool(parameter[2 + int(next(TexCount))])
+                        Tex.factor_red = float(parameter[2 + int(next(TexCount))])
+                        Tex.factor_green = float(parameter[2 + int(next(TexCount))])
+                        Tex.factor_blue = float(parameter[2 + int(next(TexCount))])
+                        Tex.intensity = float(parameter[2 + int(next(TexCount))])
+                        Tex.contrast = float(parameter[2 + int(next(TexCount))])
+                        Tex.saturation = float(parameter[2 + int(next(TexCount))])
+                        Tex.use_color_ramp = str_to_bool(parameter[2 + int(next(TexCount))])
                         if Tex.use_color_ramp == True:
-                            Tex.color_ramp.elements[1].position = float(parameter[2+int(next(TexCount))])
-                            Tex.color_ramp.elements[0].position = float(parameter[2+int(next(TexCount))])
-                            Tex.color_ramp.elements[0].color[0] = float(parameter[2+int(next(TexCount))])
-                            Tex.color_ramp.elements[0].color[1] = float(parameter[2+int(next(TexCount))])
-                            Tex.color_ramp.elements[0].color[2] = float(parameter[2+int(next(TexCount))])
-                            Tex.color_ramp.elements[0].color[3] = float(parameter[2+int(next(TexCount))])
-                            Tex.color_ramp.elements[1].color[0] = float(parameter[2+int(next(TexCount))])
-                            Tex.color_ramp.elements[1].color[1] = float(parameter[2+int(next(TexCount))])
-                            Tex.color_ramp.elements[1].color[2] = float(parameter[2+int(next(TexCount))])
-                            Tex.color_ramp.elements[1].color[3] = float(parameter[2+int(next(TexCount))])
+                            Tex.color_ramp.elements[1].position = float(parameter[2 + int(next(TexCount))])
+                            Tex.color_ramp.elements[0].position = float(parameter[2 + int(next(TexCount))])
+                            Tex.color_ramp.elements[0].color[0] = float(parameter[2 + int(next(TexCount))])
+                            Tex.color_ramp.elements[0].color[1] = float(parameter[2 + int(next(TexCount))])
+                            Tex.color_ramp.elements[0].color[2] = float(parameter[2 + int(next(TexCount))])
+                            Tex.color_ramp.elements[0].color[3] = float(parameter[2 + int(next(TexCount))])
+                            Tex.color_ramp.elements[1].color[0] = float(parameter[2 + int(next(TexCount))])
+                            Tex.color_ramp.elements[1].color[1] = float(parameter[2 + int(next(TexCount))])
+                            Tex.color_ramp.elements[1].color[2] = float(parameter[2 + int(next(TexCount))])
+                            Tex.color_ramp.elements[1].color[3] = float(parameter[2 + int(next(TexCount))])
                     else:
-                        Tex=bpy.data.textures.new(parameter[1], type='NONE')
+                        Tex = bpy.data.textures.new(parameter[1], type='NONE')
 
-                elif parameter[0]=='Drivers':
+                elif parameter[0] == 'Drivers':
                     DriversList.append(parameter)
 
                 '''
@@ -253,136 +259,217 @@ class GenMech(bpy.types.Operator):
 
 
         elif len(sel) == 0:
-            bpy.ops.mesh.primitive_cube_add(enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))#这里添加物体
+            bpy.ops.mesh.primitive_cube_add(enter_editmode=False, align='WORLD', location=(0, 0, 0),
+                                            scale=(1, 1, 1))  # 这里添加物体
 
-
-        #遍历每个文本中的物体
+        # 遍历每个文本中的物体
         for OBJParm in OBJParmList:
-            OBJparameter=OBJParm.split("|")
-            Param=OBJparameter
-            OBJType=Param[2]
-            if Param[0]=="ParentOBJ":
-                OBJParentName=Param[1]
+            OBJparameter = OBJParm.split("|")
+            Param = OBJparameter
+            OBJType = Param[2]
+            if Param[0] == "ParentOBJ":
+                OBJParentName = Param[1]
 
+            if Param[1] not in bpy.data.objects:  #
 
-            if Param[1] not in bpy.data.objects:#
+                if len(sel) == 0:
 
-                
-                if len(sel)==0:
+                    if OBJType == 'Cube':
+                        bpy.ops.mesh.primitive_cube_add(enter_editmode=False, align='WORLD',
+                                                        location=(float(Param[3]), float(Param[4]), float(Param[5])),
+                                                        rotation=(float(Param[6]), float(Param[7]), float(Param[8])),
+                                                        scale=(float(Param[9]), float(Param[10]), float(Param[11])))
+                        bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
+                        bpy.context.object.name = Param[1]
 
-                    if OBJType=='Cube':
-                            bpy.ops.mesh.primitive_cube_add(enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(float(Param[9]), float(Param[10]), float(Param[11])))
-                            bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
-                            bpy.context.object.name=Param[1]
+                    elif OBJType == 'Plane':
+                        bpy.ops.mesh.primitive_plane_add(enter_editmode=False, align='WORLD',
+                                                         location=(float(Param[3]), float(Param[4]), float(Param[5])),
+                                                         rotation=(float(Param[6]), float(Param[7]), float(Param[8])),
+                                                         scale=(float(Param[9]), float(Param[10]), float(Param[11])))
+                        bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
+                        bpy.context.object.name = Param[1]
 
-                    elif OBJType=='Plane':
-                            bpy.ops.mesh.primitive_plane_add(enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(float(Param[9]), float(Param[10]), float(Param[11])))
-                            bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
-                            bpy.context.object.name=Param[1]
+                    elif OBJType == 'Sphere':
+                        bpy.ops.mesh.primitive_uv_sphere_add(radius=1, enter_editmode=False, align='WORLD', location=(
+                            float(Param[3]), float(Param[4]), float(Param[5])), rotation=(
+                            float(Param[6]), float(Param[7]), float(Param[8])), scale=(
+                            float(Param[9]), float(Param[10]), float(Param[11])))
+                        bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
+                        bpy.context.object.name = Param[1]
 
-                    elif OBJType=='Sphere':
-                            bpy.ops.mesh.primitive_uv_sphere_add(radius=1, enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(float(Param[9]), float(Param[10]), float(Param[11])))
-                            bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
-                            bpy.context.object.name=Param[1]
+                    elif OBJType == 'Icosphere':
+                        bpy.ops.mesh.primitive_ico_sphere_add(radius=1, enter_editmode=False, align='WORLD', location=(
+                            float(Param[3]), float(Param[4]), float(Param[5])), rotation=(
+                            float(Param[6]), float(Param[7]), float(Param[8])), scale=(
+                            float(Param[9]), float(Param[10]), float(Param[11])))
+                        bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
+                        bpy.context.object.name = Param[1]
 
-                    elif OBJType=='Icosphere':
-                            bpy.ops.mesh.primitive_ico_sphere_add(radius=1, enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(float(Param[9]), float(Param[10]), float(Param[11])))
-                            bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
-                            bpy.context.object.name=Param[1]
+                    elif OBJType == 'Cylinder':
+                        bpy.ops.mesh.primitive_cylinder_add(radius=1, depth=2, enter_editmode=False, align='WORLD',
+                                                            location=(
+                                                                float(Param[3]), float(Param[4]), float(Param[5])),
+                                                            rotation=(
+                                                                float(Param[6]), float(Param[7]), float(Param[8])),
+                                                            scale=(float(Param[9]), float(Param[10]), float(Param[11])))
+                        bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
+                        bpy.context.object.name = Param[1]
 
-                    elif OBJType=='Cylinder':
-                            bpy.ops.mesh.primitive_cylinder_add(radius=1, depth=2, enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(float(Param[9]), float(Param[10]), float(Param[11])))
-                            bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
-                            bpy.context.object.name=Param[1]
+                    elif OBJType == 'Cone':
+                        bpy.ops.mesh.primitive_cone_add(radius1=1, radius2=0, depth=2, enter_editmode=False,
+                                                        align='WORLD',
+                                                        location=(float(Param[3]), float(Param[4]), float(Param[5])),
+                                                        rotation=(float(Param[6]), float(Param[7]), float(Param[8])),
+                                                        scale=(float(Param[9]), float(Param[10]), float(Param[11])))
+                        bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
+                        bpy.context.object.name = Param[1]
 
-                    elif OBJType=='Cone':
-                            bpy.ops.mesh.primitive_cone_add(radius1=1, radius2=0, depth=2, enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(float(Param[9]), float(Param[10]), float(Param[11])))
-                            bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
-                            bpy.context.object.name=Param[1]
+                    elif OBJType == 'Torus':  #
+                        bpy.ops.mesh.primitive_torus_add(align='WORLD',
+                                                         location=(float(Param[3]), float(Param[4]), float(Param[5])),
+                                                         rotation=(float(Param[6]), float(Param[7]), float(Param[8])),
+                                                         major_radius=float(Param[9]), minor_radius=0.25,
+                                                         abso_major_rad=1.25, abso_minor_rad=0.75)
+                        bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
+                        bpy.context.object.name = Param[1]
 
-                    elif OBJType=='Torus':#
-                            bpy.ops.mesh.primitive_torus_add(align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), major_radius=float(Param[9]), minor_radius=0.25, abso_major_rad=1.25, abso_minor_rad=0.75)
-                            bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
-                            bpy.context.object.name=Param[1]
+                    elif OBJType == 'Circle':
+                        bpy.ops.mesh.primitive_circle_add(enter_editmode=False, align='WORLD',
+                                                          location=(float(Param[3]), float(Param[4]), float(Param[5])),
+                                                          rotation=(float(Param[6]), float(Param[7]), float(Param[8])),
+                                                          scale=(float(Param[9]), float(Param[10]), float(Param[11])))
+                        bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
+                        bpy.context.object.name = Param[1]
 
-                    elif OBJType=='Circle':
-                            bpy.ops.mesh.primitive_circle_add(enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(float(Param[9]), float(Param[10]), float(Param[11])))
-                            bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
-                            bpy.context.object.name=Param[1]
-
-                    elif OBJType=='Grid':
-                            bpy.ops.mesh.primitive_grid_add(size=2, enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(float(Param[9]), float(Param[10]), float(Param[11])))
-                            bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
-                            bpy.context.object.name=Param[1]
+                    elif OBJType == 'Grid':
+                        bpy.ops.mesh.primitive_grid_add(size=2, enter_editmode=False, align='WORLD',
+                                                        location=(float(Param[3]), float(Param[4]), float(Param[5])),
+                                                        rotation=(float(Param[6]), float(Param[7]), float(Param[8])),
+                                                        scale=(float(Param[9]), float(Param[10]), float(Param[11])))
+                        bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
+                        bpy.context.object.name = Param[1]
 
                     elif 'Suzanne' in OBJType:
-                            bpy.ops.mesh.primitive_monkey_add(size=2, enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(float(Param[9]), float(Param[10]), float(Param[11])))
-                            bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.mesh.primitive_monkey_add(size=2, enter_editmode=False, align='WORLD',
+                                                          location=(float(Param[3]), float(Param[4]), float(Param[5])),
+                                                          rotation=(float(Param[6]), float(Param[7]), float(Param[8])),
+                                                          scale=(float(Param[9]), float(Param[10]), float(Param[11])))
+                        bpy.context.object.data.use_auto_smooth = str_to_bool(Param[12])
+                        bpy.context.object.name = Param[1]
 
                     elif 'BezierCurve' in OBJType:
-                            bpy.ops.curve.primitive_bezier_curve_add(radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.curve.primitive_bezier_curve_add(radius=float(Param[9]), enter_editmode=False,
+                                                                 align='WORLD', location=(
+                                float(Param[3]), float(Param[4]), float(Param[5])), rotation=(
+                                float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif 'BezierCircle' in OBJType:
-                            bpy.ops.curve.primitive_bezier_circle_add(radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.curve.primitive_bezier_circle_add(radius=float(Param[9]), enter_editmode=False,
+                                                                  align='WORLD', location=(
+                                float(Param[3]), float(Param[4]), float(Param[5])), rotation=(
+                                float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
-                    elif'NurbsCurve' in OBJType:
-                            bpy.ops.curve.primitive_nurbs_curve_add(radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                    elif 'NurbsCurve' in OBJType:
+                        bpy.ops.curve.primitive_nurbs_curve_add(radius=float(Param[9]), enter_editmode=False,
+                                                                align='WORLD', location=(
+                                float(Param[3]), float(Param[4]), float(Param[5])), rotation=(
+                                float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif 'NurbsCircle' in OBJType:
-                            bpy.ops.curve.primitive_nurbs_circle_add(radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.curve.primitive_nurbs_circle_add(radius=float(Param[9]), enter_editmode=False,
+                                                                 align='WORLD', location=(
+                                float(Param[3]), float(Param[4]), float(Param[5])), rotation=(
+                                float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif 'NurbsPath' in OBJType:
-                            bpy.ops.curve.primitive_nurbs_path_add(radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.curve.primitive_nurbs_path_add(radius=float(Param[9]), enter_editmode=False,
+                                                               align='WORLD', location=(
+                                float(Param[3]), float(Param[4]), float(Param[5])), rotation=(
+                                float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif 'Lattice' in OBJType:
-                            bpy.ops.object.add(radius=float(Param[9]), type='LATTICE', enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.object.add(radius=float(Param[9]), type='LATTICE', enter_editmode=False, align='WORLD',
+                                           location=(float(Param[3]), float(Param[4]), float(Param[5])),
+                                           rotation=(float(Param[6]), float(Param[7]), float(Param[8])),
+                                           scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif ('Empty' in OBJType) or ('Field' in OBJType):
-                            bpy.ops.object.empty_add(type='SINGLE_ARROW', radius=float(Param[9]), align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.object.empty_add(type='SINGLE_ARROW', radius=float(Param[9]), align='WORLD',
+                                                 location=(float(Param[3]), float(Param[4]), float(Param[5])),
+                                                 rotation=(float(Param[6]), float(Param[7]), float(Param[8])),
+                                                 scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif 'Mball' in OBJType:
-                            bpy.ops.object.metaball_add(type='CUBE', radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.object.metaball_add(type='CUBE', radius=float(Param[9]), enter_editmode=False,
+                                                    align='WORLD',
+                                                    location=(float(Param[3]), float(Param[4]), float(Param[5])),
+                                                    rotation=(float(Param[6]), float(Param[7]), float(Param[8])),
+                                                    scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif 'SurfCurve' in OBJType:
-                            bpy.ops.curve.primitive_nurbs_surface_curve_add(radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.curve.primitive_nurbs_surface_curve_add(radius=float(Param[9]), enter_editmode=False,
+                                                                        align='WORLD', location=(
+                                float(Param[3]), float(Param[4]), float(Param[5])), rotation=(
+                                float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif 'Surface' in OBJType:
-                            bpy.ops.curve.primitive_nurbs_surface_cylinder_add(radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.curve.primitive_nurbs_surface_cylinder_add(radius=float(Param[9]), enter_editmode=False,
+                                                                           align='WORLD', location=(
+                                float(Param[3]), float(Param[4]), float(Param[5])), rotation=(
+                                float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif 'SurfCircle' in OBJType:
-                            bpy.ops.curve.primitive_nurbs_surface_circle_add(radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.curve.primitive_nurbs_surface_circle_add(radius=float(Param[9]), enter_editmode=False,
+                                                                         align='WORLD', location=(
+                                float(Param[3]), float(Param[4]), float(Param[5])), rotation=(
+                                float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif 'SurfPatch' in OBJType:
-                            bpy.ops.curve.primitive_nurbs_surface_surface_add(radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.curve.primitive_nurbs_surface_surface_add(radius=float(Param[9]), enter_editmode=False,
+                                                                          align='WORLD', location=(
+                                float(Param[3]), float(Param[4]), float(Param[5])), rotation=(
+                                float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif 'SurfSphere' in OBJType:
-                            bpy.ops.curve.primitive_nurbs_surface_sphere_add(radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.curve.primitive_nurbs_surface_sphere_add(radius=float(Param[9]), enter_editmode=False,
+                                                                         align='WORLD', location=(
+                                float(Param[3]), float(Param[4]), float(Param[5])), rotation=(
+                                float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif 'SurfTorus' in OBJType:
-                            bpy.ops.curve.primitive_nurbs_surface_torus_add(radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.curve.primitive_nurbs_surface_torus_add(radius=float(Param[9]), enter_editmode=False,
+                                                                        align='WORLD', location=(
+                                float(Param[3]), float(Param[4]), float(Param[5])), rotation=(
+                                float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif 'Stroke' in OBJType:
-                            bpy.ops.object.gpencil_add(radius=float(Param[9]), align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1), type='STROKE')
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.object.gpencil_add(radius=float(Param[9]), align='WORLD',
+                                                   location=(float(Param[3]), float(Param[4]), float(Param[5])),
+                                                   rotation=(float(Param[6]), float(Param[7]), float(Param[8])),
+                                                   scale=(1, 1, 1), type='STROKE')
+                        bpy.context.object.name = Param[1]
 
                     elif ('Armature' in OBJType) or ('metarig' in OBJType):
-                            bpy.ops.object.armature_add(radius=float(Param[9]), enter_editmode=False, align='WORLD', location=(float(Param[3]), float(Param[4]), float(Param[5])), rotation=(float(Param[6]), float(Param[7]), float(Param[8])), scale=(1, 1, 1))
-                            bpy.context.object.name=Param[1]
+                        bpy.ops.object.armature_add(radius=float(Param[9]), enter_editmode=False, align='WORLD',
+                                                    location=(float(Param[3]), float(Param[4]), float(Param[5])),
+                                                    rotation=(float(Param[6]), float(Param[7]), float(Param[8])),
+                                                    scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
                     elif 'GenLine' in OBJType:
                         if 'GenLineKit' in OBJType:
@@ -394,41 +481,45 @@ class GenMech(bpy.types.Operator):
                         else:
                             bpy.context.scene.amProperties.GenLineEnum = 'GenLineStruct'
                         bpy.ops.object.bl_genline()
-                        bpy.context.object.name=Param[1]
+                        bpy.context.object.name = Param[1]
 
 
-                    elif len(OBJParmList)>1:#集成这里绕道算了
+                    elif len(OBJParmList) > 1:  # 集成这里绕道算了
                         bpy.ops.object.select_all(action='DESELECT')
-                        bpy.ops.mesh.primitive_cube_add(enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))
-                        bpy.context.object.name=Param[1]
+                        bpy.ops.mesh.primitive_cube_add(enter_editmode=False, align='WORLD', location=(0, 0, 0),
+                                                        scale=(1, 1, 1))
+                        bpy.context.object.name = Param[1]
 
-                    else:#集成问题在这里
-                        bpy.ops.mesh.primitive_cube_add(enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))#这里添加物体
-                        bpy.context.object.name=Param[1]
+                    else:  # 集成问题在这里
+                        bpy.ops.mesh.primitive_cube_add(enter_editmode=False, align='WORLD', location=(0, 0, 0),
+                                                        scale=(1, 1, 1))  # 这里添加物体
+                        bpy.context.object.name = Param[1]
 
 
-                #elif len(sel) == 1:
-                        #bpy.ops.mesh.primitive_cube_add(enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))#这里添加物体
-                    #bpy.context.object.name=Param[1]
+                # elif len(sel) == 1:
+                # bpy.ops.mesh.primitive_cube_add(enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))#这里添加物体
+                # bpy.context.object.name=Param[1]
 
-                elif (len(sel)==1) and (len(OBJParmList)==1):
-                    bpy.context.object.name=Param[1]
+                elif (len(sel) == 1) and (len(OBJParmList) == 1):
+                    bpy.context.object.name = Param[1]
 
-                elif (len(sel)>=1) and (len(OBJParmList)>1):
+                elif (len(sel) >= 1) and (len(OBJParmList) > 1):
                     bpy.ops.object.select_all(action='DESELECT')
-                    bpy.ops.mesh.primitive_cube_add(enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))
-                    bpy.context.object.name=Param[1]
+                    bpy.ops.mesh.primitive_cube_add(enter_editmode=False, align='WORLD', location=(0, 0, 0),
+                                                    scale=(1, 1, 1))
+                    bpy.context.object.name = Param[1]
 
                 else:
                     for ob in sel:
-                        ob.name=Param[1]
+                        ob.name = Param[1]
 
             else:
                 #
                 bpy.data.objects[Param[1]].hide_viewport = False
 
-            if not ((amProperty.GenMechEnum == 'MechPro') or (amProperty.GenMechEnum == 'Helmet') or (amProperty.GenMechEnum == 'Mechfy') or (amProperty.GenMechEnum == '')):#选择的物体为parentOBJ
-                #for ob in sel:
+            if not ((amProperty.GenMechEnum == 'MechPro') or (amProperty.GenMechEnum == 'Helmet') or (
+                    amProperty.GenMechEnum == 'Mechfy') or (amProperty.GenMechEnum == '')):  # 选择的物体为parentOBJ
+                # for ob in sel:
                 bpy.data.objects[Param[1]].location[0] = float(Param[3])
                 bpy.data.objects[Param[1]].location[1] = float(Param[4])
                 bpy.data.objects[Param[1]].location[2] = float(Param[5])
@@ -438,100 +529,118 @@ class GenMech(bpy.types.Operator):
                 bpy.data.objects[Param[1]].scale[0] = float(Param[9])
                 bpy.data.objects[Param[1]].scale[1] = float(Param[10])
                 bpy.data.objects[Param[1]].scale[2] = float(Param[11])
-                if bpy.data.objects[Param[1]].type=='MESH':
+                if bpy.data.objects[Param[1]].type == 'MESH':
                     bpy.data.objects[Param[1]].data.use_auto_smooth = str_to_bool(Param[12])
 
+            if (not ((amProperty.GenMechEnum == 'MechPro') or (amProperty.GenMechEnum == 'Helmet') or (
+                    amProperty.GenMechEnum == 'Mechfy') or (amProperty.GenMechEnum == ''))) and Param[
+                13].isdigit() == True:
 
-
-            if (not ((amProperty.GenMechEnum == 'MechPro') or (amProperty.GenMechEnum == 'Helmet') or (amProperty.GenMechEnum == 'Mechfy') or (amProperty.GenMechEnum == ''))) and Param[13].isdigit() == True:
-                
-                
-                if bpy.data.objects[Param[1]].type=='MESH':
+                if bpy.data.objects[Param[1]].type == 'MESH':
                     bpy.ops.object.mode_set(mode='EDIT')
                     bpy.ops.mesh.select_all(action='SELECT')
-                elif (bpy.data.objects[Param[1]].type=='SURFACE') or (bpy.data.objects[Param[1]].type=='CURVE'):
+                elif (bpy.data.objects[Param[1]].type == 'SURFACE') or (bpy.data.objects[Param[1]].type == 'CURVE'):
                     bpy.ops.object.mode_set(mode='EDIT')
                     bpy.ops.curve.select_all(action='SELECT')
-                elif bpy.data.objects[Param[1]].type=='META':
+                elif bpy.data.objects[Param[1]].type == 'META':
                     bpy.ops.object.mode_set(mode='EDIT')
                     bpy.ops.mball.select_all(action='SELECT')
-                elif bpy.data.objects[Param[1]].type=='GPENCIL':
+                elif bpy.data.objects[Param[1]].type == 'GPENCIL':
                     bpy.ops.object.mode_set(mode='EDIT')
                     bpy.ops.gpencil.select_all(action='SELECT')
-                elif bpy.data.objects[Param[1]].type=='ARMATURE':
+                elif bpy.data.objects[Param[1]].type == 'ARMATURE':
                     bpy.ops.object.mode_set(mode='EDIT')
                     bpy.ops.armature.select_all(action='SELECT')
 
-
-                if bpy.data.objects[Param[1]].type !='EMPTY':
+                if bpy.data.objects[Param[1]].type != 'EMPTY':
                     bpy.ops.transform.translate(value=(float(Param[13]), float(Param[14]), float(Param[15])))
                     bpy.ops.transform.rotate(value=float(Param[16]), orient_axis='X')
                     bpy.ops.transform.rotate(value=float(Param[17]), orient_axis='Y')
                     bpy.ops.transform.rotate(value=float(Param[18]), orient_axis='Z')
-                    bpy.ops.transform.resize(value=(float(Param[19]),float(Param[20]), float(Param[21])))
+                    bpy.ops.transform.resize(value=(float(Param[19]), float(Param[20]), float(Param[21])))
                     bpy.ops.object.mode_set(mode='OBJECT')
                     bpy.ops.object.select_all(action='DESELECT')
 
-
-        if not ((amProperty.GenMechEnum == 'MechPro') or (amProperty.GenMechEnum == 'Helmet') or (amProperty.GenMechEnum == 'Mechfy') or (amProperty.GenMechEnum == '')):
-            Obj=bpy.data.objects[OBJParentName]#bpy.context.object
-            NodeName=''
-            nodegroupName=[]
-            OutName=[]
-            OutLink=[]
-            IntName=[]
-            IntLink=[]
-            NodeInputsNum=0
-            NodeInputsName=[]
-            f = open(File, encoding='utf-8')#f = open(File, "r")
+        if not ((amProperty.GenMechEnum == 'MechPro') or (amProperty.GenMechEnum == 'Helmet') or (
+                amProperty.GenMechEnum == 'Mechfy') or (amProperty.GenMechEnum == '')):
+            Obj = bpy.data.objects[OBJParentName]  # bpy.context.object
+            NodeName = ''
+            nodegroupName = []
+            OutName = []
+            OutLink = []
+            IntName = []
+            IntLink = []
+            NodeInputsNum = 0
+            NodeInputsName = []
+            f = open(File, encoding='utf-8')  # f = open(File, "r")
             for line in f:
                 NodeParm = line.split("|")
-                if 'GeometryNode' in NodeParm[0]:##########################################################################################################################
-                    #NodesMod=Obj.modifiers[NodeParm[1]]
-                    WeCanAddNode=False
-                    NodeName=NodeParm[1]
+                if 'GeometryNode' in NodeParm[
+                    0]:  ##########################################################################################################################
+                    # NodesMod=Obj.modifiers[NodeParm[1]]
+                    WeCanAddNode = False
+                    NodeName = NodeParm[1]
                     if NodeName not in Obj.modifiers:
-                        NodesMod = Obj.modifiers.new(NodeName,'NODES')
+                        NodesMod = Obj.modifiers.new(NodeName, 'NODES')
                         NodesMod.node_group.name = NodeName
-                        NodeGroup=NodesMod.node_group#bpy.data.node_groups[NodeParm[1]]
-                        node_group=bpy.data.node_groups[NodeParm[1]]
+                        NodeGroup = NodesMod.node_group  # bpy.data.node_groups[NodeParm[1]]
+                        node_group = bpy.data.node_groups[NodeParm[1]]
                     else:
-                        NodeGroup=bpy.data.node_groups[NodeParm[1]]
-                        node_group=NodeGroup
+                        NodeGroup = bpy.data.node_groups[NodeParm[1]]
+                        node_group = NodeGroup
 
-                    if (NodeParm[2] not in NodeGroup) and (NodeParm[2] != 'Group Output') and (NodeParm[2] != 'Group Input'):#if (NodeParm[2] not in NodeGroup) and (not(NodeParm[2]=='Group Output') or (NodeParm[2]=='Group Input'))
-                        #if NodeParm[2] != 'Group Output':
-                            #if NodeParm[2] != 'Group Input':
-                        #if (NodeParm[3] != 'GeometryNodeAttributeCombineXYZ') and
+                    if (NodeParm[2] not in NodeGroup) and (NodeParm[2] != 'Group Output') and (NodeParm[
+                                                                                                   2] != 'Group Input'):  # if (NodeParm[2] not in NodeGroup) and (not(NodeParm[2]=='Group Output') or (NodeParm[2]=='Group Input'))
+                        # if NodeParm[2] != 'Group Output':
+                        # if NodeParm[2] != 'Group Input':
+                        # if (NodeParm[3] != 'GeometryNodeAttributeCombineXYZ') and
                         if bpy.app.version >= (2, 93, 0):
-                            Node=NodeGroup.nodes.new(NodeParm[3])
-                            Node.name=NodeParm[2]
-                            #WeCanAddNode=True
-                        elif (bpy.app.version < (2, 93, 0)) and (NodeParm[3] != 'GeometryNodeAttributeCombineXYZ') and (NodeParm[3] != 'GeometryNodeAttributeProximity') and (NodeParm[3] != 'GeometryNodeAttributeSampleTexture') and (NodeParm[3] != 'GeometryNodeAttributeSeparateXYZ') and (NodeParm[3] != 'GeometryNodeCollectionInfo') and (NodeParm[3] != 'GeometryNodeIsViewport') and (NodeParm[3] != 'FunctionNodeInputString') and (NodeParm[3] != 'GeometryNodeSubdivisionSurfaceSimple') and (NodeParm[3] != 'GeometryNodePointsToVolume') and (NodeParm[3] != 'GeometryNodeVolumeToMesh'):
-                            Node=NodeGroup.nodes.new(NodeParm[3])
-                            Node.name=NodeParm[2]
-                            #WeCanAddNode=True
-                    #if WeCanAddNode==True:
-                    if (bpy.app.version < (2, 93, 0)) and (NodeParm[3] != 'GeometryNodeAttributeCombineXYZ') and (NodeParm[3] != 'GeometryNodeAttributeProximity') and (NodeParm[3] != 'GeometryNodeAttributeSampleTexture') and (NodeParm[3] != 'GeometryNodeAttributeSeparateXYZ') and (NodeParm[3] != 'GeometryNodeCollectionInfo') and (NodeParm[3] != 'GeometryNodeIsViewport') and (NodeParm[3] != 'FunctionNodeInputString') and (NodeParm[3] != 'GeometryNodeSubdivisionSurfaceSimple') and (NodeParm[3] != 'GeometryNodePointsToVolume') and (NodeParm[3] != 'GeometryNodeVolumeToMesh'): 
-                        WeCanAddNode=True
+                            Node = NodeGroup.nodes.new(NodeParm[3])
+                            Node.name = NodeParm[2]
+                            # WeCanAddNode=True
+                        elif (bpy.app.version < (2, 93, 0)) and (NodeParm[3] != 'GeometryNodeAttributeCombineXYZ') and (
+                                NodeParm[3] != 'GeometryNodeAttributeProximity') and (
+                                NodeParm[3] != 'GeometryNodeAttributeSampleTexture') and (
+                                NodeParm[3] != 'GeometryNodeAttributeSeparateXYZ') and (
+                                NodeParm[3] != 'GeometryNodeCollectionInfo') and (
+                                NodeParm[3] != 'GeometryNodeIsViewport') and (
+                                NodeParm[3] != 'FunctionNodeInputString') and (
+                                NodeParm[3] != 'GeometryNodeSubdivisionSurfaceSimple') and (
+                                NodeParm[3] != 'GeometryNodePointsToVolume') and (
+                                NodeParm[3] != 'GeometryNodeVolumeToMesh'):
+                            Node = NodeGroup.nodes.new(NodeParm[3])
+                            Node.name = NodeParm[2]
+                            # WeCanAddNode=True
+                    # if WeCanAddNode==True:
+                    if (bpy.app.version < (2, 93, 0)) and (NodeParm[3] != 'GeometryNodeAttributeCombineXYZ') and (
+                            NodeParm[3] != 'GeometryNodeAttributeProximity') and (
+                            NodeParm[3] != 'GeometryNodeAttributeSampleTexture') and (
+                            NodeParm[3] != 'GeometryNodeAttributeSeparateXYZ') and (
+                            NodeParm[3] != 'GeometryNodeCollectionInfo') and (
+                            NodeParm[3] != 'GeometryNodeIsViewport') and (
+                            NodeParm[3] != 'FunctionNodeInputString') and (
+                            NodeParm[3] != 'GeometryNodeSubdivisionSurfaceSimple') and (
+                            NodeParm[3] != 'GeometryNodePointsToVolume') and (
+                            NodeParm[3] != 'GeometryNodeVolumeToMesh'):
+                        WeCanAddNode = True
                     elif bpy.app.version >= (2, 93, 0):
-                        WeCanAddNode=True
+                        WeCanAddNode = True
 
-                    if WeCanAddNode==True:
-                        Node=NodeGroup.nodes[NodeParm[2]]
-                        Node.location[0]=float(NodeParm[4])
-                        Node.location[1]=float(NodeParm[5])
-                        NodeCount=count(1, 1)
-                        if (Node.type=='ATTRIBUTE_COLOR_RAMP') or (Node.type=='VALTORGB'):
-                            Node.color_ramp.color_mode=NodeParm[8+int(next(NodeCount))]
-                            Node.color_ramp.interpolation=NodeParm[8+int(next(NodeCount))]
-                            Node.color_ramp.hue_interpolation=NodeParm[8+int(next(NodeCount))]
-                            for Num in range(int(NodeParm[8])-3):
-                                Node.color_ramp.elements[Num].position=float(NodeParm[8+int(next(NodeCount))])
-                                Node.color_ramp.elements[Num].color[0]=float(NodeParm[8+int(next(NodeCount))])
-                                Node.color_ramp.elements[Num].color[1]=float(NodeParm[8+int(next(NodeCount))])
-                                Node.color_ramp.elements[Num].color[2]=float(NodeParm[8+int(next(NodeCount))])
-                                Node.color_ramp.elements[Num].color[3]=float(NodeParm[8+int(next(NodeCount))])
+                    if WeCanAddNode == True:
+                        Node = NodeGroup.nodes[NodeParm[2]]
+                        Node.location[0] = float(NodeParm[4])
+                        Node.location[1] = float(NodeParm[5])
+                        NodeCount = count(1, 1)
+                        if (Node.type == 'ATTRIBUTE_COLOR_RAMP') or (Node.type == 'VALTORGB'):
+                            Node.color_ramp.color_mode = NodeParm[8 + int(next(NodeCount))]
+                            Node.color_ramp.interpolation = NodeParm[8 + int(next(NodeCount))]
+                            Node.color_ramp.hue_interpolation = NodeParm[8 + int(next(NodeCount))]
+                            for Num in range(int(NodeParm[8]) - 3):
+                                Node.color_ramp.elements[Num].position = float(NodeParm[8 + int(next(NodeCount))])
+                                Node.color_ramp.elements[Num].color[0] = float(NodeParm[8 + int(next(NodeCount))])
+                                Node.color_ramp.elements[Num].color[1] = float(NodeParm[8 + int(next(NodeCount))])
+                                Node.color_ramp.elements[Num].color[2] = float(NodeParm[8 + int(next(NodeCount))])
+                                Node.color_ramp.elements[Num].color[3] = float(NodeParm[8 + int(next(NodeCount))])
                             '''
                             bpy.data.node_groups['GeometryNodes'].nodes.active.color_ramp.color_mode
                             bpy.data.node_groups['GeometryNodes'].nodes.active.color_ramp.interpolation
@@ -539,27 +648,27 @@ class GenMech(bpy.types.Operator):
                             bpy.data.node_groups['GeometryNodes'].nodes.active.color_ramp.elements[0].color[0]
                             bpy.data.node_groups['GeometryNodes'].nodes.active.color_ramp.elements[0].position
                             '''
-                        elif (Node.type=='ATTRIBUTE_COMPARE') or (Node.type=='ATTRIBUTE_MATH'):
-                            Node.operation=NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_a=NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_b=NodeParm[8+int(next(NodeCount))]
-                            
+                        elif (Node.type == 'ATTRIBUTE_COMPARE') or (Node.type == 'ATTRIBUTE_MATH'):
+                            Node.operation = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_a = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_b = NodeParm[8 + int(next(NodeCount))]
+
                             '''
                             bpy.data.node_groups["GeometryNodes"].nodes["Attribute Compare"].operation = 'NOT_EQUAL'
                             bpy.data.node_groups["GeometryNodes"].nodes["Attribute Compare"].input_type_a = 'FLOAT'
                             bpy.data.node_groups["GeometryNodes"].nodes["Attribute Compare"].input_type_b = 'COLOR'
                             '''
 
-                        elif (Node.type=='ATTRIBUTE_FILL') or (Node.type=='ATTRIBUTE_RANDOMIZE'):
-                            Node.data_type=NodeParm[8+int(next(NodeCount))]
-                            
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Attribute Fill"].data_type = 'FLOAT_VECTOR'
+                        elif (Node.type == 'ATTRIBUTE_FILL') or (Node.type == 'ATTRIBUTE_RANDOMIZE'):
+                            Node.data_type = NodeParm[8 + int(next(NodeCount))]
 
-                        elif Node.type=='ATTRIBUTE_MIX':
-                            Node.blend_type=NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_factor=NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_a=NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_b=NodeParm[8+int(next(NodeCount))]
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Attribute Fill"].data_type = 'FLOAT_VECTOR'
+
+                        elif Node.type == 'ATTRIBUTE_MIX':
+                            Node.blend_type = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_factor = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_a = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_b = NodeParm[8 + int(next(NodeCount))]
 
                             '''
                             bpy.data.node_groups["GeometryNodes"].nodes["Attribute Mix"].blend_type = 'MIX'
@@ -568,16 +677,16 @@ class GenMech(bpy.types.Operator):
                             bpy.data.node_groups["GeometryNodes"].nodes["Attribute Mix"].input_type_b = 'VECTOR'
                             '''
 
-                        elif Node.type=='ATTRIBUTE_SAMPLE_TEXTURE':# and (bpy.app.version >= (2, 93, 0))
-                            Node.texture=to_Tex(NodeParm[8+int(next(NodeCount))])#
+                        elif Node.type == 'ATTRIBUTE_SAMPLE_TEXTURE':  # and (bpy.app.version >= (2, 93, 0))
+                            Node.texture = to_Tex(NodeParm[8 + int(next(NodeCount))])  #
 
 
 
-                        elif Node.type=='ATTRIBUTE_VECTOR_MATH':
-                            Node.operation=NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_a=NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_b=NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_c=NodeParm[8+int(next(NodeCount))]
+                        elif Node.type == 'ATTRIBUTE_VECTOR_MATH':
+                            Node.operation = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_a = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_b = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_c = NodeParm[8 + int(next(NodeCount))]
                             '''
                             bpy.data.node_groups["GeometryNodes"].nodes["Attribute Vector Math"].operation = 'SUBTRACT'
                             bpy.data.node_groups["GeometryNodes"].nodes["Attribute Vector Math"].input_type_a = 'ATTRIBUTE'
@@ -586,19 +695,19 @@ class GenMech(bpy.types.Operator):
                             '''
 
 
-                        elif (Node.type=='COLLECTION_INFO') or (Node.type=='OBJECT_INFO'):
-                            Node.transform_space=NodeParm[8+int(next(NodeCount))]
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Collection Info"].transform_space = 'ORIGINAL'
+                        elif (Node.type == 'COLLECTION_INFO') or (Node.type == 'OBJECT_INFO'):
+                            Node.transform_space = NodeParm[8 + int(next(NodeCount))]
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Collection Info"].transform_space = 'ORIGINAL'
 
 
-                        elif Node.type=='VALUE':
-                            Node.outputs[0].default_value=float(NodeParm[8+int(next(NodeCount))])
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Value"].outputs[0].default_value = 0.5
+                        elif Node.type == 'VALUE':
+                            Node.outputs[0].default_value = float(NodeParm[8 + int(next(NodeCount))])
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Value"].outputs[0].default_value = 0.5
 
-                        elif Node.type=='INPUT_VECTOR':
-                            Node.vector[0]=float(NodeParm[8+int(next(NodeCount))])
-                            Node.vector[1]=float(NodeParm[8+int(next(NodeCount))])
-                            Node.vector[2]=float(NodeParm[8+int(next(NodeCount))])
+                        elif Node.type == 'INPUT_VECTOR':
+                            Node.vector[0] = float(NodeParm[8 + int(next(NodeCount))])
+                            Node.vector[1] = float(NodeParm[8 + int(next(NodeCount))])
+                            Node.vector[2] = float(NodeParm[8 + int(next(NodeCount))])
 
                             '''
                             bpy.data.node_groups["GeometryNodes"].nodes["Vector"].vector[0] = 0
@@ -607,21 +716,22 @@ class GenMech(bpy.types.Operator):
                             '''
 
 
-                        elif (Node.type=='BOOLEAN') or (Node.type=='BOOLEAN_MATH') or (Node.type=='FLOAT_COMPARE') or (Node.type=='VECT_MATH'):
-                            Node.operation=NodeParm[8+int(next(NodeCount))]
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Boolean"].operation = 'INTERSECT'
+                        elif (Node.type == 'BOOLEAN') or (Node.type == 'BOOLEAN_MATH') or (
+                                Node.type == 'FLOAT_COMPARE') or (Node.type == 'VECT_MATH'):
+                            Node.operation = NodeParm[8 + int(next(NodeCount))]
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Boolean"].operation = 'INTERSECT'
 
-                        elif Node.type=='TRIANGULATE':
-                            Node.quad_method=NodeParm[8+int(next(NodeCount))]
-                            Node.ngon_method=NodeParm[8+int(next(NodeCount))]
+                        elif Node.type == 'TRIANGULATE':
+                            Node.quad_method = NodeParm[8 + int(next(NodeCount))]
+                            Node.ngon_method = NodeParm[8 + int(next(NodeCount))]
 
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Triangulate"].quad_method = 'FIXED_ALTERNATE'
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Triangulate"].ngon_method = 'CLIP'
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Triangulate"].quad_method = 'FIXED_ALTERNATE'
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Triangulate"].ngon_method = 'CLIP'
 
-                        elif Node.type=='ALIGN_ROTATION_TO_VECTOR':
-                            Node.axis=NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_factor=NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_vector=NodeParm[8+int(next(NodeCount))]
+                        elif Node.type == 'ALIGN_ROTATION_TO_VECTOR':
+                            Node.axis = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_factor = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_vector = NodeParm[8 + int(next(NodeCount))]
                             '''
                             bpy.data.node_groups["GeometryNodes"].nodes["Align Rotation to Vector"].axis = 'Y'
                             bpy.data.node_groups["GeometryNodes"].nodes["Align Rotation to Vector"].input_type_factor = 'ATTRIBUTE'
@@ -630,188 +740,173 @@ class GenMech(bpy.types.Operator):
 
 
 
-                        elif Node.type=='POINT_DISTRIBUTE':
-                            Node.distribute_method=NodeParm[8+int(next(NodeCount))]
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Point Distribute"].distribute_method = 'POISSON'
+                        elif Node.type == 'POINT_DISTRIBUTE':
+                            Node.distribute_method = NodeParm[8 + int(next(NodeCount))]
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Point Distribute"].distribute_method = 'POISSON'
 
-                        elif Node.type=='POINT_INSTANCE':
-                            Node.instance_type=NodeParm[8+int(next(NodeCount))]
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Point Instance"].instance_type = 'OBJECT'
-
-
-                        elif Node.type=='EULER':
-                            Node.type=NodeParm[8+int(next(NodeCount))]
-                            Node.space=NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_rotation=NodeParm[8+int(next(NodeCount))]
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Point Rotate"].type = 'EULER'
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Point Rotate"].space = 'POINT'
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Point Rotate"].input_type_rotation = 'ATTRIBUTE'
+                        elif Node.type == 'POINT_INSTANCE':
+                            Node.instance_type = NodeParm[8 + int(next(NodeCount))]
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Point Instance"].instance_type = 'OBJECT'
 
 
-                        elif (Node.type=='POINT_SCALE') or (Node.type=='POINT_TRANSLATE'):
-                            Node.input_type=NodeParm[8+int(next(NodeCount))]
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Point Scale"].input_type = 'ATTRIBUTE'
+                        elif Node.type == 'EULER':
+                            Node.type = NodeParm[8 + int(next(NodeCount))]
+                            Node.space = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_rotation = NodeParm[8 + int(next(NodeCount))]
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Point Rotate"].type = 'EULER'
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Point Rotate"].space = 'POINT'
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Point Rotate"].input_type_rotation = 'ATTRIBUTE'
 
 
-                        elif Node.type=='POINTS_TO_VOLUME':
-                            Node.resolution_mode=NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_radius=NodeParm[8+int(next(NodeCount))]
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Points to Volume"].resolution_mode = 'VOXEL_AMOUNT'
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Points to Volume"].input_type_radius = 'FLOAT'
+                        elif (Node.type == 'POINT_SCALE') or (Node.type == 'POINT_TRANSLATE'):
+                            Node.input_type = NodeParm[8 + int(next(NodeCount))]
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Point Scale"].input_type = 'ATTRIBUTE'
 
 
-                        elif Node.type=='CLAMP':
-                            Node.clamp_type=NodeParm[8+int(next(NodeCount))]
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Clamp"].clamp_type = 'RANGE'
+                        elif Node.type == 'POINTS_TO_VOLUME':
+                            Node.resolution_mode = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_radius = NodeParm[8 + int(next(NodeCount))]
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Points to Volume"].resolution_mode = 'VOXEL_AMOUNT'
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Points to Volume"].input_type_radius = 'FLOAT'
 
 
-                        elif Node.type=='MAP_RANGE':
-                            Node.interpolation_type=NodeParm[8+int(next(NodeCount))]
-                            #bpy.data.node_groups["GeometryNodes"].nodes["Map Range"].interpolation_type = 'SMOOTHERSTEP'
+                        elif Node.type == 'CLAMP':
+                            Node.clamp_type = NodeParm[8 + int(next(NodeCount))]
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Clamp"].clamp_type = 'RANGE'
 
-                        elif Node.type=='MATH':
-                            Node.operation=NodeParm[8+int(next(NodeCount))]
-                            Node.use_clamp=str_to_bool(NodeParm[8+int(next(NodeCount))])
+
+                        elif Node.type == 'MAP_RANGE':
+                            Node.interpolation_type = NodeParm[8 + int(next(NodeCount))]
+                            # bpy.data.node_groups["GeometryNodes"].nodes["Map Range"].interpolation_type = 'SMOOTHERSTEP'
+
+                        elif Node.type == 'MATH':
+                            Node.operation = NodeParm[8 + int(next(NodeCount))]
+                            Node.use_clamp = str_to_bool(NodeParm[8 + int(next(NodeCount))])
                             '''
                             bpy.data.node_groups["GeometryNodes"].nodes["Math"].operation = 'CEIL'
                             bpy.data.node_groups["GeometryNodes"].nodes["Math"].use_clamp = True
                             '''
 
-                        elif (Node.type=='ATTRIBUTE_COMBINE_XYZ') and (bpy.app.version >= (2, 93, 0)):
-                            Node.input_type_x = NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_y = NodeParm[8+int(next(NodeCount))]
-                            Node.input_type_z = NodeParm[8+int(next(NodeCount))]
+                        elif (Node.type == 'ATTRIBUTE_COMBINE_XYZ') and (bpy.app.version >= (2, 93, 0)):
+                            Node.input_type_x = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_y = NodeParm[8 + int(next(NodeCount))]
+                            Node.input_type_z = NodeParm[8 + int(next(NodeCount))]
 
-                        elif (Node.type=='ATTRIBUTE_PROXIMITY') and (bpy.app.version >= (2, 93, 0)):
-                            Node.target_geometry_element = NodeParm[8+int(next(NodeCount))]
+                        elif (Node.type == 'ATTRIBUTE_PROXIMITY') and (bpy.app.version >= (2, 93, 0)):
+                            Node.target_geometry_element = NodeParm[8 + int(next(NodeCount))]
 
-                        elif (Node.type=='ATTRIBUTE_SEPARATE_XYZ') and (bpy.app.version >= (2, 93, 0)):
-                            Node.input_type = NodeParm[8+int(next(NodeCount))]
+                        elif (Node.type == 'ATTRIBUTE_SEPARATE_XYZ') and (bpy.app.version >= (2, 93, 0)):
+                            Node.input_type = NodeParm[8 + int(next(NodeCount))]
 
-                        elif (Node.type=='INPUT_STRING') and (bpy.app.version >= (2, 93, 0)):
-                            Node.string = NodeParm[8+int(next(NodeCount))]
+                        elif (Node.type == 'INPUT_STRING') and (bpy.app.version >= (2, 93, 0)):
+                            Node.string = NodeParm[8 + int(next(NodeCount))]
 
-                        elif (Node.type=='VOLUME_TO_MESH') and (bpy.app.version >= (2, 93, 0)):
-                            Node.resolution_mode = NodeParm[8+int(next(NodeCount))]
+                        elif (Node.type == 'VOLUME_TO_MESH') and (bpy.app.version >= (2, 93, 0)):
+                            Node.resolution_mode = NodeParm[8 + int(next(NodeCount))]
 
+                        # if (bpy.app.version < (2, 93, 0)) and (Node.type=='ATTRIBUTE_RANDOMIZE'):
+                        # InputsNum=int(NodeParm[6])-2
+                        # else:
+                        # InputsNum=int(NodeParm[6])
 
+                        InputsNum = int(NodeParm[6])
+                        InputsRealNum = int(len(Node.inputs))
 
-                        
-                        #if (bpy.app.version < (2, 93, 0)) and (Node.type=='ATTRIBUTE_RANDOMIZE'):
-                            #InputsNum=int(NodeParm[6])-2
-                        #else:
-                            #InputsNum=int(NodeParm[6])
+                        DiffValue = InputsNum - InputsRealNum  # 多出来或少的部分
 
+                        OutputsNum = int(NodeParm[7])
+                        # OutputRealNum=int(len(Node.outputs))
 
-                        InputsNum=int(NodeParm[6])
-                        InputsRealNum=int(len(Node.inputs))
-
-                        DiffValue=InputsNum-InputsRealNum#多出来或少的部分
-
-                        OutputsNum=int(NodeParm[7])
-                        #OutputRealNum=int(len(Node.outputs))
-
-                        if InputsNum>=1:
+                        if InputsNum >= 1:
                             for Input in range(InputsRealNum):
-                                #next(NodeCount)
+                                # next(NodeCount)
                                 if Node.inputs[Input].type == 'GEOMETRY':
                                     next(NodeCount)
                                 elif Node.inputs[Input].type == 'VECTOR':
-                                    Node.inputs[Input].default_value[0]=float(NodeParm[8+int(next(NodeCount))])
-                                    Node.inputs[Input].default_value[1]=float(NodeParm[8+int(next(NodeCount))])
-                                    Node.inputs[Input].default_value[2]=float(NodeParm[8+int(next(NodeCount))])
+                                    Node.inputs[Input].default_value[0] = float(NodeParm[8 + int(next(NodeCount))])
+                                    Node.inputs[Input].default_value[1] = float(NodeParm[8 + int(next(NodeCount))])
+                                    Node.inputs[Input].default_value[2] = float(NodeParm[8 + int(next(NodeCount))])
                                 elif Node.inputs[Input].type == 'RGBA':
-                                    Node.inputs[Input].default_value[0]=float(NodeParm[8+int(next(NodeCount))])
-                                    Node.inputs[Input].default_value[1]=float(NodeParm[8+int(next(NodeCount))])
-                                    Node.inputs[Input].default_value[2]=float(NodeParm[8+int(next(NodeCount))])
-                                    Node.inputs[Input].default_value[3]=float(NodeParm[8+int(next(NodeCount))])
+                                    Node.inputs[Input].default_value[0] = float(NodeParm[8 + int(next(NodeCount))])
+                                    Node.inputs[Input].default_value[1] = float(NodeParm[8 + int(next(NodeCount))])
+                                    Node.inputs[Input].default_value[2] = float(NodeParm[8 + int(next(NodeCount))])
+                                    Node.inputs[Input].default_value[3] = float(NodeParm[8 + int(next(NodeCount))])
                                 elif Node.inputs[Input].type == 'INT':
-                                    Node.inputs[Input].default_value=int(NodeParm[8+int(next(NodeCount))])
+                                    Node.inputs[Input].default_value = int(NodeParm[8 + int(next(NodeCount))])
                                 elif Node.inputs[Input].type == 'VALUE':
-                                    Node.inputs[Input].default_value=float(NodeParm[8+int(next(NodeCount))])
+                                    Node.inputs[Input].default_value = float(NodeParm[8 + int(next(NodeCount))])
                                 elif Node.inputs[Input].type == 'STRING':
-                                    Node.inputs[Input].default_value=NodeParm[8+int(next(NodeCount))]
+                                    Node.inputs[Input].default_value = NodeParm[8 + int(next(NodeCount))]
                                 elif Node.inputs[Input].type == 'OBJECT':
-                                    Node.inputs[Input].default_value=str_to_obj(NodeParm[8+int(next(NodeCount))])
+                                    Node.inputs[Input].default_value = str_to_obj(NodeParm[8 + int(next(NodeCount))])
                                 elif Node.inputs[Input].type == 'COLLECTION':
-                                    Node.inputs[Input].default_value=to_Col(NodeParm[8+int(next(NodeCount))])
+                                    Node.inputs[Input].default_value = to_Col(NodeParm[8 + int(next(NodeCount))])
                                 elif Node.inputs[Input].type == 'BOOLEAN':
-                                    Node.inputs[Input].default_value=str_to_bool(NodeParm[8+int(next(NodeCount))])
+                                    Node.inputs[Input].default_value = str_to_bool(NodeParm[8 + int(next(NodeCount))])
 
+                        if OutputsNum >= 1:
+                            # ThisNodeName=[]
+                            OutputLink = []
 
-                        if OutputsNum>=1:
-                            #ThisNodeName=[]
-                            OutputLink=[]
+                            # if (bpy.app.version < (2, 93, 0)) and (Node.type=='ATTRIBUTE_RANDOMIZE'):
+                            # next(NodeCount)
+                            # next(NodeCount)
 
-                            #if (bpy.app.version < (2, 93, 0)) and (Node.type=='ATTRIBUTE_RANDOMIZE'):
-                                #next(NodeCount)
-                                #next(NodeCount)
-
-                            #if DiffValue >0:
-                                #for i in range(DiffValue):
-                                    #next(NodeCount)
-                            #elif DiffValue<0:
-                                #for i in range(abs(DiffValue)):
-
+                            # if DiffValue >0:
+                            # for i in range(DiffValue):
+                            # next(NodeCount)
+                            # elif DiffValue<0:
+                            # for i in range(abs(DiffValue)):
 
                             for Output in range(OutputsNum):
-                                NumOutput=NodeParm[8+int(next(NodeCount))+DiffValue]
+                                NumOutput = NodeParm[8 + int(next(NodeCount)) + DiffValue]
                                 OutputLink.append(NumOutput)
 
-
                             for Output in range(OutputsNum):
-                                if OutputLink[Output] !='NoLinks':
-                                    for NewLink in range(int(OutputLink[Output])):#对于每个连接数 （获取的单个输出口连接数）
+                                if OutputLink[Output] != 'NoLinks':
+                                    for NewLink in range(int(OutputLink[Output])):  # 对于每个连接数 （获取的单个输出口连接数）
                                         nodegroupName.append(node_group.name)
-                                        OutName.append(Node.name)#节点1
-                                        OutLink.append(Output)#节点1出口
-                                        #OutLink.append(NewLink)#第几个连接
-                                        
-                                        IntName.append(NodeParm[8+int(next(NodeCount))+DiffValue])#节点2
-                                        IntLink.append(NodeParm[8+int(next(NodeCount))+DiffValue])#节点2进口
+                                        OutName.append(Node.name)  # 节点1
+                                        OutLink.append(Output)  # 节点1出口
+                                        # OutLink.append(NewLink)#第几个连接
 
-
+                                        IntName.append(NodeParm[8 + int(next(NodeCount)) + DiffValue])  # 节点2
+                                        IntLink.append(NodeParm[8 + int(next(NodeCount)) + DiffValue])  # 节点2进口
 
                         if 'Node_Label' in NodeParm:
-                            #if bpy.app.version >= (2, 93, 0):#2.93以下的不识别中文
-                            NodeParm[8+int(next(NodeCount))]
-                            Node.label = NodeParm[8+int(next(NodeCount))]
-                            Node.use_custom_color = str_to_bool(NodeParm[8+int(next(NodeCount))])
-                            Node.color[0] = float(NodeParm[8+int(next(NodeCount))])
-                            Node.color[1] = float(NodeParm[8+int(next(NodeCount))])
-                            Node.color[2] = float(NodeParm[8+int(next(NodeCount))])
-                            Node.height = float(NodeParm[8+int(next(NodeCount))])
-                            Node.width = float(NodeParm[8+int(next(NodeCount))])
-                            if Node.type=='FRAME':
-                                Node.label_size = int(NodeParm[8+int(next(NodeCount))])
-                                Node.shrink = str_to_bool(NodeParm[8+int(next(NodeCount))])
+                            # if bpy.app.version >= (2, 93, 0):#2.93以下的不识别中文
+                            NodeParm[8 + int(next(NodeCount))]
+                            Node.label = NodeParm[8 + int(next(NodeCount))]
+                            Node.use_custom_color = str_to_bool(NodeParm[8 + int(next(NodeCount))])
+                            Node.color[0] = float(NodeParm[8 + int(next(NodeCount))])
+                            Node.color[1] = float(NodeParm[8 + int(next(NodeCount))])
+                            Node.color[2] = float(NodeParm[8 + int(next(NodeCount))])
+                            Node.height = float(NodeParm[8 + int(next(NodeCount))])
+                            Node.width = float(NodeParm[8 + int(next(NodeCount))])
+                            if Node.type == 'FRAME':
+                                Node.label_size = int(NodeParm[8 + int(next(NodeCount))])
+                                Node.shrink = str_to_bool(NodeParm[8 + int(next(NodeCount))])
 
-                        
-                        if (Node.type=='GROUP_INPUT') and (OutputsNum>=3):
-                            NodeInputsNum=OutputsNum
+                        if (Node.type == 'GROUP_INPUT') and (OutputsNum >= 3):
+                            NodeInputsNum = OutputsNum
                             for i in range(OutputsNum):
-                                
-                                NodeInputsName.append(NodeParm[8+int(next(NodeCount))])
-                                #bpy.ops.node.tree_socket_add(in_out='IN')
-                            
+                                NodeInputsName.append(NodeParm[8 + int(next(NodeCount))])
+                                # bpy.ops.node.tree_socket_add(in_out='IN')
 
-
-
-            outputNode=[]
-            #print('节点组: '+str(nodegroupName))#列出来 节点1连节点2尾
-            print('节点1: '+str(OutName))
-            print('节点1出口: '+str(OutLink))#0
-            print('节点2: '+str(IntName))
-            print('节点2进口: '+str(IntLink))
+            outputNode = []
+            # print('节点组: '+str(nodegroupName))#列出来 节点1连节点2尾
+            print('节点1: ' + str(OutName))
+            print('节点1出口: ' + str(OutLink))  # 0
+            print('节点2: ' + str(IntName))
+            print('节点2进口: ' + str(IntLink))
             print(NodeInputsName)
-            #try:
-            LinkNum=len(OutName)
+            # try:
+            LinkNum = len(OutName)
 
             for NodeLink in range(LinkNum):
-                Link_group=bpy.data.node_groups[nodegroupName[NodeLink]]
+                Link_group = bpy.data.node_groups[nodegroupName[NodeLink]]
 
-                
-                OutNode=Link_group.nodes[OutName[NodeLink]]
+                OutNode = Link_group.nodes[OutName[NodeLink]]
                 '''
                 if (OutNode.type=='GROUP_INPUT') and (NodeInputsNum!=0) and (OutName[NodeLink] !='Geometry'):# and (LinkOut.type!='GEOMETRY'):
                     outputNode.append(OutNode)
@@ -827,15 +922,15 @@ class GenMech(bpy.types.Operator):
                     #LinkOut=OutNode.outputs[LinkOutint]
                 else:
                 '''
-                LinkOut=OutNode.outputs[OutLink[NodeLink]]#尾outputs
+                LinkOut = OutNode.outputs[OutLink[NodeLink]]  # 尾outputs
 
-                IntNode=Link_group.nodes[IntName[NodeLink]]
+                IntNode = Link_group.nodes[IntName[NodeLink]]
                 if IntLink[NodeLink].isdigit():
-                    LinkInt=IntNode.inputs[int(IntLink[NodeLink])]#头inputs
+                    LinkInt = IntNode.inputs[int(IntLink[NodeLink])]  # 头inputs
                 else:
-                    LinkInt=IntNode.inputs[IntLink[NodeLink]]
+                    LinkInt = IntNode.inputs[IntLink[NodeLink]]
 
-                if OutName[NodeLink]=='Value':
+                if OutName[NodeLink] == 'Value':
                     print('尾')
                     print(OutNode)
                     print(LinkOut)
@@ -844,8 +939,7 @@ class GenMech(bpy.types.Operator):
                     print(IntNode)
                     print(LinkInt)
 
-
-                Link_group.links.new(LinkOut,LinkInt)#尾连头
+                Link_group.links.new(LinkOut, LinkInt)  # 尾连头
             '''
             InputNumCount=count(0, 1)
             if outputNode:
@@ -854,7 +948,6 @@ class GenMech(bpy.types.Operator):
                     for intputout in thisintput:
                         intputout.name=NodeInputsName[int(next(InputNumCount))]
             '''
-
 
             '''
             except:#抛出异常时读取的可能是前一批次节点的
@@ -869,42 +962,37 @@ class GenMech(bpy.types.Operator):
                 print(LinkInt)#凶手是Math 
             '''
 
-
-
-            if len(NodeName)>0:
+            if len(NodeName) > 0:
                 bpy.ops.object.modifier_remove(modifier=NodeName)
 
-
         for OBJParm in OBJParmList:
-            OBJparameter=OBJParm.split("|")
-            Param=OBJparameter
-            OBJName=Param[1]
+            OBJparameter = OBJParm.split("|")
+            Param = OBJparameter
+            OBJName = Param[1]
             bpy.data.objects[OBJName].select_set(True)
-        #if OBJName !=OBJParentName:
-            #bpy.data.objects[OBJName].parent = bpy.data.objects[OBJParentName]
-        if len(OBJParentName)!=0:
-            bpy.context.view_layer.objects.active = bpy.data.objects[OBJParentName]#
-            if amProperty.PresetParentBool ==True:
-                bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)#
+        # if OBJName !=OBJParentName:
+        # bpy.data.objects[OBJName].parent = bpy.data.objects[OBJParentName]
+        if len(OBJParentName) != 0:
+            bpy.context.view_layer.objects.active = bpy.data.objects[OBJParentName]  #
+            if amProperty.PresetParentBool == True:
+                bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)  #
         sel = bpy.context.selected_objects
-
-
 
         if col_name not in bpy.data.collections:
 
             for obj in sel:
-                    bpy.context.view_layer.objects.active = obj
-                    #bpy.ops.object.select_all(action='SELECT')
-                    obj.select_set(True)
+                bpy.context.view_layer.objects.active = obj
+                # bpy.ops.object.select_all(action='SELECT')
+                obj.select_set(True)
 
-                    GenMechObj = bpy.data.objects[obj.name]
-                    cube_collection = find_collection(bpy.context, GenMechObj)#根据物体查找到它所在的合集
-                    new_collection = make_collection(col_name,cube_collection)
-                    col = bpy.data.collections.get(col_name)#4
-                    col.objects.link(GenMechObj)
-                    cube_collection.objects.unlink(GenMechObj)
-                    move_to_collection(col_name,"2GenMech")
-            
+                GenMechObj = bpy.data.objects[obj.name]
+                cube_collection = find_collection(bpy.context, GenMechObj)  # 根据物体查找到它所在的合集
+                new_collection = make_collection(col_name, cube_collection)
+                col = bpy.data.collections.get(col_name)  # 4
+                col.objects.link(GenMechObj)
+                cube_collection.objects.unlink(GenMechObj)
+                move_to_collection(col_name, "2GenMech")
+
 
         else:
             for obj in sel:
@@ -912,26 +1000,23 @@ class GenMech(bpy.types.Operator):
                 obj.select_set(True)
                 GenMechObj = bpy.data.objects[obj.name]
                 cube_collection = find_collection(bpy.context, GenMechObj)
-                col = bpy.data.collections.get(col_name)#4
-                #if '1GenLine' not in obj.name:
+                col = bpy.data.collections.get(col_name)  # 4
+                # if '1GenLine' not in obj.name:
                 if obj.name not in col.objects:
                     col.objects.link(GenMechObj)
                     cube_collection.objects.unlink(GenMechObj)
-            move_to_collection(col_name,"2GenMech")
+            move_to_collection(col_name, "2GenMech")
 
-        
-
-        #if 'metarig' in rig.name :请添加这个判断
+        # if 'metarig' in rig.name :请添加这个判断
         for ob in sel:
-            
+
             bpy.context.view_layer.objects.active = ob
-            #for mod in [m for m in ob.modifiers if m.type != 'SKIN']:
-            #if len(ob.data.vertices) <=900000:# #防误触 顶点小于的时候才能运行
-            if ob.type =='MESH':
+            # for mod in [m for m in ob.modifiers if m.type != 'SKIN']:
+            # if len(ob.data.vertices) <=900000:# #防误触 顶点小于的时候才能运行
+            if ob.type == 'MESH':
 
-
-                #暂时切勿更改以下修改器名字
-                if len(ob.material_slots) <= 1:##如果没有槽，那么我们追加创建槽和分配
+                # 暂时切勿更改以下修改器名字
+                if len(ob.material_slots) <= 1:  ##如果没有槽，那么我们追加创建槽和分配
                     bpy.ops.object.material_slot_remove()
                     bpy.ops.object.material_slot_add()
                     bpy.ops.object.material_slot_add()
@@ -939,29 +1024,28 @@ class GenMech(bpy.types.Operator):
                     bpy.ops.object.material_slot_add()
                     bpy.ops.object.material_slot_add()
 
-                    MatList=''
-                    for materials,value in  bpy.data.materials.items():
-                        MatList+=" "+materials
-                    
-                    filepath = os.path.join(os.path.dirname(__file__),"AMpresets.blend")#以下将添加预览材质
-                    
+                    MatList = ''
+                    for materials, value in bpy.data.materials.items():
+                        MatList += " " + materials
+
+                    filepath = os.path.join(os.path.dirname(__file__), "AMpresets.blend")  # 以下将添加预览材质
+
                     if "PreM0" not in MatList:
-                        with bpy.data.libraries.load(filepath, link=False,relative=True) as (data_from, data_to):
-                            #data_to.materials = ["3.001"]
-                            data_to.materials = data_from.materials #  append all materials from blend
-                            #print(data_to.materials)
-                            #Datamaterials
+                        with bpy.data.libraries.load(filepath, link=False, relative=True) as (data_from, data_to):
+                            # data_to.materials = ["3.001"]
+                            data_to.materials = data_from.materials  # append all materials from blend
+                            # print(data_to.materials)
+                            # Datamaterials
 
-
-                    for materials,value in  bpy.data.materials.items():
-                        #print(materials)
-                        #bpy.data.materials['3.001'].use_fake_user = True
-                        if ("PreM"  in materials) and ("_" not in materials):
+                    for materials, value in bpy.data.materials.items():
+                        # print(materials)
+                        # bpy.data.materials['3.001'].use_fake_user = True
+                        if ("PreM" in materials) and ("_" not in materials):
                             if "." not in materials:
                                 bpy.data.materials[materials].use_fake_user = True
 
-                    for i in range(0,5):
-                        MatName = "PreM0"+str(i)
+                    for i in range(0, 5):
+                        MatName = "PreM0" + str(i)
                         if bpy.data.materials.get(MatName) is not None:
                             Mat = bpy.data.materials[MatName]
 
@@ -970,36 +1054,31 @@ class GenMech(bpy.types.Operator):
                             else:
                                 ob.data.materials.append(i)
 
+                    # bpy.context.object.active_material_index = 1
+                    # bpy.ops.object.material_slot_move(direction='UP')
 
-                    #bpy.context.object.active_material_index = 1
-                    #bpy.ops.object.material_slot_move(direction='UP')
-
-
-
-
-                if amProperty.GenMechEnum =='Mechfy':
+                if amProperty.GenMechEnum == 'Mechfy':
                     ob.modifiers.clear()
                     mod_Skin = ob.modifiers.new("Skin", "SKIN")
 
-                    Wave2 = ob.modifiers.new('Wave', 'WAVE')#0
+                    Wave2 = ob.modifiers.new('Wave', 'WAVE')  # 0
                     Ocean3 = ob.modifiers.new('Ocean', 'OCEAN')
                     Ocean3.geometry_mode = 'DISPLACE'
 
-
-                    #bpy.ops.object.modifier_add(type='REMESH')
+                    # bpy.ops.object.modifier_add(type='REMESH')
                     mod_Remesh = ob.modifiers.new("Remesh", "REMESH")
                     mod_Remesh.mode = 'SMOOTH'
-                    #bpy.context.object.modifiers["Remesh"].mode = 'SHARP'
-                    mod_Remesh.octree_depth = 4 #
-                    mod_Remesh.scale = 0.88 #0.75
+                    # bpy.context.object.modifiers["Remesh"].mode = 'SHARP'
+                    mod_Remesh.octree_depth = 4  #
+                    mod_Remesh.scale = 0.88  # 0.75
 
                     mod_Bevel = ob.modifiers.new("Bevel", "BEVEL")
                     mod_Bevel.offset_type = 'PERCENT'
-                    mod_Bevel.width_pct = 37 #动画
+                    mod_Bevel.width_pct = 37  # 动画
                     mod_Bevel.affect = 'VERTICES'
                     mod_Bevel.use_clamp_overlap = True
                     mod_Bevel.loop_slide = True
-                    mod_Bevel.material = 1         #1 1323（4）
+                    mod_Bevel.material = 1  # 1 1323（4）
 
                     mod_Decimate = ob.modifiers.new("Decimate", "DECIMATE")
                     mod_Decimate.ratio = 0.02
@@ -1014,24 +1093,24 @@ class GenMech(bpy.types.Operator):
                     mod_Bevel1.affect = 'VERTICES'
                     mod_Bevel1.use_clamp_overlap = True
                     mod_Bevel1.loop_slide = True
-                    mod_Bevel1.material = 3         #0
+                    mod_Bevel1.material = 3  # 0
 
                     mod_EdgeSplit = ob.modifiers.new("EdgeSplit", "EDGE_SPLIT")
 
                     mod_Solidify = ob.modifiers.new("Solidify", "SOLIDIFY")
                     mod_Solidify.thickness = -0.02
                     mod_Solidify.use_rim_only = True
-                    mod_Solidify.material_offset_rim = 2  #1
+                    mod_Solidify.material_offset_rim = 2  # 1
 
                     mod_Bevel2 = ob.modifiers.new("Bevel.002", "BEVEL")
                     mod_Bevel2.offset_type = 'OFFSET'
                     mod_Bevel2.width = 0.05
-                    mod_Bevel2.material = 3             #-1
+                    mod_Bevel2.material = 3  # -1
 
                     mod_Displace = ob.modifiers.new("Displace", "DISPLACE")
                     mod_Displace.direction = 'NORMAL'
                     mod_Displace.mid_level = 0.5
-                    mod_Displace.strength = 0.01#
+                    mod_Displace.strength = 0.01  #
 
                     if amProperty.MOD_MIRROR_Bool == True:
                         mod_Mirror = ob.modifiers.new("Mirror", "MIRROR")
@@ -1049,17 +1128,17 @@ class GenMech(bpy.types.Operator):
                             elif 'foot_l' in ob.name:
                                 mod_Mirror.use_axis[0] = True
                                 mod_Mirror.use_axis[1] = False
-                    #else:
-                        #if Mirror:
-                            #ob.modifiers.remove(Mirror)
-                        
-                elif (amProperty.GenMechEnum =='MechPro') or (amProperty.GenMechEnum ==''):#总共72个修改器节点
+                    # else:
+                    # if Mirror:
+                    # ob.modifiers.remove(Mirror)
+
+                elif (amProperty.GenMechEnum == 'MechPro') or (amProperty.GenMechEnum == ''):  # 总共72个修改器节点
                     ob.modifiers.clear()
-                    amProperty.GenMechEnum ='MechPro'
+                    amProperty.GenMechEnum = 'MechPro'
                     Skin001 = ob.modifiers.new("001_Skin", "SKIN")
                     Cast002 = ob.modifiers.new("002_//////////Cast//////////", "CAST")
                     Bool003_01Uniun = ob.modifiers.new("003_Bool_01U++++++++++", "BOOLEAN")
-                    Remesh004 = ob.modifiers.new("004_------------Remesh------------","REMESH")
+                    Remesh004 = ob.modifiers.new("004_------------Remesh------------", "REMESH")
                     Bool005_02Uniun = ob.modifiers.new("005_Bool_02U++++++++++", "BOOLEAN")
 
                     Simpledeform006 = ob.modifiers.new("006_&&&&Simpledeform", "SIMPLE_DEFORM")
@@ -1099,15 +1178,12 @@ class GenMech(bpy.types.Operator):
 
                     Cast032 = ob.modifiers.new("032_//////////Cast//////////", "CAST")
 
-
-
                     Array033 = ob.modifiers.new("033_$$$Array$$$", "ARRAY")
                     Screw034 = ob.modifiers.new("034_Screw", "SCREW")
 
                     Simpledeform035 = ob.modifiers.new("035_&&&&Simpledeform", "SIMPLE_DEFORM")
                     Simpledeform036 = ob.modifiers.new("036_&&&&Simpledeform", "SIMPLE_DEFORM")
                     Simpledeform037 = ob.modifiers.new("037_&&&&Simpledeform", "SIMPLE_DEFORM")
-
 
                     Bool038_05Uniun = ob.modifiers.new("038_Bool_05U++++++++++", "BOOLEAN")
 
@@ -1134,7 +1210,6 @@ class GenMech(bpy.types.Operator):
                     Remesh051 = ob.modifiers.new("051_------------Remesh------------", "REMESH")
 
                     Displace052 = ob.modifiers.new("052_____________Displace", "DISPLACE")
-
 
                     Warp053_x0 = ob.modifiers.new('053_Warp_x0', 'WARP')
                     Warp054_x1 = ob.modifiers.new('054_Warp_x1', 'WARP')
@@ -1180,7 +1255,7 @@ class GenMech(bpy.types.Operator):
                     Cast084 = ob.modifiers.new("084_//////////Cast//////////", "CAST")
 
                     Bool085 = ob.modifiers.new("085_Bool_sub++++++++++", "BOOLEAN")
-                    Bevel086 = ob.modifiers.new("086_<<<<<Bevel>>>>>", "BEVEL")#顶点
+                    Bevel086 = ob.modifiers.new("086_<<<<<Bevel>>>>>", "BEVEL")  # 顶点
 
                     Decimate087 = ob.modifiers.new("087_Decimate", "DECIMATE")
                     Lattice088 = ob.modifiers.new('088_Lattice', 'LATTICE')
@@ -1192,19 +1267,17 @@ class GenMech(bpy.types.Operator):
                     Cast092 = ob.modifiers.new("092_//////////Cast//////////", "CAST")
                     Cast093 = ob.modifiers.new("093_//////////Cast//////////", "CAST")
 
-                    Bevel094 = ob.modifiers.new("094_<<<<<Bevel>>>>>", "BEVEL")#关联Bool090
+                    Bevel094 = ob.modifiers.new("094_<<<<<Bevel>>>>>", "BEVEL")  # 关联Bool090
 
                     Bool095 = ob.modifiers.new("095_Bool_sub++++++++++", "BOOLEAN")
 
                     Triangulate096 = ob.modifiers.new("096_Triangulate", "TRIANGULATE")
 
                     Edgesplit097 = ob.modifiers.new("097_Edgesplit", "EDGE_SPLIT")
-                    Solidify098 = ob.modifiers.new("098_Solidify", "SOLIDIFY")#-0.02~-0.04
+                    Solidify098 = ob.modifiers.new("098_Solidify", "SOLIDIFY")  # -0.02~-0.04
                     Bevel099 = ob.modifiers.new("099_<<<<<Bevel>>>>>", "BEVEL")
                     Displace100 = ob.modifiers.new("100_____________Displace", "DISPLACE")
                     Smooth101 = ob.modifiers.new("101_Smooth_ToFixHole", "SMOOTH")
-
-
 
                     Triangulate102 = ob.modifiers.new("102_Triangulate", "TRIANGULATE")
 
@@ -1227,12 +1300,8 @@ class GenMech(bpy.types.Operator):
 
                     Mirror114 = ob.modifiers.new('114_Mirror_Obj', 'MIRROR')
 
-
-
                     Skin001.show_viewport = False
                     Skin001.show_render = False
-
-
 
                     Cast002.show_in_editmode = True
                     Cast002.cast_type = 'SPHERE'
@@ -1272,7 +1341,6 @@ class GenMech(bpy.types.Operator):
                     Simpledeform035.angle = -0.981259
                     Simpledeform035.deform_axis = 'X'
 
-
                     Simpledeform036.show_viewport = False
                     Simpledeform036.show_render = False
                     Simpledeform036.deform_method = 'BEND'
@@ -1302,7 +1370,6 @@ class GenMech(bpy.types.Operator):
                     Simpledeform078.deform_method = 'BEND'
                     Simpledeform078.angle = 0.610865
                     Simpledeform078.deform_axis = 'X'
-
 
                     Simpledeform079.show_viewport = False
                     Simpledeform079.show_render = False
@@ -1357,7 +1424,7 @@ class GenMech(bpy.types.Operator):
                     Cast009.use_radius_as_size = True
                     Cast009.factor = 0.2
                     Cast009.radius = 0
-                    #Cast009.use_z = False
+                    # Cast009.use_z = False
 
                     Remesh017.show_in_editmode = True
                     Remesh017.mode = 'SHARP'
@@ -1383,13 +1450,12 @@ class GenMech(bpy.types.Operator):
                     Array028.show_render = False
                     Array028.relative_offset_displace[0] = -33.9
 
-
                     Simpledeform029.deform_method = 'TAPER'
                     Simpledeform029.factor = 0.4
                     Simpledeform029.deform_axis = 'Y'
 
-                    Simpledeform030.deform_method = 'BEND'#STRETCH
-                    #Simpledeform030.factor = 0.5
+                    Simpledeform030.deform_method = 'BEND'  # STRETCH
+                    # Simpledeform030.factor = 0.5
                     Simpledeform030.angle = 0.523599
                     Simpledeform030.deform_axis = 'Z'
 
@@ -1400,7 +1466,7 @@ class GenMech(bpy.types.Operator):
                     Cast032.cast_type = 'CUBOID'
                     Cast032.factor = 0.6
                     Cast032.radius = 0
-                    
+
                     Array033.show_viewport = False
                     Array033.show_render = False
                     Array033.use_relative_offset = True
@@ -1427,7 +1493,7 @@ class GenMech(bpy.types.Operator):
                     Remesh051.use_remove_disconnected = True
 
                     Displace052.direction = 'NORMAL'
-                    Displace052.strength = 0.1#中调
+                    Displace052.strength = 0.1  # 中调
                     Displace052.mid_level = 0.5
 
                     Decimate059.decimate_type = 'COLLAPSE'
@@ -1446,7 +1512,6 @@ class GenMech(bpy.types.Operator):
                     Subsurf063.subdivision_type = 'CATMULL_CLARK'
                     Subsurf063.levels = 1
                     Subsurf063.render_levels = 1
-
 
                     Bevel043.show_viewport = False
                     Bevel043.show_render = False
@@ -1492,7 +1557,6 @@ class GenMech(bpy.types.Operator):
                     Array076.use_constant_offset = True
                     Array076.constant_offset_displace[2] = 10
 
-
                     Decimate087.decimate_type = 'COLLAPSE'
                     Decimate087.ratio = 0.02
                     Decimate087.use_symmetry = False
@@ -1500,26 +1564,25 @@ class GenMech(bpy.types.Operator):
 
                     Decimate089.decimate_type = 'DISSOLVE'
                     Decimate089.angle_limit = 0.0872665
-                    Decimate089.delimit = {'MATERIAL'}#3
+                    Decimate089.delimit = {'MATERIAL'}  # 3
 
-                    Bevel094.affect = 'VERTICES'#这次需要调切线倒角了
+                    Bevel094.affect = 'VERTICES'  # 这次需要调切线倒角了
                     Bevel094.offset_type = 'PERCENT'
-                    Bevel094.width_pct = 33#六角到三角
+                    Bevel094.width_pct = 33  # 六角到三角
                     Bevel094.segments = 1
                     Bevel094.material = 3
 
                     Edgesplit097.use_edge_angle = True
                     Edgesplit097.use_edge_sharp = True
-                    Edgesplit097.split_angle = 0.523599#2越小越以挤出的形式
+                    Edgesplit097.split_angle = 0.523599  # 2越小越以挤出的形式
 
                     Solidify098.solidify_mode = 'EXTRUDE'
-                    Solidify098.thickness = 0.02#1负负为正
-                    Solidify098.offset = 1 
+                    Solidify098.thickness = 0.02  # 1负负为正
+                    Solidify098.offset = 1
                     Solidify098.use_even_offset = False
                     Solidify098.use_rim = True
                     Solidify098.use_rim_only = True
                     Solidify098.material_offset_rim = 2
-
 
                     Bevel099.affect = 'EDGES'
                     Bevel099.offset_type = 'OFFSET'
@@ -1531,9 +1594,8 @@ class GenMech(bpy.types.Operator):
                     Displace100.strength = 0.01
                     Displace100.mid_level = 0.5
 
-
-                    #Smooth101.show_viewport = False
-                    #Smooth101.show_render = False
+                    # Smooth101.show_viewport = False
+                    # Smooth101.show_render = False
                     Smooth101.factor = 0.1
                     Smooth101.iterations = 3
                     Smooth101.use_x = True
@@ -1549,7 +1611,6 @@ class GenMech(bpy.types.Operator):
                     Cast091.use_radius_as_size = True
                     Cast091.factor = 0.4
                     Cast091.radius = 0
-
 
                     Cast092.show_viewport = False
                     Cast092.show_render = False
@@ -1579,13 +1640,11 @@ class GenMech(bpy.types.Operator):
                     Cast084.show_render = False
                     Cast084.cast_type = 'CUBOID'
 
-
-
-                    #Weld103.show_viewport = False
-                    #Weld103.show_render = False
+                    # Weld103.show_viewport = False
+                    # Weld103.show_render = False
                     Weld103.merge_threshold = 0.005
 
-                    #Weld103.max_interactions = 1
+                    # Weld103.max_interactions = 1
 
                     Warp010_x0.show_viewport = False
                     Warp010_x0.show_render = False
@@ -1671,37 +1730,36 @@ class GenMech(bpy.types.Operator):
                     Warp026_z1.falloff_type = 'SPHERE'
                     Warp026_z1.falloff_radius = 1
 
-
                     Wave040.show_viewport = True
                     Wave040.show_render = True
                     Laplaciansmooth041.show_viewport = True
                     Laplaciansmooth041.show_render = True
-                    #Wave040.show_viewport = False
-                    #Wave040.show_render = False
-                    #Laplaciansmooth041.show_viewport = False
-                    #Laplaciansmooth041.show_render = False
+                    # Wave040.show_viewport = False
+                    # Wave040.show_render = False
+                    # Laplaciansmooth041.show_viewport = False
+                    # Laplaciansmooth041.show_render = False
 
                     frametime = bpy.context.scene.frame_current
-                    
+
                     Wave040.height = 1
                     Laplaciansmooth041.iterations = 3
                     Laplaciansmooth041.lambda_factor = 0.1
                     Laplaciansmooth041.lambda_border = 0.1
                     bpy.context.scene.frame_current = 1
-                    if amProperty.FreezeTime_Bool ==False:
+                    if amProperty.FreezeTime_Bool == False:
                         Wave040.keyframe_insert('height')
-                        Laplaciansmooth041.keyframe_insert('lambda_border')#.keyframe_delete(
+                        Laplaciansmooth041.keyframe_insert('lambda_border')  # .keyframe_delete(
                         Laplaciansmooth041.keyframe_insert('lambda_factor')
 
                     Wave040.height = 25
                     Laplaciansmooth041.lambda_factor = 1
                     Laplaciansmooth041.lambda_border = 5
                     bpy.context.scene.frame_current = 250
-                    if amProperty.FreezeTime_Bool ==False:
+                    if amProperty.FreezeTime_Bool == False:
                         Wave040.keyframe_insert('height')
                         Laplaciansmooth041.keyframe_insert('lambda_border')
                         Laplaciansmooth041.keyframe_insert('lambda_factor')
-                    
+
                     bpy.context.scene.frame_current = frametime
 
                     Warp053_x0.show_viewport = False
@@ -1746,11 +1804,9 @@ class GenMech(bpy.types.Operator):
                     Warp058_z1.falloff_type = 'SHARP'
                     Warp058_z1.falloff_radius = 1
 
-
                     Triangulate066.show_viewport = False
                     Triangulate066.show_render = False
                     Triangulate066.min_vertices = 4
-
 
                     Triangulate096.show_viewport = False
                     Triangulate096.show_render = False
@@ -1773,13 +1829,12 @@ class GenMech(bpy.types.Operator):
                     Decimate105.delimit = {'NORMAL', 'MATERIAL', 'SEAM', 'SHARP', 'UV'}
                     Decimate105.use_dissolve_boundaries = True
 
-                    Wireframe019.show_viewport = False#线框主要切替换原物体 重构11取消移除分离元素 曲线
+                    Wireframe019.show_viewport = False  # 线框主要切替换原物体 重构11取消移除分离元素 曲线
                     Wireframe019.show_render = False
                     Wireframe019.use_boundary = True
                     Wireframe019.use_replace = False
                     Wireframe019.use_even_offset = True
                     Wireframe019.use_relative_offset = True
-
 
                     Mirror106.show_viewport = False
                     Mirror106.show_render = False
@@ -1790,188 +1845,194 @@ class GenMech(bpy.types.Operator):
                     Bool003_01Uniun.show_viewport = False
                     Bool003_01Uniun.show_render = False
                     Bool005_02Uniun.show_viewport = False
-                    Bool005_02Uniun.show_render = False					
+                    Bool005_02Uniun.show_render = False
                     Bool016_03Intersect.show_viewport = False
-                    Bool016_03Intersect.show_render = False					
+                    Bool016_03Intersect.show_render = False
                     Bool018_04Uniun.show_viewport = False
-                    Bool018_04Uniun.show_render = False					
+                    Bool018_04Uniun.show_render = False
                     Bool038_05Uniun.show_viewport = False
-                    Bool038_05Uniun.show_render = False					
+                    Bool038_05Uniun.show_render = False
                     Bool062_06Difference.show_viewport = False
                     Bool062_06Difference.show_render = False
 
-                    Source_ARROW_x0 = ob.name+"_SourceARROW_x+"
-                    Source_ARROW_x1 = ob.name+"_SourceARROW_x-"
-                    Source_ARROW_y0 = ob.name+"_SourceARROW_y+"
-                    Source_ARROW_y1 = ob.name+"_SourceARROW_y-"
-                    Source_ARROW_z0 = ob.name+"_SourceARROW_z+"
-                    Source_ARROW_z1 = ob.name+"_SourceARROW_z-"
+                    Source_ARROW_x0 = ob.name + "_SourceARROW_x+"
+                    Source_ARROW_x1 = ob.name + "_SourceARROW_x-"
+                    Source_ARROW_y0 = ob.name + "_SourceARROW_y+"
+                    Source_ARROW_y1 = ob.name + "_SourceARROW_y-"
+                    Source_ARROW_z0 = ob.name + "_SourceARROW_z+"
+                    Source_ARROW_z1 = ob.name + "_SourceARROW_z-"
 
-                    Target_ARROW_x0 = ob.name+"_TargetARROW_x+"
-                    Target_ARROW_x1 = ob.name+"_TargetARROW_x-"
-                    Target_ARROW_y0 = ob.name+"_TargetARROW_y+"
-                    Target_ARROW_y1 = ob.name+"_TargetARROW_y-"
-                    Target_ARROW_z0 = ob.name+"_TargetARROW_z+"
-                    Target_ARROW_z1 = ob.name+"_TargetARROW_z-"
+                    Target_ARROW_x0 = ob.name + "_TargetARROW_x+"
+                    Target_ARROW_x1 = ob.name + "_TargetARROW_x-"
+                    Target_ARROW_y0 = ob.name + "_TargetARROW_y+"
+                    Target_ARROW_y1 = ob.name + "_TargetARROW_y-"
+                    Target_ARROW_z0 = ob.name + "_TargetARROW_z+"
+                    Target_ARROW_z1 = ob.name + "_TargetARROW_z-"
 
-                    ObjLattice = ob.name+"_ObjLattice"
-                    ObjBoolTarget = ob.name+"_ObjBoolTarget"
-                    ObjBoolPlane = ob.name+"_ObjBoolPlane"
-                    ObjCurve = ob.name+"_ObjCurve"
+                    ObjLattice = ob.name + "_ObjLattice"
+                    ObjBoolTarget = ob.name + "_ObjBoolTarget"
+                    ObjBoolPlane = ob.name + "_ObjBoolPlane"
+                    ObjCurve = ob.name + "_ObjCurve"
                     ob_collection = find_collection(bpy.context, ob)
 
-
-                    areas = [area for screen in context.workspace.screens for area in screen.areas if area.type == "OUTLINER"]#VIEW3D
+                    areas = [area for screen in context.workspace.screens for area in screen.areas if
+                             area.type == "OUTLINER"]  # VIEW3D
                     for area in areas:
                         space = area.spaces[0]
-                        #space.use_filter_children = False
+                        # space.use_filter_children = False
                         space.show_restrict_column_select = True
                         space.show_restrict_column_viewport = True
                         space.show_restrict_column_render = True
-                        #bpy.context.space_data.overlay.show_face_orientation = True
-
+                        # bpy.context.space_data.overlay.show_face_orientation = True
 
                     if "1GenLine" in ob.name:
                         Skin001.show_viewport = True
                         Skin001.show_render = True
 
                     if Source_ARROW_x0 not in bpy.data.objects:
-                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 0), rotation=(0, 1.5708, 0), scale=(1, 1, 1))
+                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 0),
+                                                 rotation=(0, 1.5708, 0), scale=(1, 1, 1))
                         bpy.ops.object.transforms_to_deltas(mode='ALL')
                         bpy.context.object.name = Source_ARROW_x0
                         bpy.context.object.hide_render = True
 
-                        move_object(Source_ARROW_x0,ob.name)
+                        move_object(Source_ARROW_x0, ob.name)
 
                     if Target_ARROW_x0 not in bpy.data.objects:
-                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(10, 0, 0), rotation=(0, 1.5708, 0), scale=(1, 1, 1))#
+                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(10, 0, 0),
+                                                 rotation=(0, 1.5708, 0), scale=(1, 1, 1))  #
                         bpy.ops.object.transforms_to_deltas(mode='ALL')
                         bpy.context.object.name = Target_ARROW_x0
                         bpy.context.object.hide_render = True
 
-                        move_object(Target_ARROW_x0,ob.name)
-
+                        move_object(Target_ARROW_x0, ob.name)
 
                     if Source_ARROW_x1 not in bpy.data.objects:
-                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 0), rotation=(0, -1.5708, 0), scale=(1, 1, 1))
+                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 0),
+                                                 rotation=(0, -1.5708, 0), scale=(1, 1, 1))
                         bpy.ops.object.transforms_to_deltas(mode='ALL')
                         bpy.context.object.name = Source_ARROW_x1
                         bpy.context.object.hide_render = True
 
-                        move_object(Source_ARROW_x1,ob.name)
+                        move_object(Source_ARROW_x1, ob.name)
 
                     if Target_ARROW_x1 not in bpy.data.objects:
-                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(-10, 0, 0), rotation=(0, -1.5708, 0), scale=(1, 1, 1))#
+                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(-10, 0, 0),
+                                                 rotation=(0, -1.5708, 0), scale=(1, 1, 1))  #
                         bpy.ops.object.transforms_to_deltas(mode='ALL')
                         bpy.context.object.name = Target_ARROW_x1
                         bpy.context.object.hide_render = True
 
-                        move_object(Target_ARROW_x1,ob.name)
-
+                        move_object(Target_ARROW_x1, ob.name)
 
                     if Source_ARROW_y0 not in bpy.data.objects:
-                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 0), rotation=(-1.5708, 0, 0), scale=(1, 1, 1))
+                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 0),
+                                                 rotation=(-1.5708, 0, 0), scale=(1, 1, 1))
                         bpy.ops.object.transforms_to_deltas(mode='ALL')
                         bpy.context.object.name = Source_ARROW_y0
                         bpy.context.object.hide_render = True
 
-                        move_object(Source_ARROW_y0,ob.name)
+                        move_object(Source_ARROW_y0, ob.name)
 
                     if Target_ARROW_y0 not in bpy.data.objects:
-                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 10, 0), rotation=(-1.5708, 0, 0), scale=(1, 1, 1))#
+                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 10, 0),
+                                                 rotation=(-1.5708, 0, 0), scale=(1, 1, 1))  #
                         bpy.ops.object.transforms_to_deltas(mode='ALL')
                         bpy.context.object.name = Target_ARROW_y0
                         bpy.context.object.hide_render = True
 
-                        move_object(Target_ARROW_y0,ob.name)
+                        move_object(Target_ARROW_y0, ob.name)
 
                     if Source_ARROW_y1 not in bpy.data.objects:
-                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 0), rotation=(1.5708, 0, 0), scale=(1, 1, 1))
+                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 0),
+                                                 rotation=(1.5708, 0, 0), scale=(1, 1, 1))
                         bpy.ops.object.transforms_to_deltas(mode='ALL')
                         bpy.context.object.name = Source_ARROW_y1
                         bpy.context.object.hide_render = True
 
-                        move_object(Source_ARROW_y1,ob.name)
-
+                        move_object(Source_ARROW_y1, ob.name)
 
                     if Target_ARROW_y1 not in bpy.data.objects:
-                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, -10, 0), rotation=(1.5708, 0, 0), scale=(1, 1, 1))#
+                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, -10, 0),
+                                                 rotation=(1.5708, 0, 0), scale=(1, 1, 1))  #
                         bpy.ops.object.transforms_to_deltas(mode='ALL')
                         bpy.context.object.name = Target_ARROW_y1
                         bpy.context.object.hide_render = True
 
-                        move_object(Target_ARROW_y1,ob.name)
+                        move_object(Target_ARROW_y1, ob.name)
 
                     if Source_ARROW_z0 not in bpy.data.objects:
-                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 0), rotation=(0, 0, 0), scale=(1, 1, 1))
+                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 0),
+                                                 rotation=(0, 0, 0), scale=(1, 1, 1))
                         bpy.ops.object.transforms_to_deltas(mode='ALL')
                         bpy.context.object.name = Source_ARROW_z0
                         bpy.context.object.hide_render = True
 
-                        Source_z0=bpy.data.objects[Source_ARROW_z0]
+                        Source_z0 = bpy.data.objects[Source_ARROW_z0]
                         Source_z0.parent = ob
                         Source_z0_collection = find_collection(bpy.context, Source_z0)
                         ob_collection.objects.link(Source_z0)
                         Source_z0_collection.objects.unlink(Source_z0)
 
-
                     if Target_ARROW_z0 not in bpy.data.objects:
-                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 10), rotation=(0, 0, 0), scale=(1, 1, 1))#
+                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 10),
+                                                 rotation=(0, 0, 0), scale=(1, 1, 1))  #
                         bpy.ops.object.transforms_to_deltas(mode='ALL')
                         bpy.context.object.name = Target_ARROW_z0
                         bpy.context.object.hide_render = True
 
-                        move_object(Target_ARROW_z0,ob.name)
-
-
+                        move_object(Target_ARROW_z0, ob.name)
 
                     if Source_ARROW_z1 not in bpy.data.objects:
-                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 0), rotation=(3.1415926, 0, 0), scale=(1, 1, 1))
+                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, 0),
+                                                 rotation=(3.1415926, 0, 0), scale=(1, 1, 1))
                         bpy.ops.object.transforms_to_deltas(mode='ALL')
                         bpy.context.object.name = Source_ARROW_z1
                         bpy.context.object.hide_render = True
 
-                        Source_z1=bpy.data.objects[Source_ARROW_z1]
+                        Source_z1 = bpy.data.objects[Source_ARROW_z1]
                         Source_z1.parent = ob
                         Source_z1_collection = find_collection(bpy.context, Source_z1)
                         ob_collection.objects.link(Source_z1)
                         Source_z1_collection.objects.unlink(Source_z1)
 
-
                     if Target_ARROW_z1 not in bpy.data.objects:
-                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, -10), rotation=(3.1415926, 0, 0), scale=(1, 1, 1))#
+                        bpy.ops.object.empty_add(type='SINGLE_ARROW', align='WORLD', location=(0, 0, -10),
+                                                 rotation=(3.1415926, 0, 0), scale=(1, 1, 1))  #
                         bpy.ops.object.transforms_to_deltas(mode='ALL')
                         bpy.context.object.name = Target_ARROW_z1
                         bpy.context.object.hide_render = True
 
-                        Target_z1=bpy.data.objects[Target_ARROW_z1]
+                        Target_z1 = bpy.data.objects[Target_ARROW_z1]
                         Target_z1.parent = ob
                         Target_z1_collection = find_collection(bpy.context, Target_z1)
                         ob_collection.objects.link(Target_z1)
                         Target_z1_collection.objects.unlink(Target_z1)
 
                     if ObjLattice not in bpy.data.objects:
-                        bpy.ops.object.add(radius=10, type='LATTICE', enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))
+                        bpy.ops.object.add(radius=10, type='LATTICE', enter_editmode=False, align='WORLD',
+                                           location=(0, 0, 0), scale=(1, 1, 1))
                         bpy.context.object.name = ObjLattice
                         bpy.context.object.data.points_u = 3
                         bpy.context.object.data.points_v = 3
                         bpy.context.object.data.points_w = 3
                         bpy.context.object.hide_render = True
 
-                        Lattice=bpy.data.objects[ObjLattice]
+                        Lattice = bpy.data.objects[ObjLattice]
                         Lattice.parent = ob
                         Lattice_collection = find_collection(bpy.context, Lattice)
                         ob_collection.objects.link(Lattice)
                         Lattice_collection.objects.unlink(Lattice)
 
-
-                    if ObjBoolTarget not in bpy.data.objects:#要想使之不变化就使用父子级吧 设置它的材质关联
-                        bpy.ops.mesh.primitive_cylinder_add(vertices=4, radius=1, depth=9, enter_editmode=False, align='WORLD', location=(0, 0, 1), rotation=(1.5708, 0.785398, 0), scale=(1, 1, 1))
+                    if ObjBoolTarget not in bpy.data.objects:  # 要想使之不变化就使用父子级吧 设置它的材质关联
+                        bpy.ops.mesh.primitive_cylinder_add(vertices=4, radius=1, depth=9, enter_editmode=False,
+                                                            align='WORLD', location=(0, 0, 1),
+                                                            rotation=(1.5708, 0.785398, 0), scale=(1, 1, 1))
                         bpy.context.object.name = ObjBoolTarget
                         bpy.context.object.hide_render = True
                         bpy.context.object.display_type = 'WIRE'
                         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
-                        BoolObject=bpy.data.objects[ObjBoolTarget]
+                        BoolObject = bpy.data.objects[ObjBoolTarget]
 
                         '''
                         if len(BoolObject.material_slots) <= 1:
@@ -1993,19 +2054,20 @@ class GenMech(bpy.types.Operator):
                         BoolObject_collection.objects.unlink(BoolObject)
 
                     if ObjBoolPlane not in bpy.data.objects:
-                        bpy.ops.mesh.primitive_plane_add(size=16, enter_editmode=False, align='WORLD', location=(0, -5, 0), rotation=(1.5708, 0, 0), scale=(1, 1, 1))
+                        bpy.ops.mesh.primitive_plane_add(size=16, enter_editmode=False, align='WORLD',
+                                                         location=(0, -5, 0), rotation=(1.5708, 0, 0), scale=(1, 1, 1))
                         bpy.context.object.name = ObjBoolPlane
                         bpy.context.object.hide_render = True
                         bpy.context.object.display_type = 'WIRE'
                         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
 
-                        #bpy.ops.object.material_slot_add()
-                        #bpy.ops.object.material_slot_add()
-                        #bpy.ops.object.material_slot_add()
-                        #bpy.ops.object.material_slot_add()
-                        #bpy.ops.object.material_slot_add()
+                        # bpy.ops.object.material_slot_add()
+                        # bpy.ops.object.material_slot_add()
+                        # bpy.ops.object.material_slot_add()
+                        # bpy.ops.object.material_slot_add()
+                        # bpy.ops.object.material_slot_add()
 
-                        BoolPlane=bpy.data.objects[ObjBoolPlane]#可以在此之前添加实体化
+                        BoolPlane = bpy.data.objects[ObjBoolPlane]  # 可以在此之前添加实体化
                         BoolPlane.parent = ob
                         BoolPlane_collection = find_collection(bpy.context, BoolPlane)
                         ob_collection.objects.link(BoolPlane)
@@ -2025,11 +2087,11 @@ class GenMech(bpy.types.Operator):
                             BoolPlane.data.materials.append(mat4)
                         '''
 
-                        #BoolPlane.data.materials[0] = mat0
-                        #BoolPlane.data.materials[1] = mat1
-                        #BoolPlane.data.materials[2] = mat2
-                        #BoolPlane.data.materials[3] = mat3
-                        #BoolPlane.data.materials[4] = mat4
+                        # BoolPlane.data.materials[0] = mat0
+                        # BoolPlane.data.materials[1] = mat1
+                        # BoolPlane.data.materials[2] = mat2
+                        # BoolPlane.data.materials[3] = mat3
+                        # BoolPlane.data.materials[4] = mat4
 
                         BoolPlaneArray = BoolPlane.modifiers.new("BoolPlaneArray", "ARRAY")
                         BoolPlaneArray.fit_type = 'FIXED_COUNT'
@@ -2039,13 +2101,13 @@ class GenMech(bpy.types.Operator):
                         BoolPlaneArray.constant_offset_displace[0] = 0
                         BoolPlaneArray.constant_offset_displace[1] = 1.5
 
-
                     if ObjCurve not in bpy.data.objects:
-                        bpy.ops.curve.primitive_bezier_circle_add(radius=10, enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))
+                        bpy.ops.curve.primitive_bezier_circle_add(radius=10, enter_editmode=False, align='WORLD',
+                                                                  location=(0, 0, 0), scale=(1, 1, 1))
                         bpy.context.object.name = ObjCurve
                         bpy.context.object.hide_render = True
 
-                        Curve=bpy.data.objects[ObjCurve]
+                        Curve = bpy.data.objects[ObjCurve]
                         Curve.parent = ob
                         Curve_collection = find_collection(bpy.context, Curve)
                         ob_collection.objects.link(Curve)
@@ -2060,7 +2122,7 @@ class GenMech(bpy.types.Operator):
                     Bool003_01Uniun.operation = 'UNION'
                     Bool003_01Uniun.object = bpy.data.objects[ObjBoolTarget]
 
-                    Bool005_02Uniun.operation = 'UNION'#'DIFFERENCE'
+                    Bool005_02Uniun.operation = 'UNION'  # 'DIFFERENCE'
                     Bool005_02Uniun.object = bpy.data.objects[ObjBoolTarget]
 
                     Bool016_03Intersect.operation = 'INTERSECT'
@@ -2114,8 +2176,6 @@ class GenMech(bpy.types.Operator):
                     Warp058_z1.object_from = bpy.data.objects[Source_ARROW_z1]
                     Warp058_z1.object_to = bpy.data.objects[Target_ARROW_z1]
 
-
-
                     Curve045.show_viewport = False
                     Curve045.show_render = False
                     Curve045.deform_axis = 'NEG_Y'
@@ -2130,12 +2190,12 @@ class GenMech(bpy.types.Operator):
                     Lattice042.show_render = False
                     Lattice042.object = bpy.data.objects[ObjLattice]
 
-                    Shrinkwrap039.show_viewport = False#V
+                    Shrinkwrap039.show_viewport = False  # V
                     Shrinkwrap039.show_render = False
                     Shrinkwrap039.wrap_method = 'TARGET_PROJECT'
                     Shrinkwrap039.wrap_mode = 'OUTSIDE'
                     Shrinkwrap039.target = bpy.data.objects[ObjBoolTarget]
-                    Shrinkwrap039.offset = 0.5#随便
+                    Shrinkwrap039.offset = 0.5  # 随便
 
                     Bevel065.show_viewport = False
                     Bevel065.show_render = False
@@ -2150,16 +2210,14 @@ class GenMech(bpy.types.Operator):
                     Bevel046.show_render = False
                     Bevel046.affect = 'VERTICES'
                     Bevel046.offset_type = 'PERCENT'
-                    Bevel046.width_pct = 10#随便吧
+                    Bevel046.width_pct = 10  # 随便吧
 
                     Shrinkwrap047.show_viewport = False
                     Shrinkwrap047.show_render = False
                     Shrinkwrap047.wrap_method = 'NEAREST_SURFACEPOINT'
                     Shrinkwrap047.wrap_mode = 'ON_SURFACE'
                     Shrinkwrap047.target = bpy.data.objects[ObjBoolTarget]
-                    Shrinkwrap047.offset = 0.3#随便
-
-
+                    Shrinkwrap047.offset = 0.3  # 随便
 
                     Edgesplit048.show_viewport = False
                     Edgesplit048.show_render = False
@@ -2177,8 +2235,6 @@ class GenMech(bpy.types.Operator):
                     Solidify049.nonmanifold_merge_threshold = 0.02
                     Solidify049.use_rim_only = True
                     Solidify049.use_rim = True
-
-
 
                     Bool050.show_viewport = False
                     Bool050.show_render = False
@@ -2200,23 +2256,22 @@ class GenMech(bpy.types.Operator):
                     Bevel086.show_render = False
                     Bevel086.affect = 'VERTICES'
                     Bevel086.offset_type = 'PERCENT'
-                    Bevel086.width_pct = 10#随便变动
-
+                    Bevel086.width_pct = 10  # 随便变动
 
                     Lattice088.show_viewport = False
                     Lattice088.show_render = False
                     Lattice088.object = bpy.data.objects[ObjLattice]
 
                     Bool090.show_viewport = False
-                    Bool090.show_render = False#关联Bevel094 需要调整
+                    Bool090.show_render = False  # 关联Bevel094 需要调整
                     Bool090.operation = 'DIFFERENCE'
                     Bool090.object = bpy.data.objects[ObjBoolPlane]
 
-                    Bool095.show_viewport = True#实在不行有洞就向上一级直到Bool085
-                    Bool095.show_render = True#A打开直线
-                    #if bpy.app.version >= (2, 92, 0):
-                        #Bool095.operation = 'INTERSECT'
-                    #else:
+                    Bool095.show_viewport = True  # 实在不行有洞就向上一级直到Bool085
+                    Bool095.show_render = True  # A打开直线
+                    # if bpy.app.version >= (2, 92, 0):
+                    # Bool095.operation = 'INTERSECT'
+                    # else:
                     Bool095.operation = 'DIFFERENCE'
                     Bool095.object = bpy.data.objects[ObjBoolPlane]
 
@@ -2233,8 +2288,6 @@ class GenMech(bpy.types.Operator):
                     Curve109.show_render = False
                     Curve109.object = bpy.data.objects[ObjCurve]
                     Curve109.deform_axis = 'POS_X'
-
-
 
                     Simpledeform110.show_viewport = False
                     Simpledeform110.show_render = False
@@ -2259,8 +2312,6 @@ class GenMech(bpy.types.Operator):
                     Cast113.show_render = False
 
                     Mirror114.mirror_object = bpy.data.objects[ObjLattice]
-
-
 
                     if amProperty.MOD_BOOLEAN_Bool == True:
                         Bool003_01Uniun.show_viewport = True
@@ -2328,11 +2379,11 @@ class GenMech(bpy.types.Operator):
 
                     if amProperty.MOD_ARRAY_Bool == True:
                         Array008.show_viewport = True
-                        Array008.show_render = True			
+                        Array008.show_render = True
                         Array033.show_viewport = True
-                        Array033.show_render = True					
+                        Array033.show_render = True
                         Array067.show_viewport = True
-                        Array067.show_render = True					
+                        Array067.show_render = True
                         Array076.show_viewport = True
                         Array076.show_render = True
                         Array028.show_viewport = True
@@ -2411,55 +2462,65 @@ class GenMech(bpy.types.Operator):
                         Mirror106.show_viewport = True
                         Mirror106.show_render = True
 
-                        #Mirror114.show_viewport = True
-                        #Mirror114.show_render = True
+                        # Mirror114.show_viewport = True
+                        # Mirror114.show_render = True
 
                     if amProperty.RandomMaterialBool == True:
-                        for i in range(0,len(ob.material_slots)):
+                        for i in range(0, len(ob.material_slots)):
                             ob.active_material_index = i
                             MatOld = ob.active_material
                             MatNew = MatOld.copy()
-                            MatNew.name=MatNew.name[:-4]+"_"+ob.name
+                            MatNew.name = MatNew.name[:-4] + "_" + ob.name
                             ob.data.materials[i] = MatNew
-                            if len(BoolObject.material_slots) <= (len(ob.material_slots)-1):
+                            if len(BoolObject.material_slots) <= (len(ob.material_slots) - 1):
                                 BoolObject.data.materials.append(MatNew)
-                            if len(BoolPlane.material_slots) <= (len(ob.material_slots)-1):
+                            if len(BoolPlane.material_slots) <= (len(ob.material_slots) - 1):
                                 BoolPlane.data.materials.append(MatNew)
-                            #xv=random.uniform(0, sampleProperty.xvMax)
-                            if i == 0:#从这里设置材质参数
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.9), random.uniform(0, 0.7), random.uniform(0, 1), 1)
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0, 1), random.uniform(0, 0.9), random.uniform(0, 0.8), 1)
-                                #bpy.data.materials["PreM00_立方体"].node_tree.nodes["混合"].inputs[1].default_value = (0.821436, 0.069368, 0.819111, 1)
-                                #bpy.data.materials["PreM00_立方体"].node_tree.nodes["混合"].inputs[2].default_value = (0.0137551, 0.321451, 0.516982, 1)
-                            
+                            # xv=random.uniform(0, sampleProperty.xvMax)
+                            if i == 0:  # 从这里设置材质参数
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (
+                                    random.uniform(0, 0.9), random.uniform(0, 0.7), random.uniform(0, 1), 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (
+                                    random.uniform(0, 1), random.uniform(0, 0.9), random.uniform(0, 0.8), 1)
+                                # bpy.data.materials["PreM00_立方体"].node_tree.nodes["混合"].inputs[1].default_value = (0.821436, 0.069368, 0.819111, 1)
+                                # bpy.data.materials["PreM00_立方体"].node_tree.nodes["混合"].inputs[2].default_value = (0.0137551, 0.321451, 0.516982, 1)
+
                             if i == 1:
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.3), random.uniform(0, 0.3), random.uniform(0, 0.3), 1)
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (
+                                    random.uniform(0, 0.3), random.uniform(0, 0.3), random.uniform(0, 0.3), 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (
+                                    random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), 1)
 
                             if i == 2:
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.05), random.uniform(0, 0.05), random.uniform(0, 0.05), 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (
+                                    random.uniform(0, 0.05), random.uniform(0, 0.05), random.uniform(0, 0.05), 1)
 
                             if i == 3:
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.5), random.uniform(0, 0.5), random.uniform(0, 0.5), 1)
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.4, 1), random.uniform(0.4, 1), random.uniform(0.4, 1), 1)
-                            
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (
+                                    random.uniform(0, 0.5), random.uniform(0, 0.5), random.uniform(0, 0.5), 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (
+                                    random.uniform(0.4, 1), random.uniform(0.4, 1), random.uniform(0.4, 1), 1)
+
                             if i == 4:
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.4), random.uniform(0, 0.4), random.uniform(0, 0.4), 1)
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[17].default_value = (random.uniform(0, 0.8), random.uniform(0, 0.8), random.uniform(0, 0.8), 1)
-                                #bpy.data.materials["PreM04_立方体"].node_tree.nodes["原理化BSDF"].inputs[17].default_value = (0.0183155, 0.253049, 0.253049, 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (
+                                    random.uniform(0, 0.4), random.uniform(0, 0.4), random.uniform(0, 0.4), 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[
+                                    17].default_value = (
+                                    random.uniform(0, 0.8), random.uniform(0, 0.8), random.uniform(0, 0.8), 1)
+                                # bpy.data.materials["PreM04_立方体"].node_tree.nodes["原理化BSDF"].inputs[17].default_value = (0.0183155, 0.253049, 0.253049, 1)
 
 
                     else:
-                        for i in range(0,len(ob.material_slots)):
+                        for i in range(0, len(ob.material_slots)):
                             ob.active_material_index = i
                             MatOld = ob.active_material
-                            if len(BoolObject.material_slots) <= (len(ob.material_slots)-1):
+                            if len(BoolObject.material_slots) <= (len(ob.material_slots) - 1):
                                 BoolObject.data.materials.append(MatOld)
-                            if len(BoolPlane.material_slots) <= (len(ob.material_slots)-1):
+                            if len(BoolPlane.material_slots) <= (len(ob.material_slots) - 1):
                                 BoolPlane.data.materials.append(MatOld)
 
 
-                elif amProperty.GenMechEnum =='Helmet':
+                elif amProperty.GenMechEnum == 'Helmet':
                     ob.modifiers.clear()
 
                     Skin001 = ob.modifiers.new("1_Skin", "SKIN")
@@ -2473,7 +2534,7 @@ class GenMech(bpy.types.Operator):
                     Wave009 = ob.modifiers.new('9_Wave', 'WAVE')
                     Wireframe010 = ob.modifiers.new('10_Wireframe', 'WIREFRAME')
                     Screw011 = ob.modifiers.new("11_Screw", "SCREW")
-                    Remesh012 = ob.modifiers.new("121Remesh","REMESH")
+                    Remesh012 = ob.modifiers.new("121Remesh", "REMESH")
                     Displace013 = ob.modifiers.new("Displace013", "DISPLACE")
                     Bool014 = ob.modifiers.new("Bool014++++++++++", "BOOLEAN")
                     Decimate015 = ob.modifiers.new("Decimate015", "DECIMATE")
@@ -2504,7 +2565,7 @@ class GenMech(bpy.types.Operator):
                     Bool040 = ob.modifiers.new("Bool040++++++++++", "BOOLEAN")
                     Cast041 = ob.modifiers.new("Cast041", "CAST")
                     Simpledeform042 = ob.modifiers.new("42_&&&&Simpledeform", "SIMPLE_DEFORM")
-                    Remesh043 = ob.modifiers.new("Remesh043","REMESH")
+                    Remesh043 = ob.modifiers.new("Remesh043", "REMESH")
                     Simpledeform070 = ob.modifiers.new("70_&&&&Simpledeform", "SIMPLE_DEFORM")
                     Smooth044 = ob.modifiers.new("Smooth044", "SMOOTH")
                     Laplaciansmooth45 = ob.modifiers.new("Laplaciansmooth45", "LAPLACIANSMOOTH")
@@ -2532,7 +2593,6 @@ class GenMech(bpy.types.Operator):
                     Simpledeform067 = ob.modifiers.new("67_&&&&Simpledeform", "SIMPLE_DEFORM")
                     Cast068 = ob.modifiers.new("Cast068", "CAST")
                     Mirror069 = ob.modifiers.new('Mirror069', 'MIRROR')
-
 
                     for mod in ob.modifiers:
                         mod.show_viewport = False
@@ -2626,7 +2686,6 @@ class GenMech(bpy.types.Operator):
                     Screw011.steps = 8
                     Screw011.render_steps = 8
 
-
                     Remesh012.show_in_editmode = True
                     Remesh012.show_viewport = True
                     Remesh012.show_render = True
@@ -2653,7 +2712,6 @@ class GenMech(bpy.types.Operator):
                     Build016.use_reverse = False
                     Build016.use_random_order = True
                     Build016.seed = 12
-
 
                     Displace017.show_in_editmode = True
                     Displace017.show_viewport = True
@@ -2726,7 +2784,7 @@ class GenMech(bpy.types.Operator):
                     Simpledeform028.angle = 0.942478
                     Simpledeform028.deform_axis = 'Y'
 
-                    Simpledeform029.deform_method = 'TWIST'#或bend弯曲
+                    Simpledeform029.deform_method = 'TWIST'  # 或bend弯曲
                     Simpledeform029.angle = 0.696386
                     Simpledeform029.deform_axis = 'Y'
 
@@ -2776,19 +2834,19 @@ class GenMech(bpy.types.Operator):
                     Wave036.speed = 0.25
 
                     Ocean037.geometry_mode = 'DISPLACE'
-                    Ocean037.resolution = 5#分辨率
-                    Ocean037.time = 2.49#时间
-                    Ocean037.depth = 200#深度
-                    Ocean037.size = 1.07##尺寸
-                    Ocean037.spatial_size = 54###空间尺寸
-                    Ocean037.random_seed = 0##随机种
-                    Ocean037.wave_scale = 1#wave_scale->size 缩放影响尺寸 0不动
-                    Ocean037.wave_scale_min = 0.01#最小波浪
-                    Ocean037.choppiness = 1#翻滚度
-                    Ocean037.wind_velocity = 30#风速 小的时候才能变
-                    Ocean037.wave_alignment = 0#对齐 打开下两选项
-                    Ocean037.wave_direction = 0#方向
-                    Ocean037.damping = 0.5#阻尼
+                    Ocean037.resolution = 5  # 分辨率
+                    Ocean037.time = 2.49  # 时间
+                    Ocean037.depth = 200  # 深度
+                    Ocean037.size = 1.07  ##尺寸
+                    Ocean037.spatial_size = 54  ###空间尺寸
+                    Ocean037.random_seed = 0  ##随机种
+                    Ocean037.wave_scale = 1  # wave_scale->size 缩放影响尺寸 0不动
+                    Ocean037.wave_scale_min = 0.01  # 最小波浪
+                    Ocean037.choppiness = 1  # 翻滚度
+                    Ocean037.wind_velocity = 30  # 风速 小的时候才能变
+                    Ocean037.wave_alignment = 0  # 对齐 打开下两选项
+                    Ocean037.wave_direction = 0  # 方向
+                    Ocean037.damping = 0.5  # 阻尼
 
                     Cast038.show_in_editmode = True
                     Cast038.show_viewport = True
@@ -2844,7 +2902,7 @@ class GenMech(bpy.types.Operator):
 
                     Smooth044.use_x = False
                     Smooth044.use_y = False
-                    Smooth044.use_z = True#两短一长选最长，平滑一部分就好
+                    Smooth044.use_z = True  # 两短一长选最长，平滑一部分就好
                     Smooth044.factor = 2
                     Smooth044.iterations = 1
 
@@ -2998,83 +3056,92 @@ class GenMech(bpy.types.Operator):
                     ob.data.auto_smooth_angle = 0.523599
 
                     if amProperty.RandomMaterialBool == True:
-                        for i in range(0,len(ob.material_slots)):
+                        for i in range(0, len(ob.material_slots)):
                             ob.active_material_index = i
                             MatOld = ob.active_material
                             MatNew = MatOld.copy()
-                            MatNew.name=MatNew.name[:-4]+"_"+ob.name
+                            MatNew.name = MatNew.name[:-4] + "_" + ob.name
                             ob.data.materials[i] = MatNew
-                            if i == 0:#从这里设置材质参数
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.9), random.uniform(0, 0.7), random.uniform(0, 1), 1)
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0, 1), random.uniform(0, 0.9), random.uniform(0, 0.8), 1)
-                            
+                            if i == 0:  # 从这里设置材质参数
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (
+                                    random.uniform(0, 0.9), random.uniform(0, 0.7), random.uniform(0, 1), 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (
+                                    random.uniform(0, 1), random.uniform(0, 0.9), random.uniform(0, 0.8), 1)
+
                             if i == 1:
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.3), random.uniform(0, 0.3), random.uniform(0, 0.3), 1)
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (
+                                    random.uniform(0, 0.3), random.uniform(0, 0.3), random.uniform(0, 0.3), 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (
+                                    random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), 1)
 
                             if i == 2:
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.05), random.uniform(0, 0.05), random.uniform(0, 0.05), 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (
+                                    random.uniform(0, 0.05), random.uniform(0, 0.05), random.uniform(0, 0.05), 1)
 
                             if i == 3:
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.5), random.uniform(0, 0.5), random.uniform(0, 0.5), 1)
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.4, 1), random.uniform(0.4, 1), random.uniform(0.4, 1), 1)
-                            
-                            if i == 4:
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.4), random.uniform(0, 0.4), random.uniform(0, 0.4), 1)
-                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[17].default_value = (random.uniform(0, 0.8), random.uniform(0, 0.8), random.uniform(0, 0.8), 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (
+                                    random.uniform(0, 0.5), random.uniform(0, 0.5), random.uniform(0, 0.5), 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (
+                                    random.uniform(0.4, 1), random.uniform(0.4, 1), random.uniform(0.4, 1), 1)
 
+                            if i == 4:
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (
+                                    random.uniform(0, 0.4), random.uniform(0, 0.4), random.uniform(0, 0.4), 1)
+                                bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[
+                                    17].default_value = (
+                                    random.uniform(0, 0.8), random.uniform(0, 0.8), random.uniform(0, 0.8), 1)
 
             for mod in ob.modifiers:
                 mod.show_expanded = False
                 mod.show_in_editmode = False
-                if (mod.type =='BOOLEAN') and bpy.app.version >= (2, 92, 0):
-                    mod.solver ='FAST'
+                if (mod.type == 'BOOLEAN') and bpy.app.version >= (2, 92, 0):
+                    mod.solver = 'FAST'
 
         if len(OBJNameList) != 0:
-            NumCount=count(0, 1)
+            NumCount = count(0, 1)
             bpy.ops.object.select_all(action='DESELECT')
             for OBJName in OBJNameList:
 
-                ob= bpy.data.objects[OBJName]
+                ob = bpy.data.objects[OBJName]
                 bpy.context.view_layer.objects.active = ob
 
-                #bpy.data.objects[OBJName].select_set(True)
-                #NumOBJ=len(OBJModEndList)
-                Num=int(next(NumCount))
-                start = int(OBJModEndList[Num])+1
-                end= int(OBJModEndList[Num+1])-1
-                #Modparam[4+int(next(ModCount))]
-                #OBJModEndList[]
-                #else:
+                # bpy.data.objects[OBJName].select_set(True)
+                # NumOBJ=len(OBJModEndList)
+                Num = int(next(NumCount))
+                start = int(OBJModEndList[Num]) + 1
+                end = int(OBJModEndList[Num + 1]) - 1
+                # Modparam[4+int(next(ModCount))]
+                # OBJModEndList[]
+                # else:
                 ob.modifiers.clear()
-                #ob.constraints.clear()
+                # ob.constraints.clear()
                 amProperty.GenMechEnum = amProperty.GenMechName
-                #FolderPath=os.path.dirname(__file__)+'\\Preset\\'
-                #with open(FolderPath + amProperty.GenMechEnum + ".txt") as f:
-                f = open(File, encoding='utf-8')#f = open(File)
-                for OBJline in islice(f,start,end):
-                    Modparam = OBJline.split("|")#####split
+                # FolderPath=os.path.dirname(__file__)+'\\Preset\\'
+                # with open(FolderPath + amProperty.GenMechEnum + ".txt") as f:
+                f = open(File, encoding='utf-8')  # f = open(File)
+                for OBJline in islice(f, start, end):
+                    Modparam = OBJline.split("|")  #####split
                     Conparam = OBJline.split("|")
-                    ConPreType=Conparam[1]
-                    ConType=ConPreType[4:]
+                    ConPreType = Conparam[1]
+                    ConType = ConPreType[4:]
 
-                    i=0
-                    if Modparam[1] == "SKIN":#Type
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                    i = 0
+                    if Modparam[1] == "SKIN":  # Type
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.branch_smoothing=float(Modparam[5])
-                        Mod.branch_smoothing=str_to_bool(Modparam[6])
-                        Mod.branch_smoothing=str_to_bool(Modparam[7])
-                        Mod.branch_smoothing=str_to_bool(Modparam[8])
-                        Mod.branch_smoothing=str_to_bool(Modparam[9])
-                    elif Modparam[1] == "CAST":#Type
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.branch_smoothing = float(Modparam[5])
+                        Mod.branch_smoothing = str_to_bool(Modparam[6])
+                        Mod.branch_smoothing = str_to_bool(Modparam[7])
+                        Mod.branch_smoothing = str_to_bool(Modparam[8])
+                        Mod.branch_smoothing = str_to_bool(Modparam[9])
+                    elif Modparam[1] == "CAST":  # Type
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.cast_type= real_str(Modparam[5])
+                        Mod.cast_type = real_str(Modparam[5])
                         Mod.use_x = str_to_bool(Modparam[6])
                         Mod.use_y = str_to_bool(Modparam[7])
                         Mod.use_z = str_to_bool(Modparam[8])
@@ -3086,1198 +3153,1203 @@ class GenMech(bpy.types.Operator):
                         Mod.invert_vertex_group = str_to_bool(Modparam[14])
                         Mod.object = str_to_obj(Modparam[15])
                         Mod.use_transform = str_to_bool(Modparam[16])
-                    elif Modparam[1] == "BOOLEAN":#real_str str_to_obj str_to_bool (Modparam[4+int(next(ModCount))])
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                    elif Modparam[1] == "BOOLEAN":  # real_str str_to_obj str_to_bool (Modparam[4+int(next(ModCount))])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        
-                        Mod.operation=real_str(Modparam[4+int(next(ModCount))])#int(next(ModCount))
-                        Mod.object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.double_threshold = float(Modparam[4+int(next(ModCount))])
-                        if (bpy.app.version >= (2, 92, 0)) and (len(Modparam)>=10):
-                            Mod.solver =Modparam[4+int(next(ModCount))]
-                            Mod.use_self = str_to_bool(Modparam[4+int(next(ModCount))])
 
-                    elif Modparam[1] == "REMESH":#real_str str_to_obj str_to_bool float int
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.operation = real_str(Modparam[4 + int(next(ModCount))])  # int(next(ModCount))
+                        Mod.object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.double_threshold = float(Modparam[4 + int(next(ModCount))])
+                        if (bpy.app.version >= (2, 92, 0)) and (len(Modparam) >= 10):
+                            Mod.solver = Modparam[4 + int(next(ModCount))]
+                            Mod.use_self = str_to_bool(Modparam[4 + int(next(ModCount))])
+
+                    elif Modparam[1] == "REMESH":  # real_str str_to_obj str_to_bool float int
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        
-                        Mod.mode=real_str(Modparam[4+int(next(ModCount))])#int(next(ModCount))
-                        Mod.octree_depth = int(Modparam[4+int(next(ModCount))])
-                        Mod.scale = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_remove_disconnected = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.threshold = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_smooth_shade = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "SIMPLE_DEFORM":#real_str str_to_obj str_to_bool float int
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+
+                        Mod.mode = real_str(Modparam[4 + int(next(ModCount))])  # int(next(ModCount))
+                        Mod.octree_depth = int(Modparam[4 + int(next(ModCount))])
+                        Mod.scale = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_remove_disconnected = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.threshold = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_smooth_shade = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "SIMPLE_DEFORM":  # real_str str_to_obj str_to_bool float int
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        
-                        Mod.deform_method=real_str(Modparam[4+int(next(ModCount))])
-                        Mod.angle = float(Modparam[4+int(next(ModCount))])
-                        Mod.origin = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.deform_axis = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.limits[0] = float(Modparam[4+int(next(ModCount))])
-                        Mod.limits[1] = float(Modparam[4+int(next(ModCount))])
-                        Mod.lock_x = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.lock_y = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.lock_z = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group=real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "DISPLACE":#Type real_str str_to_obj str_to_bool (Modparam[4+int(next(ModCount))])
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+
+                        Mod.deform_method = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.angle = float(Modparam[4 + int(next(ModCount))])
+                        Mod.origin = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.deform_axis = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.limits[0] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.limits[1] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.lock_x = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.lock_y = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.lock_z = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[
+                        1] == "DISPLACE":  # Type real_str str_to_obj str_to_bool (Modparam[4+int(next(ModCount))])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        
-                        Mod.texture=str_to_obj(Modparam[4+int(next(ModCount))])#int(next(ModCount))
-                        Mod.direction = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.space = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.strength = float(Modparam[4+int(next(ModCount))])
-                        Mod.mid_level = float(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "ARRAY":#real_str str_to_obj str_to_bool float int
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+
+                        Mod.texture = str_to_obj(Modparam[4 + int(next(ModCount))])  # int(next(ModCount))
+                        Mod.direction = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.space = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.strength = float(Modparam[4 + int(next(ModCount))])
+                        Mod.mid_level = float(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "ARRAY":  # real_str str_to_obj str_to_bool float int
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        
-                        Mod.fit_type=real_str(Modparam[4+int(next(ModCount))])
-                        Mod.count = int(Modparam[4+int(next(ModCount))])
-                        Mod.use_relative_offset = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.relative_offset_displace[0] = float(Modparam[4+int(next(ModCount))])
-                        Mod.relative_offset_displace[1] = float(Modparam[4+int(next(ModCount))])
-                        Mod.relative_offset_displace[2] = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_constant_offset = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.constant_offset_displace[0] = float(Modparam[4+int(next(ModCount))])
-                        Mod.constant_offset_displace[1] = float(Modparam[4+int(next(ModCount))])
-                        Mod.constant_offset_displace[2] = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_object_offset = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.offset_object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.use_merge_vertices = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.merge_threshold = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_merge_vertices_cap = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.offset_u = float(Modparam[4+int(next(ModCount))])
-                        Mod.offset_v = float(Modparam[4+int(next(ModCount))])
-                        Mod.start_cap = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.end_cap = str_to_obj(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == 'WARP':#real_str str_to_obj str_to_bool float int
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+
+                        Mod.fit_type = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.count = int(Modparam[4 + int(next(ModCount))])
+                        Mod.use_relative_offset = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.relative_offset_displace[0] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.relative_offset_displace[1] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.relative_offset_displace[2] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_constant_offset = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.constant_offset_displace[0] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.constant_offset_displace[1] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.constant_offset_displace[2] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_object_offset = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.offset_object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.use_merge_vertices = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.merge_threshold = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_merge_vertices_cap = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.offset_u = float(Modparam[4 + int(next(ModCount))])
+                        Mod.offset_v = float(Modparam[4 + int(next(ModCount))])
+                        Mod.start_cap = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.end_cap = str_to_obj(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == 'WARP':  # real_str str_to_obj str_to_bool float int
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        
-                        Mod.object_from = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.object_to = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.use_volume_preserve = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.strength = float(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.falloff_type = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.falloff_radius= float(Modparam[4+int(next(ModCount))])
-                        Mod.texture = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.texture_coords =  real_str(Modparam[4+int(next(ModCount))])#real_str(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "WIREFRAME":#real_str str_to_obj str_to_bool float int
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+
+                        Mod.object_from = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.object_to = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.use_volume_preserve = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.strength = float(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.falloff_type = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.falloff_radius = float(Modparam[4 + int(next(ModCount))])
+                        Mod.texture = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.texture_coords = real_str(
+                            Modparam[4 + int(next(ModCount))])  # real_str(Modparam[4+int(next(ModCount))])
+                    elif Modparam[1] == "WIREFRAME":  # real_str str_to_obj str_to_bool float int
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        
-                        Mod.thickness = float(Modparam[4+int(next(ModCount))])
-                        Mod.offset = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_boundary = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_replace = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_even_offset = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_relative_offset = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_crease = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.crease_weight = float(Modparam[4+int(next(ModCount))])
-                        Mod.material_offset = int(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.thickness_vertex_group = float(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "SCREW":#real_str str_to_obj str_to_bool float int
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+
+                        Mod.thickness = float(Modparam[4 + int(next(ModCount))])
+                        Mod.offset = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_boundary = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_replace = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_even_offset = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_relative_offset = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_crease = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.crease_weight = float(Modparam[4 + int(next(ModCount))])
+                        Mod.material_offset = int(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.thickness_vertex_group = float(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "SCREW":  # real_str str_to_obj str_to_bool float int
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        
-                        Mod.angle = float(Modparam[4+int(next(ModCount))])
-                        Mod.screw_offset = float(Modparam[4+int(next(ModCount))])
-                        Mod.iterations = int(Modparam[4+int(next(ModCount))])
-                        Mod.axis = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.use_object_screw_offset = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.steps = int(Modparam[4+int(next(ModCount))])
-                        Mod.render_steps = int(Modparam[4+int(next(ModCount))])
-                        Mod.use_merge_vertices = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.merge_threshold = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_stretch_u = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_stretch_v = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_smooth_shade = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_normal_calculate = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_normal_flip = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "SHRINKWRAP":#real_str str_to_obj str_to_bool float int
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+
+                        Mod.angle = float(Modparam[4 + int(next(ModCount))])
+                        Mod.screw_offset = float(Modparam[4 + int(next(ModCount))])
+                        Mod.iterations = int(Modparam[4 + int(next(ModCount))])
+                        Mod.axis = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.use_object_screw_offset = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.steps = int(Modparam[4 + int(next(ModCount))])
+                        Mod.render_steps = int(Modparam[4 + int(next(ModCount))])
+                        Mod.use_merge_vertices = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.merge_threshold = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_stretch_u = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_stretch_v = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_smooth_shade = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_normal_calculate = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_normal_flip = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "SHRINKWRAP":  # real_str str_to_obj str_to_bool float int
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.wrap_method = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.wrap_mode = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.target = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.offset = float(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "WAVE":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.wrap_method = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.wrap_mode = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.target = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.offset = float(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "WAVE":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.use_x = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_y = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_cyclic = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_normal = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_normal_x = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_normal_y = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_normal_z = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.falloff_radius = float(Modparam[4+int(next(ModCount))])
-                        Mod.height = float(Modparam[4+int(next(ModCount))])
-                        Mod.width = float(Modparam[4+int(next(ModCount))])
-                        Mod.narrowness = float(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.start_position_object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.start_position_x = float(Modparam[4+int(next(ModCount))])
-                        Mod.start_position_y = float(Modparam[4+int(next(ModCount))])
-                        Mod.time_offset = float(Modparam[4+int(next(ModCount))])
-                        Mod.lifetime = float(Modparam[4+int(next(ModCount))])
-                        Mod.damping_time = float(Modparam[4+int(next(ModCount))])
-                        Mod.speed = float(Modparam[4+int(next(ModCount))])
-                        Mod.texture = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.texture_coords = real_str(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "LAPLACIANSMOOTH":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.use_x = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_y = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_cyclic = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_normal = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_normal_x = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_normal_y = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_normal_z = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.falloff_radius = float(Modparam[4 + int(next(ModCount))])
+                        Mod.height = float(Modparam[4 + int(next(ModCount))])
+                        Mod.width = float(Modparam[4 + int(next(ModCount))])
+                        Mod.narrowness = float(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.start_position_object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.start_position_x = float(Modparam[4 + int(next(ModCount))])
+                        Mod.start_position_y = float(Modparam[4 + int(next(ModCount))])
+                        Mod.time_offset = float(Modparam[4 + int(next(ModCount))])
+                        Mod.lifetime = float(Modparam[4 + int(next(ModCount))])
+                        Mod.damping_time = float(Modparam[4 + int(next(ModCount))])
+                        Mod.speed = float(Modparam[4 + int(next(ModCount))])
+                        Mod.texture = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.texture_coords = real_str(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[
+                        1] == "LAPLACIANSMOOTH":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        
-                        Mod.iterations = int(Modparam[4+int(next(ModCount))])
-                        Mod.use_x = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_y = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_z = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.lambda_factor = float(Modparam[4+int(next(ModCount))])
-                        Mod.lambda_border = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_volume_preserve = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_normalized = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "LATTICE":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+
+                        Mod.iterations = int(Modparam[4 + int(next(ModCount))])
+                        Mod.use_x = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_y = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_z = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.lambda_factor = float(Modparam[4 + int(next(ModCount))])
+                        Mod.lambda_border = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_volume_preserve = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_normalized = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "LATTICE":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        
-                        Mod.object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.strength = float(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "BEVEL":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+
+                        Mod.object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.strength = float(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "BEVEL":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        
-                        Mod.affect = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.offset_type = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.width_pct = float(Modparam[4+int(next(ModCount))])
-                        Mod.segments = int(Modparam[4+int(next(ModCount))])
-                        Mod.angle_limit = float(Modparam[4+int(next(ModCount))])
-                        Mod.limit_method = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.profile_type = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.profile = float(Modparam[4+int(next(ModCount))])
-                        Mod.miter_outer = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.miter_inner = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.spread = float(Modparam[4+int(next(ModCount))])
-                        Mod.vmesh_method = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.use_clamp_overlap = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.loop_slide = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.harden_normals = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.mark_seam = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.mark_sharp = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.material = int(Modparam[4+int(next(ModCount))])
-                        Mod.face_strength_mode = real_str(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "DECIMATE":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+
+                        Mod.affect = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.offset_type = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.width_pct = float(Modparam[4 + int(next(ModCount))])
+                        Mod.segments = int(Modparam[4 + int(next(ModCount))])
+                        Mod.angle_limit = float(Modparam[4 + int(next(ModCount))])
+                        Mod.limit_method = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.profile_type = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.profile = float(Modparam[4 + int(next(ModCount))])
+                        Mod.miter_outer = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.miter_inner = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.spread = float(Modparam[4 + int(next(ModCount))])
+                        Mod.vmesh_method = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.use_clamp_overlap = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.loop_slide = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.harden_normals = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.mark_seam = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.mark_sharp = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.material = int(Modparam[4 + int(next(ModCount))])
+                        Mod.face_strength_mode = real_str(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "DECIMATE":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        
-                        Mod.decimate_type = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.ratio = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_symmetry = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.symmetry_axis = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.use_collapse_triangulate = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group_factor = float(Modparam[4+int(next(ModCount))])
-                        Mod.iterations = int(Modparam[4+int(next(ModCount))])
-                        Mod.angle_limit = float(Modparam[4+int(next(ModCount))])
-                        Mod.delimit = Dict_str(Modparam[4+int(next(ModCount))])#########################
-                        Mod.use_dissolve_boundaries = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "CURVE":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+
+                        Mod.decimate_type = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.ratio = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_symmetry = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.symmetry_axis = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.use_collapse_triangulate = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group_factor = float(Modparam[4 + int(next(ModCount))])
+                        Mod.iterations = int(Modparam[4 + int(next(ModCount))])
+                        Mod.angle_limit = float(Modparam[4 + int(next(ModCount))])
+                        Mod.delimit = Dict_str(Modparam[4 + int(next(ModCount))])  #########################
+                        Mod.use_dissolve_boundaries = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "CURVE":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.deform_axis = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "EDGE_SPLIT":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.deform_axis = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[
+                        1] == "EDGE_SPLIT":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.use_edge_angle = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.split_angle = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_edge_sharp = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "SOLIDIFY":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.use_edge_angle = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.split_angle = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_edge_sharp = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "SOLIDIFY":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.solidify_mode = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.nonmanifold_thickness_mode = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.nonmanifold_boundary_mode = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.thickness = float(Modparam[4+int(next(ModCount))])
-                        Mod.offset = float(Modparam[4+int(next(ModCount))])
-                        Mod.nonmanifold_merge_threshold = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_rim = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_rim_only = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.thickness_vertex_group = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_flat_faces = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_flip_normals = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.material_offset = int(Modparam[4+int(next(ModCount))])
-                        Mod.material_offset_rim = int(Modparam[4+int(next(ModCount))])
-                        Mod.bevel_convex = float(Modparam[4+int(next(ModCount))])
-                        Mod.thickness_clamp = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_thickness_angle_clamp = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.shell_vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.rim_vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.use_even_offset = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_quality_normals = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.edge_crease_inner = float(Modparam[4+int(next(ModCount))])
-                        Mod.edge_crease_outer = float(Modparam[4+int(next(ModCount))])
-                        Mod.edge_crease_rim = float(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == 'SMOOTH':#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.solidify_mode = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.nonmanifold_thickness_mode = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.nonmanifold_boundary_mode = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.thickness = float(Modparam[4 + int(next(ModCount))])
+                        Mod.offset = float(Modparam[4 + int(next(ModCount))])
+                        Mod.nonmanifold_merge_threshold = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_rim = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_rim_only = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.thickness_vertex_group = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_flat_faces = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_flip_normals = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.material_offset = int(Modparam[4 + int(next(ModCount))])
+                        Mod.material_offset_rim = int(Modparam[4 + int(next(ModCount))])
+                        Mod.bevel_convex = float(Modparam[4 + int(next(ModCount))])
+                        Mod.thickness_clamp = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_thickness_angle_clamp = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.shell_vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.rim_vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.use_even_offset = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_quality_normals = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.edge_crease_inner = float(Modparam[4 + int(next(ModCount))])
+                        Mod.edge_crease_outer = float(Modparam[4 + int(next(ModCount))])
+                        Mod.edge_crease_rim = float(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == 'SMOOTH':  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.use_x = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_y = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_z = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.factor = float(Modparam[4+int(next(ModCount))])
-                        Mod.iterations = int(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "SUBSURF":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.use_x = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_y = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_z = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.factor = float(Modparam[4 + int(next(ModCount))])
+                        Mod.iterations = int(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "SUBSURF":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.subdivision_type = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.levels = int(Modparam[4+int(next(ModCount))])
-                        Mod.render_levels = int(Modparam[4+int(next(ModCount))])
-                        Mod.show_only_control_edges = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.show_only_control_edges = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.quality = int(Modparam[4+int(next(ModCount))])
-                        Mod.uv_smooth = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.use_creases = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_custom_normals = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "TRIANGULATE":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.subdivision_type = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.levels = int(Modparam[4 + int(next(ModCount))])
+                        Mod.render_levels = int(Modparam[4 + int(next(ModCount))])
+                        Mod.show_only_control_edges = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.show_only_control_edges = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.quality = int(Modparam[4 + int(next(ModCount))])
+                        Mod.uv_smooth = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.use_creases = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_custom_normals = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[
+                        1] == "TRIANGULATE":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.quad_method = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.ngon_method = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.min_vertices = int(Modparam[4+int(next(ModCount))])
-                        Mod.keep_custom_normals = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "WELD":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.quad_method = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.ngon_method = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.min_vertices = int(Modparam[4 + int(next(ModCount))])
+                        Mod.keep_custom_normals = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "WELD":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.merge_threshold = float(Modparam[4+int(next(ModCount))])
+                        Mod.merge_threshold = float(Modparam[4 + int(next(ModCount))])
                         if bpy.app.version >= (2, 92, 0):
-                            Mod.mode = Modparam[4+int(next(ModCount))]
+                            Mod.mode = Modparam[4 + int(next(ModCount))]
                         else:
                             next(ModCount)
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "MIRROR":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "MIRROR":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.use_axis[0] = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_axis[1] = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_axis[2] = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_bisect_axis[0] = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_bisect_axis[1] = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_bisect_axis[2] = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_bisect_flip_axis[0] = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_bisect_flip_axis[1] = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_bisect_flip_axis[2] = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.mirror_object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.use_clip = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_mirror_merge = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.merge_threshold = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_mirror_u = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_mirror_v = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.mirror_offset_u = float(Modparam[4+int(next(ModCount))])
-                        Mod.mirror_offset_v = float(Modparam[4+int(next(ModCount))])
-                        Mod.offset_u = float(Modparam[4+int(next(ModCount))])
-                        Mod.offset_v = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_mirror_vertex_groups = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_mirror_udim = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "BUILD":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.use_axis[0] = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_axis[1] = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_axis[2] = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_bisect_axis[0] = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_bisect_axis[1] = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_bisect_axis[2] = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_bisect_flip_axis[0] = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_bisect_flip_axis[1] = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_bisect_flip_axis[2] = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.mirror_object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.use_clip = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_mirror_merge = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.merge_threshold = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_mirror_u = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_mirror_v = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.mirror_offset_u = float(Modparam[4 + int(next(ModCount))])
+                        Mod.mirror_offset_v = float(Modparam[4 + int(next(ModCount))])
+                        Mod.offset_u = float(Modparam[4 + int(next(ModCount))])
+                        Mod.offset_v = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_mirror_vertex_groups = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_mirror_udim = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "BUILD":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.frame_start = float(Modparam[4+int(next(ModCount))])
-                        Mod.frame_duration = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_reverse = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_random_order = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.seed = int(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "OCEAN":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.frame_start = float(Modparam[4 + int(next(ModCount))])
+                        Mod.frame_duration = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_reverse = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_random_order = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.seed = int(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "OCEAN":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.geometry_mode = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.repeat_x = int(Modparam[4+int(next(ModCount))])
-                        Mod.repeat_y = int(Modparam[4+int(next(ModCount))])
-                        Mod.resolution = int(Modparam[4+int(next(ModCount))])
-                        Mod.time = float(Modparam[4+int(next(ModCount))])
-                        Mod.depth = float(Modparam[4+int(next(ModCount))])
-                        Mod.size = float(Modparam[4+int(next(ModCount))])
-                        Mod.spatial_size = int(Modparam[4+int(next(ModCount))])
-                        Mod.random_seed = int(Modparam[4+int(next(ModCount))])
-                        Mod.use_normals = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.wave_scale = float(Modparam[4+int(next(ModCount))])
-                        Mod.wave_scale_min = float(Modparam[4+int(next(ModCount))])
-                        Mod.choppiness = float(Modparam[4+int(next(ModCount))])
-                        Mod.wind_velocity = float(Modparam[4+int(next(ModCount))])
-                        Mod.wave_alignment = float(Modparam[4+int(next(ModCount))])
-                        Mod.wave_direction = float(Modparam[4+int(next(ModCount))])
-                        Mod.damping = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_foam = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.foam_layer_name = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.foam_coverage = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_spray = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.spray_layer_name = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_spray = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.spectrum = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.sharpen_peak_jonswap = float(Modparam[4+int(next(ModCount))])
-                        Mod.fetch_jonswap = float(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "HOOK":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.geometry_mode = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.repeat_x = int(Modparam[4 + int(next(ModCount))])
+                        Mod.repeat_y = int(Modparam[4 + int(next(ModCount))])
+                        Mod.resolution = int(Modparam[4 + int(next(ModCount))])
+                        Mod.time = float(Modparam[4 + int(next(ModCount))])
+                        Mod.depth = float(Modparam[4 + int(next(ModCount))])
+                        Mod.size = float(Modparam[4 + int(next(ModCount))])
+                        Mod.spatial_size = int(Modparam[4 + int(next(ModCount))])
+                        Mod.random_seed = int(Modparam[4 + int(next(ModCount))])
+                        Mod.use_normals = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.wave_scale = float(Modparam[4 + int(next(ModCount))])
+                        Mod.wave_scale_min = float(Modparam[4 + int(next(ModCount))])
+                        Mod.choppiness = float(Modparam[4 + int(next(ModCount))])
+                        Mod.wind_velocity = float(Modparam[4 + int(next(ModCount))])
+                        Mod.wave_alignment = float(Modparam[4 + int(next(ModCount))])
+                        Mod.wave_direction = float(Modparam[4 + int(next(ModCount))])
+                        Mod.damping = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_foam = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.foam_layer_name = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.foam_coverage = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_spray = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.spray_layer_name = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_spray = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.spectrum = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.sharpen_peak_jonswap = float(Modparam[4 + int(next(ModCount))])
+                        Mod.fetch_jonswap = float(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[1] == "HOOK":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.strength = float(Modparam[4+int(next(ModCount))])
-                        Mod.falloff_radius = int(Modparam[4+int(next(ModCount))])
-                        Mod.use_falloff_uniform = str_to_bool(Modparam[4+int(next(ModCount))])
-                    elif Modparam[1] == "CORRECTIVE_SMOOTH":#real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.strength = float(Modparam[4 + int(next(ModCount))])
+                        Mod.falloff_radius = int(Modparam[4 + int(next(ModCount))])
+                        Mod.use_falloff_uniform = str_to_bool(Modparam[4 + int(next(ModCount))])
+                    elif Modparam[
+                        1] == "CORRECTIVE_SMOOTH":  # real_str str_to_obj str_to_bool float int Mod.invert_vertex_group
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.factor = float(Modparam[4+int(next(ModCount))])
-                        Mod.iterations = int(Modparam[4+int(next(ModCount))])
-                        Mod.scale = float(Modparam[4+int(next(ModCount))])
-                        Mod.smooth_type = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_only_smooth = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_pin_boundary = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.rest_source = real_str(Modparam[4+int(next(ModCount))])
-                    elif (Modparam[1] == 'CLOTH') or (Modparam[1] == 'COLLISION') or (Modparam[1] == 'DYNAMIC_PAINT') or (Modparam[1] == 'FLUID') or (Modparam[1] == 'PARTICLE_SYSTEM') or (Modparam[1] == 'SOFT_BODY'):
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        Mod.factor = float(Modparam[4 + int(next(ModCount))])
+                        Mod.iterations = int(Modparam[4 + int(next(ModCount))])
+                        Mod.scale = float(Modparam[4 + int(next(ModCount))])
+                        Mod.smooth_type = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_only_smooth = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_pin_boundary = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.rest_source = real_str(Modparam[4 + int(next(ModCount))])
+                    elif (Modparam[1] == 'CLOTH') or (Modparam[1] == 'COLLISION') or (
+                            Modparam[1] == 'DYNAMIC_PAINT') or (Modparam[1] == 'FLUID') or (
+                            Modparam[1] == 'PARTICLE_SYSTEM') or (Modparam[1] == 'SOFT_BODY'):
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
                     elif Modparam[1] == 'EXPLODE':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.particle_uv = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.show_alive = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.show_dead = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.show_unborn = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_edge_cut = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_size = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = real_str(Modparam[4+int(next(ModCount))])
-                        Mod.protect = float(Modparam[4+int(next(ModCount))])
+                        Mod.particle_uv = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.show_alive = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.show_dead = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.show_unborn = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_edge_cut = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_size = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = real_str(Modparam[4 + int(next(ModCount))])
+                        Mod.protect = float(Modparam[4 + int(next(ModCount))])
                     elif Modparam[1] == 'PARTICLE_INSTANCE':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.particle_system_index = int(Modparam[4+int(next(ModCount))])
-                        Mod.use_normal = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_children = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_size = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.show_alive = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.show_dead = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.show_unborn = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.particle_amount = float(Modparam[4+int(next(ModCount))])
-                        Mod.particle_offset = float(Modparam[4+int(next(ModCount))])
-                        Mod.space = Modparam[4+int(next(ModCount))]
-                        Mod.axis = Modparam[4+int(next(ModCount))]
-                        Mod.use_path = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.position = float(Modparam[4+int(next(ModCount))])
-                        Mod.random_position = float(Modparam[4+int(next(ModCount))])
-                        Mod.rotation = float(Modparam[4+int(next(ModCount))])
-                        Mod.random_rotation = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_preserve_shape = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.index_layer_name = Modparam[4+int(next(ModCount))]
-                        Mod.value_layer_name = Modparam[4+int(next(ModCount))]
+                        Mod.object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.particle_system_index = int(Modparam[4 + int(next(ModCount))])
+                        Mod.use_normal = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_children = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_size = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.show_alive = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.show_dead = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.show_unborn = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.particle_amount = float(Modparam[4 + int(next(ModCount))])
+                        Mod.particle_offset = float(Modparam[4 + int(next(ModCount))])
+                        Mod.space = Modparam[4 + int(next(ModCount))]
+                        Mod.axis = Modparam[4 + int(next(ModCount))]
+                        Mod.use_path = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.position = float(Modparam[4 + int(next(ModCount))])
+                        Mod.random_position = float(Modparam[4 + int(next(ModCount))])
+                        Mod.rotation = float(Modparam[4 + int(next(ModCount))])
+                        Mod.random_rotation = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_preserve_shape = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.index_layer_name = Modparam[4 + int(next(ModCount))]
+                        Mod.value_layer_name = Modparam[4 + int(next(ModCount))]
                     elif Modparam[1] == 'MULTIRES':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.show_only_control_edges = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.subdivision_type = Modparam[4+int(next(ModCount))]
-                        Mod.quality = int(Modparam[4+int(next(ModCount))])
-                        Mod.uv_smooth = Modparam[4+int(next(ModCount))]
-                        Mod.use_creases = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_custom_normals = str_to_bool(Modparam[4+int(next(ModCount))])
+                        Mod.show_only_control_edges = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.subdivision_type = Modparam[4 + int(next(ModCount))]
+                        Mod.quality = int(Modparam[4 + int(next(ModCount))])
+                        Mod.uv_smooth = Modparam[4 + int(next(ModCount))]
+                        Mod.use_creases = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_custom_normals = str_to_bool(Modparam[4 + int(next(ModCount))])
                     elif Modparam[1] == 'MASK':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.mode = Modparam[4+int(next(ModCount))]
-                        Mod.vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.armature = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.threshold = float(Modparam[4+int(next(ModCount))])
+                        Mod.mode = Modparam[4 + int(next(ModCount))]
+                        Mod.vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.armature = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.threshold = float(Modparam[4 + int(next(ModCount))])
                     elif Modparam[1] == 'ARMATURE':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_deform_preserve_volume = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_multi_modifier = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_vertex_groups = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_bone_envelopes = str_to_bool(Modparam[4+int(next(ModCount))])
+                        Mod.object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_deform_preserve_volume = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_multi_modifier = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_vertex_groups = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_bone_envelopes = str_to_bool(Modparam[4 + int(next(ModCount))])
                     elif Modparam[1] == 'LAPLACIANDEFORM':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.iterations = int(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
+                        Mod.iterations = int(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
                     elif Modparam[1] == 'MESH_DEFORM':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.precision = int(Modparam[4+int(next(ModCount))])
-                        Mod.use_dynamic_bind = str_to_bool(Modparam[4+int(next(ModCount))])
+                        Mod.object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.precision = int(Modparam[4 + int(next(ModCount))])
+                        Mod.use_dynamic_bind = str_to_bool(Modparam[4 + int(next(ModCount))])
                     elif Modparam[1] == 'SURFACE_DEFORM':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.target = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.falloff = float(Modparam[4+int(next(ModCount))])
-                        Mod.strength = float(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
+                        Mod.target = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.falloff = float(Modparam[4 + int(next(ModCount))])
+                        Mod.strength = float(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
                     elif Modparam[1] == 'DATA_TRANSFER':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.use_object_transform = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.mix_mode = Modparam[4+int(next(ModCount))]
-                        Mod.mix_factor = float(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.use_vert_data = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.data_types_verts = Dict_str(Modparam[4+int(next(ModCount))])#{'VGROUP_WEIGHTS'}#
-                        Mod.vert_mapping = Modparam[4+int(next(ModCount))]
-                        Mod.layers_vgroup_select_src = Modparam[4+int(next(ModCount))]
-                        Mod.layers_vgroup_select_dst = Modparam[4+int(next(ModCount))]
-                        Mod.use_edge_data = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.data_types_edges = Dict_str(Modparam[4+int(next(ModCount))])#{'SEAM'}#
-                        Mod.edge_mapping = Modparam[4+int(next(ModCount))]
-                        Mod.use_loop_data = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.data_types_loops = Dict_str(Modparam[4+int(next(ModCount))])#{'VCOL'}#
-                        Mod.loop_mapping = Modparam[4+int(next(ModCount))]
-                        Mod.layers_vcol_select_src = Modparam[4+int(next(ModCount))]
-                        Mod.layers_vcol_select_dst = Modparam[4+int(next(ModCount))]
-                        Mod.layers_uv_select_src = Modparam[4+int(next(ModCount))]
-                        Mod.layers_uv_select_dst = Modparam[4+int(next(ModCount))]
-                        Mod.islands_precision = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_poly_data = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.data_types_polys = Dict_str(Modparam[4+int(next(ModCount))])#{'SMOOTH'}#
-                        Mod.poly_mapping = Modparam[4+int(next(ModCount))]
-                        Mod.use_max_distance = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.max_distance = float(Modparam[4+int(next(ModCount))])
-                        Mod.ray_radius = float(Modparam[4+int(next(ModCount))])
+                        Mod.object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.use_object_transform = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.mix_mode = Modparam[4 + int(next(ModCount))]
+                        Mod.mix_factor = float(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.use_vert_data = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.data_types_verts = Dict_str(Modparam[4 + int(next(ModCount))])  # {'VGROUP_WEIGHTS'}#
+                        Mod.vert_mapping = Modparam[4 + int(next(ModCount))]
+                        Mod.layers_vgroup_select_src = Modparam[4 + int(next(ModCount))]
+                        Mod.layers_vgroup_select_dst = Modparam[4 + int(next(ModCount))]
+                        Mod.use_edge_data = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.data_types_edges = Dict_str(Modparam[4 + int(next(ModCount))])  # {'SEAM'}#
+                        Mod.edge_mapping = Modparam[4 + int(next(ModCount))]
+                        Mod.use_loop_data = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.data_types_loops = Dict_str(Modparam[4 + int(next(ModCount))])  # {'VCOL'}#
+                        Mod.loop_mapping = Modparam[4 + int(next(ModCount))]
+                        Mod.layers_vcol_select_src = Modparam[4 + int(next(ModCount))]
+                        Mod.layers_vcol_select_dst = Modparam[4 + int(next(ModCount))]
+                        Mod.layers_uv_select_src = Modparam[4 + int(next(ModCount))]
+                        Mod.layers_uv_select_dst = Modparam[4 + int(next(ModCount))]
+                        Mod.islands_precision = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_poly_data = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.data_types_polys = Dict_str(Modparam[4 + int(next(ModCount))])  # {'SMOOTH'}#
+                        Mod.poly_mapping = Modparam[4 + int(next(ModCount))]
+                        Mod.use_max_distance = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.max_distance = float(Modparam[4 + int(next(ModCount))])
+                        Mod.ray_radius = float(Modparam[4 + int(next(ModCount))])
                     elif Modparam[1] == 'MESH_CACHE':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.cache_format = Modparam[4+int(next(ModCount))]
-                        Mod.filepath = Modparam[4+int(next(ModCount))]
-                        Mod.factor = float(Modparam[4+int(next(ModCount))])
-                        Mod.deform_mode = Modparam[4+int(next(ModCount))]
-                        Mod.interpolation = Modparam[4+int(next(ModCount))]
-                        Mod.time_mode = Modparam[4+int(next(ModCount))]
-                        Mod.play_mode = Modparam[4+int(next(ModCount))]
-                        Mod.frame_start = float(Modparam[4+int(next(ModCount))])
-                        Mod.frame_scale = float(Modparam[4+int(next(ModCount))])
-                        Mod.eval_frame = float(Modparam[4+int(next(ModCount))])
-                        Mod.forward_axis = Modparam[4+int(next(ModCount))]
-                        Mod.up_axis = Modparam[4+int(next(ModCount))]
-                        Mod.flip_axis = Dict_str(Modparam[4+int(next(ModCount))])#{'X', 'Y', 'Z'}##
+                        Mod.cache_format = Modparam[4 + int(next(ModCount))]
+                        Mod.filepath = Modparam[4 + int(next(ModCount))]
+                        Mod.factor = float(Modparam[4 + int(next(ModCount))])
+                        Mod.deform_mode = Modparam[4 + int(next(ModCount))]
+                        Mod.interpolation = Modparam[4 + int(next(ModCount))]
+                        Mod.time_mode = Modparam[4 + int(next(ModCount))]
+                        Mod.play_mode = Modparam[4 + int(next(ModCount))]
+                        Mod.frame_start = float(Modparam[4 + int(next(ModCount))])
+                        Mod.frame_scale = float(Modparam[4 + int(next(ModCount))])
+                        Mod.eval_frame = float(Modparam[4 + int(next(ModCount))])
+                        Mod.forward_axis = Modparam[4 + int(next(ModCount))]
+                        Mod.up_axis = Modparam[4 + int(next(ModCount))]
+                        Mod.flip_axis = Dict_str(Modparam[4 + int(next(ModCount))])  # {'X', 'Y', 'Z'}##
                     elif Modparam[1] == 'MESH_SEQUENCE_CACHE':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.read_data = Dict_str(Modparam[4+int(next(ModCount))])#{'VERT', 'POLY', 'UV', 'COLOR'}
+                        Mod.read_data = Dict_str(Modparam[4 + int(next(ModCount))])  # {'VERT', 'POLY', 'UV', 'COLOR'}
                     elif Modparam[1] == 'NORMAL_EDIT':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.mode = Modparam[4+int(next(ModCount))]
-                        Mod.target = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.use_direction_parallel = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.mix_mode = Modparam[4+int(next(ModCount))]
-                        Mod.mix_factor = float(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.mix_limit = float(Modparam[4+int(next(ModCount))])
-                        Mod.offset[0] = float(Modparam[4+int(next(ModCount))])
-                        Mod.offset[1] = float(Modparam[4+int(next(ModCount))])
-                        Mod.offset[2] = float(Modparam[4+int(next(ModCount))])
+                        Mod.mode = Modparam[4 + int(next(ModCount))]
+                        Mod.target = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.use_direction_parallel = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.mix_mode = Modparam[4 + int(next(ModCount))]
+                        Mod.mix_factor = float(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.mix_limit = float(Modparam[4 + int(next(ModCount))])
+                        Mod.offset[0] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.offset[1] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.offset[2] = float(Modparam[4 + int(next(ModCount))])
                     elif Modparam[1] == 'WEIGHTED_NORMAL':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.mode = Modparam[4+int(next(ModCount))]
-                        Mod.weight = float(Modparam[4+int(next(ModCount))])
-                        Mod.thresh = float(Modparam[4+int(next(ModCount))])
-                        Mod.keep_sharp = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.face_influence = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
+                        Mod.mode = Modparam[4 + int(next(ModCount))]
+                        Mod.weight = float(Modparam[4 + int(next(ModCount))])
+                        Mod.thresh = float(Modparam[4 + int(next(ModCount))])
+                        Mod.keep_sharp = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.face_influence = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
                     elif Modparam[1] == 'UV_PROJECT':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.uv_layer = Modparam[4+int(next(ModCount))]
-                        Mod.aspect_x = float(Modparam[4+int(next(ModCount))])
-                        Mod.aspect_y = float(Modparam[4+int(next(ModCount))])
-                        Mod.scale_x = float(Modparam[4+int(next(ModCount))])
-                        Mod.scale_y = float(Modparam[4+int(next(ModCount))])
-                        Mod.projector_count = float(Modparam[4+int(next(ModCount))])
+                        Mod.uv_layer = Modparam[4 + int(next(ModCount))]
+                        Mod.aspect_x = float(Modparam[4 + int(next(ModCount))])
+                        Mod.aspect_y = float(Modparam[4 + int(next(ModCount))])
+                        Mod.scale_x = float(Modparam[4 + int(next(ModCount))])
+                        Mod.scale_y = float(Modparam[4 + int(next(ModCount))])
+                        Mod.projector_count = float(Modparam[4 + int(next(ModCount))])
                     elif Modparam[1] == 'UV_WARP':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.uv_layer = Modparam[4+int(next(ModCount))]
-                        Mod.center[0] = float(Modparam[4+int(next(ModCount))])
-                        Mod.center[1] = float(Modparam[4+int(next(ModCount))])
-                        Mod.axis_u = Modparam[4+int(next(ModCount))]
-                        Mod.axis_v = Modparam[4+int(next(ModCount))]
-                        Mod.object_from = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.object_to = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.invert_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.offset[0] = float(Modparam[4+int(next(ModCount))])
-                        Mod.offset[1] = float(Modparam[4+int(next(ModCount))])
-                        Mod.scale[0] = float(Modparam[4+int(next(ModCount))])
-                        Mod.scale[1] = float(Modparam[4+int(next(ModCount))])
-                        Mod.rotation = float(Modparam[4+int(next(ModCount))])
+                        Mod.uv_layer = Modparam[4 + int(next(ModCount))]
+                        Mod.center[0] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.center[1] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.axis_u = Modparam[4 + int(next(ModCount))]
+                        Mod.axis_v = Modparam[4 + int(next(ModCount))]
+                        Mod.object_from = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.object_to = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.invert_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.offset[0] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.offset[1] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.scale[0] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.scale[1] = float(Modparam[4 + int(next(ModCount))])
+                        Mod.rotation = float(Modparam[4 + int(next(ModCount))])
                     elif Modparam[1] == 'VERTEX_WEIGHT_EDIT':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.default_weight = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_add = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.add_threshold = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_remove = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.remove_threshold = float(Modparam[4+int(next(ModCount))])
-                        Mod.normalize = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.falloff_type = Modparam[4+int(next(ModCount))]
-                        Mod.invert_falloff = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.mask_constant = float(Modparam[4+int(next(ModCount))])
-                        Mod.mask_vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.invert_mask_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.mask_tex_use_channel = Modparam[4+int(next(ModCount))]
-                        Mod.mask_tex_mapping = Modparam[4+int(next(ModCount))]
-                        Mod.mask_tex_map_object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.mask_tex_uv_layer = Modparam[4+int(next(ModCount))]
+                        Mod.vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.default_weight = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_add = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.add_threshold = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_remove = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.remove_threshold = float(Modparam[4 + int(next(ModCount))])
+                        Mod.normalize = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.falloff_type = Modparam[4 + int(next(ModCount))]
+                        Mod.invert_falloff = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.mask_constant = float(Modparam[4 + int(next(ModCount))])
+                        Mod.mask_vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.invert_mask_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.mask_tex_use_channel = Modparam[4 + int(next(ModCount))]
+                        Mod.mask_tex_mapping = Modparam[4 + int(next(ModCount))]
+                        Mod.mask_tex_map_object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.mask_tex_uv_layer = Modparam[4 + int(next(ModCount))]
                     elif Modparam[1] == 'VERTEX_WEIGHT_MIX':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.vertex_group_a = Modparam[4+int(next(ModCount))]
-                        Mod.vertex_group_b = Modparam[4+int(next(ModCount))]
-                        Mod.default_weight_a = float(Modparam[4+int(next(ModCount))])
-                        Mod.default_weight_b = float(Modparam[4+int(next(ModCount))])
-                        Mod.mix_set = Modparam[4+int(next(ModCount))]
-                        Mod.mix_mode = Modparam[4+int(next(ModCount))]
-                        Mod.normalize = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.mask_constant = float(Modparam[4+int(next(ModCount))])
-                        Mod.mask_vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.invert_mask_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.mask_tex_use_channel = Modparam[4+int(next(ModCount))]
-                        Mod.mask_tex_mapping = Modparam[4+int(next(ModCount))]
-                        Mod.mask_tex_map_object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.mask_tex_uv_layer = Modparam[4+int(next(ModCount))]
+                        Mod.vertex_group_a = Modparam[4 + int(next(ModCount))]
+                        Mod.vertex_group_b = Modparam[4 + int(next(ModCount))]
+                        Mod.default_weight_a = float(Modparam[4 + int(next(ModCount))])
+                        Mod.default_weight_b = float(Modparam[4 + int(next(ModCount))])
+                        Mod.mix_set = Modparam[4 + int(next(ModCount))]
+                        Mod.mix_mode = Modparam[4 + int(next(ModCount))]
+                        Mod.normalize = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.mask_constant = float(Modparam[4 + int(next(ModCount))])
+                        Mod.mask_vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.invert_mask_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.mask_tex_use_channel = Modparam[4 + int(next(ModCount))]
+                        Mod.mask_tex_mapping = Modparam[4 + int(next(ModCount))]
+                        Mod.mask_tex_map_object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.mask_tex_uv_layer = Modparam[4 + int(next(ModCount))]
                     elif Modparam[1] == 'VERTEX_WEIGHT_PROXIMITY':
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.target = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.proximity_mode = Modparam[4+int(next(ModCount))]
-                        Mod.proximity_geometry = Dict_str(Modparam[4+int(next(ModCount))])#{'VERTEX', 'EDGE', 'FACE'}
-                        Mod.min_dist = float(Modparam[4+int(next(ModCount))])
-                        Mod.max_dist = float(Modparam[4+int(next(ModCount))])
-                        Mod.normalize = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.falloff_type = Modparam[4+int(next(ModCount))]
-                        Mod.invert_falloff = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.mask_constant = float(Modparam[4+int(next(ModCount))])
-                        Mod.mask_vertex_group = Modparam[4+int(next(ModCount))]
-                        Mod.invert_mask_vertex_group = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.mask_tex_use_channel = Modparam[4+int(next(ModCount))]
-                        Mod.mask_tex_mapping = Modparam[4+int(next(ModCount))]
-                        Mod.mask_tex_map_object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.mask_tex_uv_layer = Modparam[4+int(next(ModCount))]
+                        Mod.vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.target = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.proximity_mode = Modparam[4 + int(next(ModCount))]
+                        Mod.proximity_geometry = Dict_str(
+                            Modparam[4 + int(next(ModCount))])  # {'VERTEX', 'EDGE', 'FACE'}
+                        Mod.min_dist = float(Modparam[4 + int(next(ModCount))])
+                        Mod.max_dist = float(Modparam[4 + int(next(ModCount))])
+                        Mod.normalize = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.falloff_type = Modparam[4 + int(next(ModCount))]
+                        Mod.invert_falloff = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.mask_constant = float(Modparam[4 + int(next(ModCount))])
+                        Mod.mask_vertex_group = Modparam[4 + int(next(ModCount))]
+                        Mod.invert_mask_vertex_group = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.mask_tex_use_channel = Modparam[4 + int(next(ModCount))]
+                        Mod.mask_tex_mapping = Modparam[4 + int(next(ModCount))]
+                        Mod.mask_tex_map_object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.mask_tex_uv_layer = Modparam[4 + int(next(ModCount))]
                     elif (Modparam[1] == 'VOLUME_TO_MESH') and (bpy.app.version >= (2, 92, 0)):
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
-                        Mod.object = str_to_obj(Modparam[4+int(next(ModCount))])
-                        Mod.grid_name = Modparam[4+int(next(ModCount))]
-                        Mod.resolution_mode = Modparam[4+int(next(ModCount))]
-                        Mod.threshold = float(Modparam[4+int(next(ModCount))])
-                        Mod.adaptivity = float(Modparam[4+int(next(ModCount))])
-                        Mod.use_smooth_shade = str_to_bool(Modparam[4+int(next(ModCount))])
-                        Mod.voxel_amount = int(Modparam[4+int(next(ModCount))])
-                        Mod.voxel_size = float(Modparam[4+int(next(ModCount))])
+                        Mod.object = str_to_obj(Modparam[4 + int(next(ModCount))])
+                        Mod.grid_name = Modparam[4 + int(next(ModCount))]
+                        Mod.resolution_mode = Modparam[4 + int(next(ModCount))]
+                        Mod.threshold = float(Modparam[4 + int(next(ModCount))])
+                        Mod.adaptivity = float(Modparam[4 + int(next(ModCount))])
+                        Mod.use_smooth_shade = str_to_bool(Modparam[4 + int(next(ModCount))])
+                        Mod.voxel_amount = int(Modparam[4 + int(next(ModCount))])
+                        Mod.voxel_size = float(Modparam[4 + int(next(ModCount))])
                     elif (Modparam[1] == 'NODES') and (bpy.app.version >= (2, 92, 0)):
-                        ModCount=count(1, 1)
-                        Mod = ob.modifiers.new(Modparam[0],Modparam[1])
+                        ModCount = count(1, 1)
+                        Mod = ob.modifiers.new(Modparam[0], Modparam[1])
                         Mod.show_viewport = str_to_bool(Modparam[2])
                         Mod.show_render = str_to_bool(Modparam[3])
 
-                        Mod.node_group=bpy.data.node_groups[Modparam[4+int(next(ModCount))]]
-                        Mod.name+='__'+Mod.node_group.name
-                        Mod.node_group.use_fake_user = str_to_bool(Modparam[4+int(next(ModCount))])
-
-
+                        Mod.node_group = bpy.data.node_groups[Modparam[4 + int(next(ModCount))]]
+                        Mod.name += '__' + Mod.node_group.name
+                        Mod.node_group.use_fake_user = str_to_bool(Modparam[4 + int(next(ModCount))])
 
                     if ConType == 'CAMERA_SOLVER':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.use_active_clip=str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.influence=float(Conparam[2+int(next(ConCount))])
+                        Con.use_active_clip = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'FOLLOW_TRACK':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.use_active_clip=str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_3d_position=str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_undistorted_position=str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.frame_method=Conparam[2+int(next(ConCount))]
-                        Con.camera=to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.depth_object=to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.influence=float(Conparam[2+int(next(ConCount))])
+                        Con.use_active_clip = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_3d_position = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_undistorted_position = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.frame_method = Conparam[2 + int(next(ConCount))]
+                        Con.camera = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.depth_object = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'OBJECT_SOLVER':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.use_active_clip=str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.camera=to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.influence=float(Conparam[2+int(next(ConCount))])
+                        Con.use_active_clip = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.camera = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'COPY_LOCATION':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.use_x = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_y = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_z = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.invert_x = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.invert_y = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.invert_z = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_offset = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.target_space = Conparam[2+int(next(ConCount))]
-                        Con.owner_space = Conparam[2+int(next(ConCount))]
-                        Con.space_object = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.space_subtarget = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.use_x = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_y = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_z = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.invert_x = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.invert_y = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.invert_z = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_offset = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.target_space = Conparam[2 + int(next(ConCount))]
+                        Con.owner_space = Conparam[2 + int(next(ConCount))]
+                        Con.space_object = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.space_subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'COPY_ROTATION':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.euler_order = Conparam[2+int(next(ConCount))]
-                        Con.use_x = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_y = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_z = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.invert_x = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.invert_y = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.invert_z = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.mix_mode = Conparam[2+int(next(ConCount))]
-                        Con.target_space = Conparam[2+int(next(ConCount))]
-                        Con.owner_space = Conparam[2+int(next(ConCount))]
-                        Con.space_object = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.space_subtarget = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.euler_order = Conparam[2 + int(next(ConCount))]
+                        Con.use_x = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_y = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_z = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.invert_x = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.invert_y = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.invert_z = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.mix_mode = Conparam[2 + int(next(ConCount))]
+                        Con.target_space = Conparam[2 + int(next(ConCount))]
+                        Con.owner_space = Conparam[2 + int(next(ConCount))]
+                        Con.space_object = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.space_subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'COPY_SCALE':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.use_x = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_y = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_z = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.power = float(Conparam[2+int(next(ConCount))])
-                        Con.use_make_uneleliform = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_offset = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_add = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.target_space = Conparam[2+int(next(ConCount))]
-                        Con.owner_space = Conparam[2+int(next(ConCount))]
-                        Con.space_object = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.space_subtarget = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.use_x = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_y = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_z = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.power = float(Conparam[2 + int(next(ConCount))])
+                        Con.use_make_uneleliform = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_offset = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_add = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.target_space = Conparam[2 + int(next(ConCount))]
+                        Con.owner_space = Conparam[2 + int(next(ConCount))]
+                        Con.space_object = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.space_subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'COPY_TRANSFORMS':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.mix_mode = Conparam[2+int(next(ConCount))]
-                        Con.target_space = Conparam[2+int(next(ConCount))]
-                        Con.owner_space = Conparam[2+int(next(ConCount))]
-                        Con.space_object = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.space_subtarget = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.mix_mode = Conparam[2 + int(next(ConCount))]
+                        Con.target_space = Conparam[2 + int(next(ConCount))]
+                        Con.owner_space = Conparam[2 + int(next(ConCount))]
+                        Con.space_object = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.space_subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'LIMIT_DISTANCE':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.distance = float(Conparam[2+int(next(ConCount))])
-                        Con.limit_mode = Conparam[2+int(next(ConCount))]
-                        Con.use_transform_limit = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.target_space = Conparam[2+int(next(ConCount))]
-                        Con.owner_space = Conparam[2+int(next(ConCount))]
-                        Con.space_object = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.space_subtarget = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.distance = float(Conparam[2 + int(next(ConCount))])
+                        Con.limit_mode = Conparam[2 + int(next(ConCount))]
+                        Con.use_transform_limit = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.target_space = Conparam[2 + int(next(ConCount))]
+                        Con.owner_space = Conparam[2 + int(next(ConCount))]
+                        Con.space_object = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.space_subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
-                    elif (ConType=='LIMIT_LOCATION') or (ConType=='LIMIT_SCALE'):
-                        ConCount=count(1, 1)
+                    elif (ConType == 'LIMIT_LOCATION') or (ConType == 'LIMIT_SCALE'):
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.use_min_x = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_min_y = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_min_z = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_max_x = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_max_y = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_max_z = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_transform_limit = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.min_x = float(Conparam[2+int(next(ConCount))])
-                        Con.min_y = float(Conparam[2+int(next(ConCount))])
-                        Con.min_z = float(Conparam[2+int(next(ConCount))])
-                        Con.max_x = float(Conparam[2+int(next(ConCount))])
-                        Con.max_y = float(Conparam[2+int(next(ConCount))])
-                        Con.max_z = float(Conparam[2+int(next(ConCount))])
-                        Con.owner_space = Conparam[2+int(next(ConCount))]
-                        Con.space_object = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.space_subtarget = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.use_min_x = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_min_y = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_min_z = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_max_x = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_max_y = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_max_z = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_transform_limit = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.min_x = float(Conparam[2 + int(next(ConCount))])
+                        Con.min_y = float(Conparam[2 + int(next(ConCount))])
+                        Con.min_z = float(Conparam[2 + int(next(ConCount))])
+                        Con.max_x = float(Conparam[2 + int(next(ConCount))])
+                        Con.max_y = float(Conparam[2 + int(next(ConCount))])
+                        Con.max_z = float(Conparam[2 + int(next(ConCount))])
+                        Con.owner_space = Conparam[2 + int(next(ConCount))]
+                        Con.space_object = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.space_subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'LIMIT_ROTATION':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.use_limit_x = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_limit_y = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_limit_z = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.min_x = float(Conparam[2+int(next(ConCount))])
-                        Con.max_x = float(Conparam[2+int(next(ConCount))])
-                        Con.min_y = float(Conparam[2+int(next(ConCount))])
-                        Con.max_y = float(Conparam[2+int(next(ConCount))])
-                        Con.min_z = float(Conparam[2+int(next(ConCount))])
-                        Con.max_z = float(Conparam[2+int(next(ConCount))])
-                        Con.use_transform_limit = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.owner_space = Conparam[2+int(next(ConCount))]
-                        Con.space_object = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.space_subtarget = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.use_limit_x = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_limit_y = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_limit_z = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.min_x = float(Conparam[2 + int(next(ConCount))])
+                        Con.max_x = float(Conparam[2 + int(next(ConCount))])
+                        Con.min_y = float(Conparam[2 + int(next(ConCount))])
+                        Con.max_y = float(Conparam[2 + int(next(ConCount))])
+                        Con.min_z = float(Conparam[2 + int(next(ConCount))])
+                        Con.max_z = float(Conparam[2 + int(next(ConCount))])
+                        Con.use_transform_limit = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.owner_space = Conparam[2 + int(next(ConCount))]
+                        Con.space_object = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.space_subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'MAINTAIN_VOLUME':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.mode = Conparam[2+int(next(ConCount))]
-                        Con.free_axis = Conparam[2+int(next(ConCount))]
-                        Con.volume = float(Conparam[2+int(next(ConCount))])
-                        Con.owner_space = Conparam[2+int(next(ConCount))]
-                        Con.space_object = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.space_subtarget = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.mode = Conparam[2 + int(next(ConCount))]
+                        Con.free_axis = Conparam[2 + int(next(ConCount))]
+                        Con.volume = float(Conparam[2 + int(next(ConCount))])
+                        Con.owner_space = Conparam[2 + int(next(ConCount))]
+                        Con.space_object = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.space_subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'TRANSFORM':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.use_motion_extrapolate = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.target_space = Conparam[2+int(next(ConCount))]
-                        Con.owner_space = Conparam[2+int(next(ConCount))]
-                        Con.space_object = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.space_subtarget = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.use_motion_extrapolate = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.target_space = Conparam[2 + int(next(ConCount))]
+                        Con.owner_space = Conparam[2 + int(next(ConCount))]
+                        Con.space_object = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.space_subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
-                        Con.map_from = Conparam[2+int(next(ConCount))]
-                        Con.from_min_x = float(Conparam[2+int(next(ConCount))])
-                        Con.from_max_x = float(Conparam[2+int(next(ConCount))])
-                        Con.from_min_y = float(Conparam[2+int(next(ConCount))])
-                        Con.from_max_y = float(Conparam[2+int(next(ConCount))])
-                        Con.from_min_z = float(Conparam[2+int(next(ConCount))])
-                        Con.from_max_z = float(Conparam[2+int(next(ConCount))])
-                        Con.from_rotation_mode = Conparam[2+int(next(ConCount))]
-                        Con.from_min_x_rot = float(Conparam[2+int(next(ConCount))])
-                        Con.from_max_x_rot = float(Conparam[2+int(next(ConCount))])
-                        Con.from_min_y_rot = float(Conparam[2+int(next(ConCount))])
-                        Con.from_max_y_rot = float(Conparam[2+int(next(ConCount))])
-                        Con.from_min_z_rot = float(Conparam[2+int(next(ConCount))])
-                        Con.from_max_z_rot = float(Conparam[2+int(next(ConCount))])
-                        Con.from_min_x_scale = float(Conparam[2+int(next(ConCount))])
-                        Con.from_max_x_scale = float(Conparam[2+int(next(ConCount))])
-                        Con.from_min_y_scale = float(Conparam[2+int(next(ConCount))])
-                        Con.from_max_y_scale = float(Conparam[2+int(next(ConCount))])
-                        Con.from_min_z_scale = float(Conparam[2+int(next(ConCount))])
-                        Con.from_max_z_scale = float(Conparam[2+int(next(ConCount))])
+                        Con.map_from = Conparam[2 + int(next(ConCount))]
+                        Con.from_min_x = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_max_x = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_min_y = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_max_y = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_min_z = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_max_z = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_rotation_mode = Conparam[2 + int(next(ConCount))]
+                        Con.from_min_x_rot = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_max_x_rot = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_min_y_rot = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_max_y_rot = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_min_z_rot = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_max_z_rot = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_min_x_scale = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_max_x_scale = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_min_y_scale = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_max_y_scale = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_min_z_scale = float(Conparam[2 + int(next(ConCount))])
+                        Con.from_max_z_scale = float(Conparam[2 + int(next(ConCount))])
 
-                        Con.map_to = Conparam[2+int(next(ConCount))]
-                        Con.map_to_x_from = Conparam[2+int(next(ConCount))]
-                        Con.map_to_y_from = Conparam[2+int(next(ConCount))]
-                        Con.map_to_z_from = Conparam[2+int(next(ConCount))]
-                        Con.to_min_x = float(Conparam[2+int(next(ConCount))])
-                        Con.to_max_x = float(Conparam[2+int(next(ConCount))])
-                        Con.to_min_y = float(Conparam[2+int(next(ConCount))])
-                        Con.to_max_y = float(Conparam[2+int(next(ConCount))])
-                        Con.to_min_z = float(Conparam[2+int(next(ConCount))])
-                        Con.to_max_z = float(Conparam[2+int(next(ConCount))])
-                        Con.mix_mode = float(Conparam[2+int(next(ConCount))])
-                        Con.to_euler_order = Conparam[2+int(next(ConCount))]
-                        Con.map_to_x_from = Conparam[2+int(next(ConCount))]
-                        Con.map_to_y_from = Conparam[2+int(next(ConCount))]
-                        Con.map_to_z_from = Conparam[2+int(next(ConCount))]
-                        Con.to_min_x_rot = float(Conparam[2+int(next(ConCount))])
-                        Con.to_max_x_rot = float(Conparam[2+int(next(ConCount))])
-                        Con.to_min_y_rot = float(Conparam[2+int(next(ConCount))])
-                        Con.to_max_y_rot = float(Conparam[2+int(next(ConCount))])
-                        Con.to_min_z_rot = float(Conparam[2+int(next(ConCount))])
-                        Con.to_max_z_rot = float(Conparam[2+int(next(ConCount))])
-                        Con.mix_mode_rot = Conparam[2+int(next(ConCount))]
-                        Con.map_to_x_from = Conparam[2+int(next(ConCount))]
-                        Con.map_to_y_from = Conparam[2+int(next(ConCount))]
-                        Con.map_to_z_from = Conparam[2+int(next(ConCount))]
-                        Con.to_min_x_scale = float(Conparam[2+int(next(ConCount))])
-                        Con.to_max_x_scale = float(Conparam[2+int(next(ConCount))])
-                        Con.to_min_y_scale = float(Conparam[2+int(next(ConCount))])
-                        Con.to_max_y_scale = float(Conparam[2+int(next(ConCount))])
-                        Con.to_min_z_scale = float(Conparam[2+int(next(ConCount))])
-                        Con.to_max_z_scale = float(Conparam[2+int(next(ConCount))])
-                        Con.mix_mode_scale = Conparam[2+int(next(ConCount))]
+                        Con.map_to = Conparam[2 + int(next(ConCount))]
+                        Con.map_to_x_from = Conparam[2 + int(next(ConCount))]
+                        Con.map_to_y_from = Conparam[2 + int(next(ConCount))]
+                        Con.map_to_z_from = Conparam[2 + int(next(ConCount))]
+                        Con.to_min_x = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_max_x = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_min_y = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_max_y = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_min_z = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_max_z = float(Conparam[2 + int(next(ConCount))])
+                        Con.mix_mode = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_euler_order = Conparam[2 + int(next(ConCount))]
+                        Con.map_to_x_from = Conparam[2 + int(next(ConCount))]
+                        Con.map_to_y_from = Conparam[2 + int(next(ConCount))]
+                        Con.map_to_z_from = Conparam[2 + int(next(ConCount))]
+                        Con.to_min_x_rot = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_max_x_rot = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_min_y_rot = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_max_y_rot = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_min_z_rot = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_max_z_rot = float(Conparam[2 + int(next(ConCount))])
+                        Con.mix_mode_rot = Conparam[2 + int(next(ConCount))]
+                        Con.map_to_x_from = Conparam[2 + int(next(ConCount))]
+                        Con.map_to_y_from = Conparam[2 + int(next(ConCount))]
+                        Con.map_to_z_from = Conparam[2 + int(next(ConCount))]
+                        Con.to_min_x_scale = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_max_x_scale = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_min_y_scale = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_max_y_scale = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_min_z_scale = float(Conparam[2 + int(next(ConCount))])
+                        Con.to_max_z_scale = float(Conparam[2 + int(next(ConCount))])
+                        Con.mix_mode_scale = Conparam[2 + int(next(ConCount))]
 
                     elif ConType == 'TRANSFORM_CACHE':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'CLAMP_TO':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.main_axis = Conparam[2+int(next(ConCount))]
-                        Con.use_cyclic = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.main_axis = Conparam[2 + int(next(ConCount))]
+                        Con.use_cyclic = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'DAMPED_TRACK':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.track_axis = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.track_axis = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'LOCKED_TRACK':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.track_axis = Conparam[2+int(next(ConCount))]
-                        Con.lock_axis = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.track_axis = Conparam[2 + int(next(ConCount))]
+                        Con.lock_axis = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'STRETCH_TO':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.rest_length = float(Conparam[2+int(next(ConCount))])
-                        Con.bulge = float(Conparam[2+int(next(ConCount))])
-                        Con.use_bulge_min = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_bulge_max = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.bulge_min = float(Conparam[2+int(next(ConCount))])
-                        Con.bulge_max = float(Conparam[2+int(next(ConCount))])
-                        Con.bulge_smooth = float(Conparam[2+int(next(ConCount))])
-                        Con.volume = Conparam[2+int(next(ConCount))]
-                        Con.keep_axis = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.rest_length = float(Conparam[2 + int(next(ConCount))])
+                        Con.bulge = float(Conparam[2 + int(next(ConCount))])
+                        Con.use_bulge_min = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_bulge_max = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.bulge_min = float(Conparam[2 + int(next(ConCount))])
+                        Con.bulge_max = float(Conparam[2 + int(next(ConCount))])
+                        Con.bulge_smooth = float(Conparam[2 + int(next(ConCount))])
+                        Con.volume = Conparam[2 + int(next(ConCount))]
+                        Con.keep_axis = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'TRACK_TO':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.track_axis = Conparam[2+int(next(ConCount))]
-                        Con.up_axis = Conparam[2+int(next(ConCount))]
-                        Con.use_target_z = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.target_space = Conparam[2+int(next(ConCount))]
-                        Con.owner_space = Conparam[2+int(next(ConCount))]
-                        Con.space_object = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.space_subtarget = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.track_axis = Conparam[2 + int(next(ConCount))]
+                        Con.up_axis = Conparam[2 + int(next(ConCount))]
+                        Con.use_target_z = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.target_space = Conparam[2 + int(next(ConCount))]
+                        Con.owner_space = Conparam[2 + int(next(ConCount))]
+                        Con.space_object = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.space_subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'ACTION':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.use_eval_time = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.eval_time = float(Conparam[2+int(next(ConCount))])
-                        Con.mix_mode = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
-                        Con.transform_channel = Conparam[2+int(next(ConCount))]
-                        Con.target_space = Conparam[2+int(next(ConCount))]
-                        Con.space_object = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.space_subtarget = Conparam[2+int(next(ConCount))]
-                        Con.min = float(Conparam[2+int(next(ConCount))])
-                        Con.max = float(Conparam[2+int(next(ConCount))])
-                        Con.use_bone_object_action = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.frame_start = int(Conparam[2+int(next(ConCount))])
-                        Con.frame_end = int(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.use_eval_time = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.eval_time = float(Conparam[2 + int(next(ConCount))])
+                        Con.mix_mode = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
+                        Con.transform_channel = Conparam[2 + int(next(ConCount))]
+                        Con.target_space = Conparam[2 + int(next(ConCount))]
+                        Con.space_object = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.space_subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.min = float(Conparam[2 + int(next(ConCount))])
+                        Con.max = float(Conparam[2 + int(next(ConCount))])
+                        Con.use_bone_object_action = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.frame_start = int(Conparam[2 + int(next(ConCount))])
+                        Con.frame_end = int(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'ARMATURE':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.use_deform_preserve_volume = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_bone_envelopes = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.use_deform_preserve_volume = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_bone_envelopes = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'CHILD_OF':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.use_location_x = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_location_y = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_location_z = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_rotation_x = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_rotation_y = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_rotation_z = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_scale_x = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_scale_y = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_scale_z = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.use_location_x = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_location_y = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_location_z = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_rotation_x = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_rotation_y = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_rotation_z = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_scale_x = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_scale_y = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_scale_z = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'FLOOR':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.offset = float(Conparam[2+int(next(ConCount))])
-                        Con.floor_location = Conparam[2+int(next(ConCount))]
-                        Con.use_rotation = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.target_space = Conparam[2+int(next(ConCount))]
-                        Con.owner_space = Conparam[2+int(next(ConCount))]
-                        Con.space_object = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.space_subtarget = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.offset = float(Conparam[2 + int(next(ConCount))])
+                        Con.floor_location = Conparam[2 + int(next(ConCount))]
+                        Con.use_rotation = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.target_space = Conparam[2 + int(next(ConCount))]
+                        Con.owner_space = Conparam[2 + int(next(ConCount))]
+                        Con.space_object = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.space_subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'FOLLOW_PATH':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.offset = float(Conparam[2+int(next(ConCount))])
-                        Con.forward_axis = Conparam[2+int(next(ConCount))]
-                        Con.up_axis = Conparam[2+int(next(ConCount))]
-                        Con.use_fixed_location = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_curve_radius = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.use_curve_follow = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.offset = float(Conparam[2 + int(next(ConCount))])
+                        Con.forward_axis = Conparam[2 + int(next(ConCount))]
+                        Con.up_axis = Conparam[2 + int(next(ConCount))]
+                        Con.use_fixed_location = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_curve_radius = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.use_curve_follow = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'PIVOT':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.subtarget = Conparam[2+int(next(ConCount))]
-                        Con.offset[0] = float(Conparam[2+int(next(ConCount))])
-                        Con.offset[1] = float(Conparam[2+int(next(ConCount))])
-                        Con.offset[2] = float(Conparam[2+int(next(ConCount))])
-                        Con.rotation_range = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.subtarget = Conparam[2 + int(next(ConCount))]
+                        Con.offset[0] = float(Conparam[2 + int(next(ConCount))])
+                        Con.offset[1] = float(Conparam[2 + int(next(ConCount))])
+                        Con.offset[2] = float(Conparam[2 + int(next(ConCount))])
+                        Con.rotation_range = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                     elif ConType == 'SHRINKWRAP':
-                        ConCount=count(1, 1)
+                        ConCount = count(1, 1)
                         Con = ob.constraints.new(ConType)
-                        Con.name=Conparam[0]
+                        Con.name = Conparam[0]
                         Con.mute = str_to_bool(Conparam[2])
 
-                        Con.target = to_Obj(Conparam[2+int(next(ConCount))])
-                        Con.distance = float(Conparam[2+int(next(ConCount))])
-                        Con.shrinkwrap_type = Conparam[2+int(next(ConCount))]
-                        Con.project_axis_space = Conparam[2+int(next(ConCount))]
-                        Con.project_limit = float(Conparam[2+int(next(ConCount))])
-                        Con.use_project_opposite = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.cull_face = Conparam[2+int(next(ConCount))]
-                        Con.use_invert_cull = str_to_bool(Conparam[2+int(next(ConCount))])#
-                        Con.wrap_mode = Conparam[2+int(next(ConCount))]
-                        Con.use_track_normal = str_to_bool(Conparam[2+int(next(ConCount))])
-                        Con.track_axis = Conparam[2+int(next(ConCount))]
-                        Con.influence = float(Conparam[2+int(next(ConCount))])
+                        Con.target = to_Obj(Conparam[2 + int(next(ConCount))])
+                        Con.distance = float(Conparam[2 + int(next(ConCount))])
+                        Con.shrinkwrap_type = Conparam[2 + int(next(ConCount))]
+                        Con.project_axis_space = Conparam[2 + int(next(ConCount))]
+                        Con.project_limit = float(Conparam[2 + int(next(ConCount))])
+                        Con.use_project_opposite = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.cull_face = Conparam[2 + int(next(ConCount))]
+                        Con.use_invert_cull = str_to_bool(Conparam[2 + int(next(ConCount))])  #
+                        Con.wrap_mode = Conparam[2 + int(next(ConCount))]
+                        Con.use_track_normal = str_to_bool(Conparam[2 + int(next(ConCount))])
+                        Con.track_axis = Conparam[2 + int(next(ConCount))]
+                        Con.influence = float(Conparam[2 + int(next(ConCount))])
 
                 for mod in ob.modifiers:
                     mod.show_expanded = False
                     mod.show_in_editmode = False
-
-
 
         '''
         if len(DriversList)>0:#测试打印
@@ -4285,215 +4357,228 @@ class GenMech(bpy.types.Operator):
             print(DriversList[0])
             print(DriversList[0][1])
         '''
-        if len(DriversList)>0:
+        if len(DriversList) > 0:
             for DriverLine in DriversList:
-                DriverCount=count(1, 1)
-                WeAddDiver=False
-                SourceType=DriverLine[1]
-                Source=DriverLine[2]
-                SourceDataPath=DriverLine[3]
-                SourceIndex=DriverLine[4]
-                expType=DriverLine[5]
-                exp=DriverLine[6]
-                TargetNum=DriverLine[7]
-                
+                DriverCount = count(1, 1)
+                WeAddDiver = False
+                SourceType = DriverLine[1]
+                Source = DriverLine[2]
+                SourceDataPath = DriverLine[3]
+                SourceIndex = DriverLine[4]
+                expType = DriverLine[5]
+                exp = DriverLine[6]
+                TargetNum = DriverLine[7]
 
-
-                if SourceType=='OBJECT':
+                if SourceType == 'OBJECT':
                     if Source in bpy.data.objects:
-                        source=bpy.data.objects[Source]
-                        WeAddDiver=True
-                elif SourceType=='TEXTURE':
+                        source = bpy.data.objects[Source]
+                        WeAddDiver = True
+                elif SourceType == 'TEXTURE':
                     if Source in bpy.data.textures:
-                        source=bpy.data.textures[Source]
-                        WeAddDiver=True
-                elif (SourceType=='NODETREE') and (bpy.app.version >= (2, 92, 0)):
+                        source = bpy.data.textures[Source]
+                        WeAddDiver = True
+                elif (SourceType == 'NODETREE') and (bpy.app.version >= (2, 92, 0)):
                     if Source in bpy.data.node_groups:
-                        source=bpy.data.node_groups[Source]
-                        WeAddDiver=True
+                        source = bpy.data.node_groups[Source]
+                        WeAddDiver = True
 
-                if WeAddDiver==True:
+                if WeAddDiver == True:
                     if (int(SourceIndex) != 0) or ('.vector' in SourceDataPath):
-                        d = source.driver_add( SourceDataPath, int(SourceIndex) ).driver
+                        d = source.driver_add(SourceDataPath, int(SourceIndex)).driver
                     else:
-                        d = source.driver_add( SourceDataPath ).driver
-                    
+                        d = source.driver_add(SourceDataPath).driver
 
-                    d.type=expType
-                    if d.type=='SCRIPTED':
+                    d.type = expType
+                    if d.type == 'SCRIPTED':
                         d.expression = exp
 
-                varnum=int(TargetNum)
+                varnum = int(TargetNum)
                 for var in range(varnum):
-                    FuncType=DriverLine[7+int(next(DriverCount))]
-                    FuncName=DriverLine[7+int(next(DriverCount))]
-                    TargetType=DriverLine[7+int(next(DriverCount))]
-                    targetName=DriverLine[7+int(next(DriverCount))]
-                    TargetDataPath=DriverLine[7+int(next(DriverCount))]
-                    transform_type=DriverLine[7+int(next(DriverCount))]
-                    transform_space=DriverLine[7+int(next(DriverCount))]
-                    #nextCount=7+int(next(DriverCount))
-                    rotation_mode=DriverLine[7+int(next(DriverCount))]
+                    FuncType = DriverLine[7 + int(next(DriverCount))]
+                    FuncName = DriverLine[7 + int(next(DriverCount))]
+                    TargetType = DriverLine[7 + int(next(DriverCount))]
+                    targetName = DriverLine[7 + int(next(DriverCount))]
+                    TargetDataPath = DriverLine[7 + int(next(DriverCount))]
+                    transform_type = DriverLine[7 + int(next(DriverCount))]
+                    transform_space = DriverLine[7 + int(next(DriverCount))]
+                    # nextCount=7+int(next(DriverCount))
+                    rotation_mode = DriverLine[7 + int(next(DriverCount))]
 
-                    if (TargetType=='OBJECT') and (targetName!=''):
+                    if (TargetType == 'OBJECT') and (targetName != ''):
                         if targetName in bpy.data.objects:
-                            target=bpy.data.objects[targetName]
-                            #TargetDiver=True
-                    elif (TargetType=='TEXTURE') and (targetName!=''):
+                            target = bpy.data.objects[targetName]
+                            # TargetDiver=True
+                    elif (TargetType == 'TEXTURE') and (targetName != ''):
                         if targetName in bpy.data.textures:
-                            target=bpy.data.textures[targetName]
-                            #TargetDiver=True
-                    elif (TargetType=='NODETREE') and (targetName!='') and (bpy.app.version >= (2, 92, 0)):
+                            target = bpy.data.textures[targetName]
+                            # TargetDiver=True
+                    elif (TargetType == 'NODETREE') and (targetName != '') and (bpy.app.version >= (2, 92, 0)):
                         if targetName in bpy.data.node_groups:
-                            target=bpy.data.node_groups[targetName]
-                            #TargetDiver=True
+                            target = bpy.data.node_groups[targetName]
+                            # TargetDiver=True
                     else:
-                        target=None
-                        #WeAddDiver=False
+                        target = None
+                        # WeAddDiver=False
 
                     v = d.variables.new()
                     v.name = FuncName
                     v.type = FuncType
-                    if v.type== 'SINGLE_PROP':#SINGLE_PROP才会出现选择物体类型
-                        v.targets[0].id_type   = TargetType
-                        v.targets[0].id        = target
+                    if v.type == 'SINGLE_PROP':  # SINGLE_PROP才会出现选择物体类型
+                        v.targets[0].id_type = TargetType
+                        v.targets[0].id = target
                         v.targets[0].data_path = TargetDataPath
-                        v.targets[0].transform_type=transform_type
-                        v.targets[0].transform_space=transform_space
-                        v.targets[0].rotation_mode=rotation_mode
+                        v.targets[0].transform_type = transform_type
+                        v.targets[0].transform_space = transform_space
+                        v.targets[0].rotation_mode = rotation_mode
 
-                    elif v.type=='TRANSFORMS':
-                        v.targets[0].id        = target
+                    elif v.type == 'TRANSFORMS':
+                        v.targets[0].id = target
                         v.targets[0].data_path = TargetDataPath
-                        v.targets[0].transform_type=transform_type
-                        v.targets[0].transform_space=transform_space
-                        v.targets[0].rotation_mode=rotation_mode
-                    
-                    elif v.type=='ROTATION_DIFF':
-                        Func2Type=DriverLine[7+int(next(DriverCount))]
-                        Func2Name=DriverLine[7+int(next(DriverCount))]
-                        Target2Type=DriverLine[7+int(next(DriverCount))]
-                        target2Name=DriverLine[7+int(next(DriverCount))]
-                        Target2DataPath=DriverLine[7+int(next(DriverCount))]
-                        transform2_type=DriverLine[7+int(next(DriverCount))]
-                        transform2_space=DriverLine[7+int(next(DriverCount))]
-                        rotation2_mode=DriverLine[7+int(next(DriverCount))]
+                        v.targets[0].transform_type = transform_type
+                        v.targets[0].transform_space = transform_space
+                        v.targets[0].rotation_mode = rotation_mode
 
-                        v.targets[0].id        = target
+                    elif v.type == 'ROTATION_DIFF':
+                        Func2Type = DriverLine[7 + int(next(DriverCount))]
+                        Func2Name = DriverLine[7 + int(next(DriverCount))]
+                        Target2Type = DriverLine[7 + int(next(DriverCount))]
+                        target2Name = DriverLine[7 + int(next(DriverCount))]
+                        Target2DataPath = DriverLine[7 + int(next(DriverCount))]
+                        transform2_type = DriverLine[7 + int(next(DriverCount))]
+                        transform2_space = DriverLine[7 + int(next(DriverCount))]
+                        rotation2_mode = DriverLine[7 + int(next(DriverCount))]
 
-                        #target2Name=DriverLine[nextCount+4]
+                        v.targets[0].id = target
+
+                        # target2Name=DriverLine[nextCount+4]
                         if target2Name in bpy.data.objects:
-                            v.targets[1].id        = bpy.data.objects[target2Name]
+                            v.targets[1].id = bpy.data.objects[target2Name]
 
-                    elif v.type=='LOC_DIFF':
-                        Func2Type=DriverLine[7+int(next(DriverCount))]
-                        Func2Name=DriverLine[7+int(next(DriverCount))]
-                        Target2Type=DriverLine[7+int(next(DriverCount))]
-                        target2Name=DriverLine[7+int(next(DriverCount))]
-                        Target2DataPath=DriverLine[7+int(next(DriverCount))]
-                        transform2_type=DriverLine[7+int(next(DriverCount))]
-                        transform2_space=DriverLine[7+int(next(DriverCount))]
-                        rotation2_mode=DriverLine[7+int(next(DriverCount))]
+                    elif v.type == 'LOC_DIFF':
+                        Func2Type = DriverLine[7 + int(next(DriverCount))]
+                        Func2Name = DriverLine[7 + int(next(DriverCount))]
+                        Target2Type = DriverLine[7 + int(next(DriverCount))]
+                        target2Name = DriverLine[7 + int(next(DriverCount))]
+                        Target2DataPath = DriverLine[7 + int(next(DriverCount))]
+                        transform2_type = DriverLine[7 + int(next(DriverCount))]
+                        transform2_space = DriverLine[7 + int(next(DriverCount))]
+                        rotation2_mode = DriverLine[7 + int(next(DriverCount))]
 
-                        v.targets[0].id        = target
+                        v.targets[0].id = target
                         v.targets[0].transform_space = transform_space
 
-                        #target2Name=DriverLine[nextCount+4]
+                        # target2Name=DriverLine[nextCount+4]
                         if target2Name in bpy.data.objects:
                             v.targets[1].id = bpy.data.objects[target2Name]
                         v.targets[1].transform_space = transform2_space
 
-
-
-
-
-
         if len(OBJNameList) != 0:
             for OBJName in OBJNameList:
-        
-                ob= bpy.data.objects[OBJName]
-                name=amProperty.GenMechEnum.split('_')[0]
-                ob.name=name+OBJName
-                
-                if (amProperty.RandomMaterialBool == True) and (ob.type=='MESH'):
-                    for i in range(0,len(ob.material_slots)):
+
+                ob = bpy.data.objects[OBJName]
+                name = amProperty.GenMechEnum.split('_')[0]
+                ob.name = name + OBJName
+
+                if (amProperty.RandomMaterialBool == True) and (ob.type == 'MESH'):
+                    for i in range(0, len(ob.material_slots)):
                         ob.active_material_index = i
                         MatOld = ob.active_material
                         MatNew = MatOld.copy()
-                        MatNew.name=MatNew.name[:-4]+"_"+ob.name
+                        MatNew.name = MatNew.name[:-4] + "_" + ob.name
                         ob.data.materials[i] = MatNew
-                        if i == 0:#从这里设置材质参数
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.9), random.uniform(0, 0.7), random.uniform(0, 1), 1)
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0, 1), random.uniform(0, 0.9), random.uniform(0, 0.8), 1)
+                        if i == 0:  # 从这里设置材质参数
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (
+                                random.uniform(0, 0.9), random.uniform(0, 0.7), random.uniform(0, 1), 1)
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (
+                                random.uniform(0, 1), random.uniform(0, 0.9), random.uniform(0, 0.8), 1)
 
                         if i == 1:
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.3), random.uniform(0, 0.3), random.uniform(0, 0.3), 1)
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), 1) 
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (
+                                random.uniform(0, 0.3), random.uniform(0, 0.3), random.uniform(0, 0.3), 1)
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (
+                                random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), random.uniform(0.2, 0.8), 1)
                         if i == 2:
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.05), random.uniform(0, 0.05), random.uniform(0, 0.05), 1) 
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (
+                                random.uniform(0, 0.05), random.uniform(0, 0.05), random.uniform(0, 0.05), 1)
                         if i == 3:
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (random.uniform(0, 0.5), random.uniform(0, 0.5), random.uniform(0, 0.5), 1)
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (random.uniform(0.4, 1), random.uniform(0.4, 1), random.uniform(0.4, 1), 1)
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[1].default_value = (
+                                random.uniform(0, 0.5), random.uniform(0, 0.5), random.uniform(0, 0.5), 1)
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[2].default_value = (
+                                random.uniform(0.4, 1), random.uniform(0.4, 1), random.uniform(0.4, 1), 1)
 
                         if i == 4:
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (random.uniform(0, 0.4), random.uniform(0, 0.4), random.uniform(0, 0.4), 1)
-                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[17].default_value = (random.uniform(0, 0.8), random.uniform(0, 0.8), random.uniform(0, 0.8), 1)
-                
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[0].default_value = (
+                                random.uniform(0, 0.4), random.uniform(0, 0.4), random.uniform(0, 0.4), 1)
+                            bpy.data.materials[MatNew.name].node_tree.nodes["PreMColor"].inputs[17].default_value = (
+                                random.uniform(0, 0.8), random.uniform(0, 0.8), random.uniform(0, 0.8), 1)
 
+        amProperty.GenMechSkinResize = (1, 1, 1)
 
+        genLine_result = make_collection('2GenMech',
+                                         bpy.context.collection)  # bpy.data.collections["2GenMech"]#在这个合集中找到所有物体，修改这里的合集0AutoMech
 
-
-
-        
-        amProperty.GenMechSkinResize =  (1,1,1)
-
-        genLine_result = make_collection('2GenMech', bpy.context.collection)#bpy.data.collections["2GenMech"]#在这个合集中找到所有物体，修改这里的合集0AutoMech
-        
-        
-        if (len(genLine_result.objects) > 12) and ((amProperty.GenMechEnum =='MechfyHigh') or (amProperty.GenMechEnum =='Mechfy')):#如果在当前Collection中有物体
+        if (len(genLine_result.objects) > 12) and ((amProperty.GenMechEnum == 'MechfyHigh') or (
+                amProperty.GenMechEnum == 'Mechfy')):  # 如果在当前Collection中有物体
             for childObject in genLine_result.objects:
-        #for ob in sel:
-                bpy.ops.object.mode_set(mode='OBJECT')#
+                # for ob in sel:
+                bpy.ops.object.mode_set(mode='OBJECT')  #
                 bpy.ops.object.select_all(action='DESELECT')
                 childObject.select_set(True)
                 bpy.context.view_layer.objects.active = childObject
 
                 if 'neck_01' in childObject.name or 'hand_l' in childObject.name:
-                    if bpy.context.mode =='OBJECT':
+                    if bpy.context.mode == 'OBJECT':
                         bpy.ops.object.mode_set(mode='EDIT')
-                        #bpy.ops.mesh.select_all(action='SELECT')    
+                        # bpy.ops.mesh.select_all(action='SELECT')
                         bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='VERT', action='TOGGLE')
                         bpy.ops.mesh.select_all(action='SELECT')
-                        bpy.ops.transform.skin_resize(value=(0.6,0.6,0.6), mirror=True, use_proportional_edit=False, proportional_edit_falloff='RANDOM', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False)
-                        bpy.ops.transform.skin_resize(value=amProperty.GenMechSkinResize, mirror=True, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False)
-                        #bpy.ops.transform.skin_resize(value=amProperty.GenMechSkinResize)
-                        #bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE', action='TOGGLE')
+                        bpy.ops.transform.skin_resize(value=(0.6, 0.6, 0.6), mirror=True, use_proportional_edit=False,
+                                                      proportional_edit_falloff='RANDOM', proportional_size=1,
+                                                      use_proportional_connected=False,
+                                                      use_proportional_projected=False)
+                        bpy.ops.transform.skin_resize(value=amProperty.GenMechSkinResize, mirror=True,
+                                                      use_proportional_edit=False, proportional_edit_falloff='SMOOTH',
+                                                      proportional_size=1, use_proportional_connected=False,
+                                                      use_proportional_projected=False)
+                        # bpy.ops.transform.skin_resize(value=amProperty.GenMechSkinResize)
+                        # bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE', action='TOGGLE')
                         bpy.ops.object.mode_set(mode='OBJECT')
-                
+
                 elif '_l' in childObject.name or 'head' in childObject.name or 'spine_01' in childObject.name:
-                    if bpy.context.mode =='OBJECT':
+                    if bpy.context.mode == 'OBJECT':
                         bpy.ops.object.mode_set(mode='EDIT')
-                        #bpy.ops.mesh.select_all(action='SELECT')
+                        # bpy.ops.mesh.select_all(action='SELECT')
                         bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='VERT', action='TOGGLE')
                         bpy.ops.mesh.select_all(action='SELECT')
-                        bpy.ops.transform.skin_resize(value=(0.8,0.8,0.8), mirror=True, use_proportional_edit=False, proportional_edit_falloff='RANDOM', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False)
-                        bpy.ops.transform.skin_resize(value=amProperty.GenMechSkinResize, mirror=True, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False)
-                        #bpy.ops.transform.skin_resize(value=amProperty.GenMechSkinResize, mirror=True, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False)
-                        #bpy.ops.transform.skin_resize(value=amProperty.GenMechSkinResize)
-                        #bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE', action='TOGGLE')
+                        bpy.ops.transform.skin_resize(value=(0.8, 0.8, 0.8), mirror=True, use_proportional_edit=False,
+                                                      proportional_edit_falloff='RANDOM', proportional_size=1,
+                                                      use_proportional_connected=False,
+                                                      use_proportional_projected=False)
+                        bpy.ops.transform.skin_resize(value=amProperty.GenMechSkinResize, mirror=True,
+                                                      use_proportional_edit=False, proportional_edit_falloff='SMOOTH',
+                                                      proportional_size=1, use_proportional_connected=False,
+                                                      use_proportional_projected=False)
+                        # bpy.ops.transform.skin_resize(value=amProperty.GenMechSkinResize, mirror=True, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False)
+                        # bpy.ops.transform.skin_resize(value=amProperty.GenMechSkinResize)
+                        # bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE', action='TOGGLE')
                         bpy.ops.object.mode_set(mode='OBJECT')
-                
 
-
-
-        #bpy.context.view_layer.objects.active = ob#bpy.context.scene.objects.active = ob
-        #ob.select_set(True)
+        # bpy.context.view_layer.objects.active = ob#bpy.context.scene.objects.active = ob
+        # ob.select_set(True)
         self.report({'INFO'}, "修改器生成成功。")
         return {'FINISHED'}
 
-#'DATA_TRANSFER', 'MESH_CACHE', 'MESH_SEQUENCE_CACHE', 'NORMAL_EDIT', 'WEIGHTED_NORMAL', 'UV_PROJECT', 'UV_WARP', 'VERTEX_WEIGHT_EDIT', 
+
+# 'DATA_TRANSFER', 'MESH_CACHE', 'MESH_SEQUENCE_CACHE', 'NORMAL_EDIT', 'WEIGHTED_NORMAL', 'UV_PROJECT', 'UV_WARP', 'VERTEX_WEIGHT_EDIT',
 # 'VERTEX_WEIGHT_MIX', 'VERTEX_WEIGHT_PROXIMITY', 'ARRAY', 'BEVEL', 'BOOLEAN', 'BUILD', 'DECIMATE', 'EDGE_SPLIT', 'MASK', 'MIRROR', 18
 # 'MULTIRES', 'REMESH', 'SCREW', 'SKIN', 'SOLIDIFY', 'SUBSURF', 'TRIANGULATE', 'WELD', 'WIREFRAME', 'ARMATURE', 'CAST', 'CURVE', 30
 # 'DISPLACE', 'HOOK', 'LAPLACIANDEFORM', 'LATTICE', 'MESH_DEFORM', 'SHRINKWRAP', 'SIMPLE_DEFORM', 'SMOOTH', 'CORRECTIVE_SMOOTH', 39
 # 'LAPLACIANSMOOTH', 'SURFACE_DEFORM', 'WARP', 'WAVE', 'CLOTH', 'COLLISION', 'DYNAMIC_PAINT', 'EXPLODE', 'FLUID', 'OCEAN', 49
 # 'PARTICLE_INSTANCE', 'PARTICLE_SYSTEM', 'SOFT_BODY', 'SURFACE', 'SIMULATION',54-1 SIMULATION
+
+def register():
+    bpy.utils.register_class(GenMech)
+
+
+def unregister():
+    bpy.utils.register_class(GenMech)
