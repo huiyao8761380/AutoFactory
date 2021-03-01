@@ -1009,7 +1009,7 @@ class RenderScene(bpy.types.Operator):
     bl_idname = "am.renderscene"
     bl_label = "添加渲染预设场景"
     bl_description = "添加一个渲染环境预设,之前设置的某些参数会覆盖，使用前保存。" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER','UNDO'}
 
     def execute(self, context):
         world = bpy.context.scene.world
