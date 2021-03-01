@@ -1,14 +1,10 @@
 import bpy
 
 
-
-
-
-
 class RigRename(bpy.types.Operator):
     bl_idname = "am.rigrename"
     bl_label = "Rig Rename"
-    bl_description = "将Rigify生成的materig重命名为UE4常用绑定格式" 
+    bl_description = "将Rigify生成的materig重命名为UE4常用绑定格式"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -17,26 +13,25 @@ class RigRename(bpy.types.Operator):
             bpy.ops.object.armature_human_metarig_add()
             bpy.ops.object.mode_set(mode='OBJECT')
             bpy.ops.object.mode_set(mode='EDIT')
-            
+
         else:
             for ob in sel:
-                if ob.type == 'ARMATURE':#if bpy.context.object.type =='ARMATURE':
+                if ob.type == 'ARMATURE':  # if bpy.context.object.type =='ARMATURE':
                     bpy.ops.object.select_all(action='DESELECT')
                     ob.select_set(True)
                     bpy.context.view_layer.objects.active = ob
                     bpy.ops.object.mode_set(mode='OBJECT')
                     bpy.ops.object.mode_set(mode='EDIT')
 
-
-
         bpy.context.object.data.use_mirror_x = True
         bpy.ops.armature.select_all(action='SELECT')
-        #骨骼扭动 清零
+        # 骨骼扭动 清零
         for bone in bpy.context.selected_bones:
             bpy.context.object.data.edit_bones[bone.name].roll = 0
-        #执行顺序0 点击metarig 生成的骨骼名为Armature 判断是否是人型骨骼
+        # 执行顺序0 点击metarig 生成的骨骼名为Armature 判断是否是人型骨骼
         for bone in bpy.context.selected_bones:
-            if ('belly' in bone.name) or ('Wing' in bone.name) or ('tail' in bone.name) or ('side_fin' in bone.name) or ('front_toe' in bone.name):
+            if ('belly' in bone.name) or ('Wing' in bone.name) or ('tail' in bone.name) or (
+                    'side_fin' in bone.name) or ('front_toe' in bone.name):
                 bpy.ops.object.mode_set(mode='OBJECT')
                 bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
                 return {'FINISHED'}
@@ -45,7 +40,7 @@ class RigRename(bpy.types.Operator):
         bpy.context.object.data.bones["spine.002"].name = "spine.02"
         bpy.context.object.data.bones["spine.003"].name = "spine.03"
         bpy.context.object.data.bones["spine.004"].name = "neck.01"
-        bpy.context.object.data.bones["spine.005"].name = "neck.02"#
+        bpy.context.object.data.bones["spine.005"].name = "neck.02"  #
         bpy.context.object.data.bones["spine.006"].name = "head"
         bpy.context.object.data.bones["shoulder.L"].name = "clavicle.l"
         bpy.context.object.data.bones["shoulder.R"].name = "clavicle.r"
@@ -73,3 +68,11 @@ class RigRename(bpy.types.Operator):
         bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
         self.report({'INFO'}, "Rig Rename")
         return {'FINISHED'}
+
+
+def register():
+    bpy.utils.register_class(RigRename)
+
+
+def unregister():
+    bpy.utils.unregister_class(RigRename)
