@@ -39,7 +39,7 @@ print(len(FileList))
 FileList=[]
 enum_items = [
         ('MechPro', 'MechPro', "Multiple Modifier"),
-        ('Helmet', "Helmet", "GenMech low poly procedural helmet mesh."),
+        ('Helmet', "Helmet", "GenMech low poly procedural helmet mesh"),
         ('Mechfy', "Mechfy", "Created by Emiliano Colantoni for the first time")
     ]
     

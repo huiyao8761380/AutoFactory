@@ -394,3 +394,5 @@ class AMProperties(PropertyGroup):
 
     PresetParentBool: BoolProperty(name="导入预设时设置父级",description="",default = False)
 
+    GeoNodeBeforeSTR: StringProperty(name='',description='需要替换的输入节点属性名')
+    GeoNodeAfterSTR: StringProperty(name='',description='替换后的输入节点属性名')

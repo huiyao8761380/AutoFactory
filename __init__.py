@@ -141,7 +141,8 @@ classes = ( AMOldPropertyGroup,
         RigMechByName,
         RemoveIKBoneGroup,
         DeleteUnusedModifier,
-        RandomIndexModifier
+        RandomIndexModifier,
+        GeoNodeReplaceSTR
         )
 #register, unregister = bpy.utils.register_classes_factory(classes)
 

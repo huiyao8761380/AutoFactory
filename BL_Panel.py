@@ -193,6 +193,14 @@ class AutoFactoryPanel(bpy.types.Panel):
             row7e.operator("am.hightolowremesh",text="",icon='MOD_REMESH')#。√ REMESH 简易重构该物体 重构当前网格体然后塌陷 按钮 可用作bool
             row7e.prop(amProperty, "GenMechRemeshScale")
 
+            row7f = col7.row(align=True)
+            row7f.operator("am.geonodereplacestr",text="",icon='BORDERMOVE')
+            row7f.prop(amProperty, "GeoNodeBeforeSTR")
+            row7f.prop(amProperty, "GeoNodeAfterSTR")
+
+
+
+
             col8 = layout.column(align=True)
             row8 = col8.row(align=True)
             

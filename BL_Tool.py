@@ -4348,3 +4348,28 @@ def add_driver(SourceType,Source,SourceDataPath,SourceIndex,expType,exp,TargetNu
 '''
 
 #add_driver( cube, Node, 'constraints["Floor"].offset', 'nodes["Vector"].vector[2]',-1,False,'constraints["Floor"].offset-0.4' )
+
+
+#几何节点版全局文本替换
+class GeoNodeReplaceSTR(bpy.types.Operator):
+    bl_idname = "am.geonodereplacestr"
+    bl_label = "GeoNode Replace STR"
+    bl_description = "全局替换属性名" 
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        #sampleProperty = context.scene.AMOldPropertyGroup
+        amProperty = context.scene.amProperties
+        #ModList=[]
+        for node_groups in bpy.data.node_groups:
+            if (node_groups.type =='GEOMETRY') and (bpy.app.version>=(2,92,0)):
+                for node in node_groups.nodes:
+                    if node.inputs!=None:
+                        for nodeinput in node.inputs:
+                            if (nodeinput.type!='GEOMETRY')and (nodeinput.type != 'CUSTOM') and (nodeinput.type != 'VECTOR') and (nodeinput.type != 'RGBA') and (nodeinput.type != 'VALUE'):
+                                if nodeinput.default_value == amProperty.GeoNodeBeforeSTR:
+                                    nodeinput.default_value=amProperty.GeoNodeAfterSTR
+
+
+        self.report({'INFO'}, "几何节点全局属性文本替换成功")
+        return {'FINISHED'}
