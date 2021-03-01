@@ -122,7 +122,7 @@ class RigReFace(bpy.types.Operator):
     bl_idname = "am.rigreface"
     bl_label = "Rig ReFace"
     bl_description = "将materig生成的Rig再次重命名等相关操作。" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         if bpy.context.object.type =='ARMATURE':

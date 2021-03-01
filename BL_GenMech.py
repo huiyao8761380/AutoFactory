@@ -68,7 +68,7 @@ class GenMech(bpy.types.Operator):
     bl_idname = "object.bl_genmech"
     bl_label = "生成修改器预设"
     bl_description = "点击生成当前预设修改器的物体，该插件的核心之一。" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         

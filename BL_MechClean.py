@@ -15,7 +15,7 @@ class MechClean(bpy.types.Operator):
     bl_idname = "object.mechclean"
     bl_label = "清理并展UV"
     bl_description = "清理非流形、展光照UV(使用前建议设为正交视图、保存文件，容易崩溃：在2.90中打开UV编辑器窗口执行自动展UV时会崩溃)" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     
     def __init__(self):

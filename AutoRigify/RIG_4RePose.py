@@ -7,7 +7,7 @@ class RePose(bpy.types.Operator):
     bl_idname = "am.repose"
     bl_label = "RePose"
     bl_description = "切换Rig到姿态模式重新设置各个骨骼约束。" 
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
 
