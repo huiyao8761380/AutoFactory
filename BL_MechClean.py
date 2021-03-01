@@ -244,9 +244,3 @@ class MechClean(bpy.types.Operator):
         return {'FINISHED'}
 
 
-def register():
-    bpy.utils.register_class(MechClean)
-
-
-def unregister():
-    bpy.utils.unregister_class(MechClean)
