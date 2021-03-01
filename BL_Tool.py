@@ -4366,7 +4366,7 @@ class GeoNodeReplaceSTR(bpy.types.Operator):
                 for node in node_groups.nodes:
                     if node.inputs!=None:
                         for nodeinput in node.inputs:
-                            if (nodeinput.type!='GEOMETRY')and (nodeinput.type != 'CUSTOM') and (nodeinput.type != 'VECTOR') and (nodeinput.type != 'RGBA') and (nodeinput.type != 'VALUE'):
+                            if nodeinput.type=='STRING':#(nodeinput.type!='GEOMETRY')and (nodeinput.type != 'CUSTOM') and (nodeinput.type != 'VECTOR') and (nodeinput.type != 'RGBA') and (nodeinput.type != 'VALUE') and (nodeinput.type != 'OBJECT') and (nodeinput.type != 'COLLECTION'):
                                 if nodeinput.default_value == amProperty.GeoNodeBeforeSTR:
                                     nodeinput.default_value=amProperty.GeoNodeAfterSTR
 
