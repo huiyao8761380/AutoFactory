@@ -1,57 +1,54 @@
 import bpy
 import os
-from bpy.types import Panel, Operator, PropertyGroup
-from bpy.props import FloatProperty, PointerProperty, EnumProperty, BoolProperty, FloatVectorProperty, IntProperty, \
-    StringProperty
-from .BL_Tool import *
+from bpy.types import Panel,Operator,PropertyGroup
+from bpy.props import FloatProperty, PointerProperty, EnumProperty, BoolProperty, FloatVectorProperty, IntProperty, StringProperty
+from . BL_Tool import *
 
-
-def GenMechFolder_Item(self, context):  # self, context
-    enum_items = [('Preset', "Preset", "Preset Folder", 1)]
-    FolderList = []
-    FolderPath = os.path.dirname(__file__) + '//Preset//'
+def GenMechFolder_Item(self, context):#self, context
+    enum_items = [('Preset', "Preset", "Preset Folder",1)]
+    FolderList=[]
+    FolderPath=os.path.dirname(__file__)+'//Preset//'
     for Folder in os.listdir(FolderPath):
-        if '.' not in Folder:  #
+        if '.' not in Folder:#
             FolderList.append(Folder)
-    i = 1
+    i=1
     for name in FolderList:
-        i = i + 1
-        enum_items.append((name, name, "", i))
+        i=i+1
+        enum_items.append((name, name, "",i))
 
     return enum_items
 
-
-def GenMechEnum_Item(self, context):  # self, context
+def GenMechEnum_Item(self, context):#self, context
     amProperty = context.scene.amProperties
     enum_items = [
-        ('MechPro', "MechPro", "多重修改器", 1),
-        ('Helmet', "Helmet", "低聚程序化头盔样式修改器", 2),
-        ('Mechfy', "Mechfy", "首次由Emiliano Colantoni制作的修改器", 3)
-    ]
+            ('MechPro', "MechPro", "多重修改器",1),
+            ('Helmet', "Helmet", "低聚程序化头盔样式修改器",2),
+            ('Mechfy', "Mechfy", "首次由Emiliano Colantoni制作的修改器",3)
+        ]
 
-    FileList = []
-    # FolderPath=os.path.dirname(__file__)+'//Preset//'
-    if (amProperty.GenMechFolder == 'Preset') or (amProperty.GenMechFolder == ''):
-        FolderPath = os.path.dirname(__file__) + '//Preset//'
+    FileList=[]
+    #FolderPath=os.path.dirname(__file__)+'//Preset//'
+    if (amProperty.GenMechFolder=='Preset') or (amProperty.GenMechFolder==''):
+        FolderPath=os.path.dirname(__file__)+'//Preset//'
     else:
-        FolderPath = os.path.dirname(__file__) + '//Preset//' + amProperty.GenMechFolder + '//'
+        FolderPath=os.path.dirname(__file__)+'//Preset//'+amProperty.GenMechFolder+'//'
     for file in os.listdir(FolderPath):
-        if '.txt' in file:  #
-            filename = file.split('.txt', 1)
-            # if len(filename[0]) < 1:
-            # FileList.append(filename[1])
-            # else:
-
+        if '.txt' in file:#
+            filename=file.split('.txt', 1)
+            #if len(filename[0]) < 1:
+                #FileList.append(filename[1])
+            #else:
+            
             FileList.append(filename[0])
-    i = 3
+    i=3
     for name in FileList:
-        i = i + 1
-        enum_items.append((name, name, "", i))
+        i=i+1
+        enum_items.append((name, name, "",i))
 
     return enum_items
 
-
 class AMProperties(PropertyGroup):
+
     GenLineEnum: EnumProperty(
         name="",
         description="GenLineEnum,生成线的预设形状枚举",
@@ -61,8 +58,8 @@ class AMProperties(PropertyGroup):
             ('GenLineStruct', "GenLineStruct", ""),
             ('GenLineKit', "GenLineKit", ""),
             ('GenLineWeapon', "GenLineWeapon", "")
-            # ('MODE_GD_MARBLE', "大理石 Marble", ""),
-            # ('MODE_GD_MUSGRAVE', "马斯格雷夫分形 Musgrave", "")
+            #('MODE_GD_MARBLE', "大理石 Marble", ""),
+            #('MODE_GD_MUSGRAVE', "马斯格雷夫分形 Musgrave", "")
         ],
         default="GenLineOnly"
     )
@@ -70,124 +67,124 @@ class AMProperties(PropertyGroup):
     MOD_BOOLEAN_Bool: BoolProperty(
         name="Boolean",
         description="开关显示布尔修改器(开关修改器目前只适用于MechPro)",
-        default=True
-    )
+        default = True
+        )
 
-    MOD_WARP_Bool: BoolProperty(  # 根据当前物体的情况
+    MOD_WARP_Bool: BoolProperty(#根据当前物体的情况
         name="Warp",
         description="开关显示所有弯绕修改器(开关修改器目前只适用于MechPro)",
-        default=True
-    )
+        default = True
+        )
 
     MOD_LATTICE_Bool: BoolProperty(
         name="Lattice",
         description="开关显示晶格修改器(开关修改器目前只适用于MechPro)",
-        default=True
-    )
+        default = True
+        )
 
     MOD_CURVE_Bool: BoolProperty(
         name="Curve",
         description="开关显示所有曲线修改器(开关修改器目前只适用于MechPro)",
-        default=False
-    )
+        default = False
+        )
 
     MOD_ARRAY_Bool: BoolProperty(
         name="Array",
         description="开关显示所有阵列修改器(开关修改器目前只适用于MechPro)",
-        default=False
-    )
+        default = False
+        )
 
     MOD_SCREW_Bool: BoolProperty(
         name="Screw",
         description="开关显示所有螺旋修改器(打开前务必保存工程 与 减少重构深度)，需要牺牲很多性能",
-        default=False
-    )
+        default = False
+        )
 
     MOD_SIMPLEDEFORM_Bool: BoolProperty(
         name="Simpledeform",
         description="开关显示所有简易形变修改器(开关修改器目前只适用于MechPro)",
-        default=False
-    )
+        default = False
+        )
 
-    MOD_TRIANGULATE_Bool: BoolProperty(  # 或开关显示所有cast
+    MOD_TRIANGULATE_Bool: BoolProperty(#或开关显示所有cast
         name="Triangulate",
         description="开关显示所有三角化修改器(开关修改器目前只适用于MechPro)",
-        default=False
-    )
+        default = False
+        )
 
     MOD_MIRROR_Bool: BoolProperty(
         name="Mirror",
         description="开关显示镜像修改器(开关修改器目前只适用于MechPro)",
-        default=True
-    )
+        default = True
+        )
 
     UVMaterial_Bool: BoolProperty(
         name="UVMaterial",
         description="是否根据材质分离生成uv",
-        default=True
-    )
+        default = True
+        )
 
     UVMirror_Bool: BoolProperty(
         name="UVMirror",
         description="是否对称镜像UV",
-        default=True
-    )
+        default = True
+        )
 
     UVModifierApply_Bool: BoolProperty(
         name="UVModifierApply",
         description="是否立即应用修改器",
-        default=True
-    )
+        default = True
+        )
 
     HideChildObj_Bool: BoolProperty(
         name="HideChildObj",
         description="开关显示子物体",
-        default=False,
+        default = False,
         update=HideChildObj_update
-    )
+        )
 
     UnrealSize_Bool: BoolProperty(
         name="UnrealSizeBool",
         description="开关UE4单位,建议在绑定前使用，不然会影响修改器等因素",
-        default=False,
+        default = False,
         update=UnrealSize_update
-    )
+        )
 
     FaceOrient_Bool: BoolProperty(
         name="FaceOrientBool",
         description="开关面朝向",
-        default=False,
+        default = False,
         update=FaceOrient_update
-    )
+        )
 
     FaceOrient_Int: IntProperty(
         name="FaceOrientBool",
         description="简易显示模式",
-        default=0  # ,
-        # update=FaceOrient_update
-    )
+        default = 0#,
+        #update=FaceOrient_update
+        )
 
-    FreezeTime_Bool: BoolProperty(  # 否不冻结 True冻结
+    FreezeTime_Bool: BoolProperty(#否不冻结 True冻结
         name="FreezeTimeBool",
         description="冻结默认的修改器的时间轴",
-        default=False,
+        default = False,
         update=FreezeTime_update
-    )
+        )
 
-    AutoSave_Bool: BoolProperty(  # 否不自动保存 True自动保存
+    AutoSave_Bool: BoolProperty(#否不自动保存 True自动保存
         name="AutoSaveBool",
         description="应用修改器时自动保存WIP中间件",
-        default=False
-    )
+        default = False
+        )
 
-    ModifiersApplyTo_Int: IntProperty(  # 应用完当前编号的修改器，0将应用全部,40=040_Wave，如果含有自添加的布尔将需手动应用修改器
+    ModifiersApplyTo_Int: IntProperty(  #应用完当前编号的修改器，0将应用全部,40=040_Wave，如果含有自添加的布尔将需手动应用修改器
         name="ModifierApplyToInt",
         description="应用修改器至排序位置",
-        default=0
-    )
+        default = 0
+        )
 
-    # '''
-    AddBoolModifier: EnumProperty(  # 50 85 90 95 107布尔
+    #'''
+    AddBoolModifier: EnumProperty(#50 85 90 95 107布尔
         name="",
         description="在所选修改器后面添加布尔",
         items=[
@@ -199,14 +196,15 @@ class AMProperties(PropertyGroup):
         ],
         default="Bool050"
     )
-    BoolNum: IntProperty(  # 添加布尔对象到活动对象的指定修改器位置，0为末尾
+    BoolNum: IntProperty(#添加布尔对象到活动对象的指定修改器位置，0为末尾
         name="Boolean",
         description="添加布尔对象到指定修改器位置，0为末尾",
-        default=0
+        default = 0
     )
 
-    # '''
-    BoolModifierType: EnumProperty(  # 50 85 90 95 107布尔
+
+    #'''
+    BoolModifierType: EnumProperty(#50 85 90 95 107布尔
         name="",
         description="添加的布尔修改器类型",
         items=[
@@ -220,20 +218,20 @@ class AMProperties(PropertyGroup):
     GenMechApplyBoll: BoolProperty(
         name="Apply modifiers",
         description="Aoto Apply modifiers",
-        default=False
-    )
+        default = False
+        )
 
     GenMechBemeshClean: BoolProperty(
         name="Bemesh Clean",
         description="Bemesh Clean1.1",
-        default=False
-    )
+        default = False
+        )
 
     GenMechUVPackmaster: BoolProperty(
         name="UVPackmaster",
         description="UVPackmaster2.3.2",
-        default=False
-    )
+        default = False
+        )
 
     GenMechRemeshEnum: EnumProperty(
         name="RemeshEnum",
@@ -248,16 +246,17 @@ class AMProperties(PropertyGroup):
         update=RemeshEnum_update
     )
 
-    GenMechBevel0Enum: EnumProperty(
+
+    GenMechBevel0Enum:EnumProperty(
         name="Bevel0Enum",
         description="(Old)Gen Mech Bevel0 Enum Modify",
         items=GenMechBevel0Enum_callback,
         options={'ANIMATABLE'},
-        # default= bpy.context.object.modifiers["Bevel"].offset_type
+        #default= bpy.context.object.modifiers["Bevel"].offset_type
         update=GenMechBevel0Enum_update
 
-        # get=get_Bevel0Enum
-        # set=set_Bevel0Enum
+        #get=get_Bevel0Enum
+        #set=set_Bevel0Enum
     )
 
     '''
@@ -272,68 +271,70 @@ class AMProperties(PropertyGroup):
     )
     '''
 
+
     GenMechResizeBool: BoolProperty(
         name="Resize",
         description="开/关显示编辑模式下物体的变换参数",
-        default=False
-    )
+        default = False
+        )
 
     GenMechResize: FloatVectorProperty(
         name="Resize",
         description="修改编辑模式下物体的变换大小",
-        default=(1, 1, 1),
+        default = (1,1,1),
         step=10,
         update=GenMechResize_update
-        # set=set_GenMechResize
-    )
+        #set=set_GenMechResize
+        )
 
     GenMechSkinSizeBool: BoolProperty(
         name="Skin",
         description="Skin Size,开/关显示蒙皮修改器大小参数",
-        default=False
-    )
+        default = False
+        )
 
     GenMechSkinResize: FloatVectorProperty(
-        name="Skin",  # modifier Size
+        name="Skin",# modifier Size
         description="Skin Size,修改编辑模式下线拥有的蒙皮修改器大小",
-        default=(1, 1, 1),
+        default = (1,1,1),
         update=GenMechSkinResize_update
-    )
+        )
 
     GenMechRemeshScale: FloatProperty(
         name="Remesh",
         description="修改重构网格的体素大小(注意检查单位,可能有影响)",
-        default=0.03,
+        default = 0.03,
         min=0.001,
         max=10,
         step=0.1,
         update=GenMechRemeshScale_update
-    )
+        )
 
     AutoToolBool: BoolProperty(
         name="Tool",
         description="开/关显示调用的工具或插件",
-        default=False
-    )
+        default = False
+        )
 
     RandomMaterialBool: BoolProperty(
         name="Material",
         description="开/关随机材质颜色",
-        default=False
-    )
+        default = False
+        )
+
 
     CleanScanTimes_Int: IntProperty(
         name="CleanScanTimes",
         description="单方向清理扫描的次数",
-        default=31  # ,
-        # update=FaceOrient_update
-    )
+        default = 31#,
+        #update=FaceOrient_update
+        )
 
     LinkMaterialBool: BoolProperty(
         name="LinkMaterial",
         description="开/关链接活动物体材质",
-        default=True
-    )
+        default = True
+        )
 
     '''
     UIPositionBool: BoolProperty(
@@ -357,14 +358,14 @@ class AMProperties(PropertyGroup):
         description='所选的预设修改器集名称',
         default='MechPro',
         subtype='FILE_NAME'
-        # update=GenMechName_update
-    )
+        #update=GenMechName_update
+        )
 
     RenderImageBool: BoolProperty(
         name="RenderImageBool",
         description="开/关显示图片(，存在排序问题，未完成)",
-        default=False
-    )
+        default = False
+        )
 
     '''
     GenMechEnum: EnumProperty(
@@ -375,59 +376,21 @@ class AMProperties(PropertyGroup):
         update=GenMechEnum_update
         )#保存的时候也要更新items图片库 同时要扩展
     '''
-    GenMechEnum: EnumProperty(items=GenMechEnum_Item, update=GenMechEnum_update)
+    GenMechEnum: EnumProperty(items = GenMechEnum_Item, update = GenMechEnum_update )
 
-    GenMechFolder: EnumProperty(items=GenMechFolder_Item)
+    GenMechFolder: EnumProperty(items = GenMechFolder_Item)
 
-    AutoMechBool: BoolProperty(name="Auto Mech", description="", default=True)
+    AutoMechBool: BoolProperty(name="Auto Mech",description="",default = True)
 
-    AutoRigifyBool: BoolProperty(name="Auto Rigify", description="", default=False)
+    AutoRigifyBool: BoolProperty(name="Auto Rigify",description="",default = False)
 
-    StepRigBool: BoolProperty(name="分步绑定", description="", default=False)
+    StepRigBool: BoolProperty(name="分步绑定",description="",default = False)
 
-    FakeRigBool: BoolProperty(name="虚假绑定", description="虚假绑定含有修改器的物体，（注意：需要用到很多性能，请在视图层关闭所有含有多重修改器的物体并绑定其他物体以进行预览）",
-                              default=True)
+    FakeRigBool: BoolProperty(name="虚假绑定",description="虚假绑定含有修改器的物体，（注意：需要用到很多性能，请在视图层关闭所有含有多重修改器的物体并绑定其他物体以进行预览）",default = True)
 
-    ReDataNameBool: BoolProperty(name="重命名物体数据", description="导出时重命名修改器、约束,如果不重命名数据名称请不要包含'|,#'", default=True)
+    ReDataNameBool: BoolProperty(name="重命名物体数据",description="导出时重命名修改器、约束,如果不重命名数据名称请不要包含'|,#'",default = True)
 
-    BoolParentBool: BoolProperty(name="执行布尔操作时设置活动对象为父级", description="", default=True)
+    BoolParentBool: BoolProperty(name="执行布尔操作时设置活动对象为父级",description="",default = True)
 
-    PresetParentBool: BoolProperty(name="导入预设时设置父级", description="", default=False)
+    PresetParentBool: BoolProperty(name="导入预设时设置父级",description="",default = False)
 
-
-class AMOldPropertyGroup(PropertyGroup):
-    edgeName: StringProperty(name="NameEdge", default='1GenLine')
-    edgeMin: IntProperty(name="MinEdge", description="预生成连接线的xyz轴负向范围", default=-5)
-    edgeMax: IntProperty(name="MaxEdge", description="预生成连接线的xyz轴正向范围", default=5)
-    edgeVNumber: IntProperty(name="VNumberedge", description="预生成连接线的顶点数量", default=10)
-    edgeXYZ: BoolProperty(name="Bounds", description="开/关显示生成线局部范围", default=False)
-    xuMin: FloatProperty(name="-x", description="生成线-x局部范围", default=-1)
-    yuMin: FloatProperty(name="-y", description="生成线-y局部范围", default=-1)
-    zuMin: FloatProperty(name="-z", description="生成线-z局部范围", default=-1)
-    xvMax: FloatProperty(name="x", description="生成线+x局部范围", default=1)
-    yvMax: FloatProperty(name="y", description="生成线+y局部范围", default=1)
-    zvMax: FloatProperty(name="z", description="生成线+z局部范围", default=1)
-    edgeLoc: FloatVectorProperty(name="Location", description="生成线的XYZ位置", default=(0, 0, 0), step=10,
-                                 update=edgeLoc_update)
-    LocEdgeBool: BoolProperty(name="LocEdge", description="开/关显示生成线位置", default=False)
-    LocEdit: FloatVectorProperty(name="Origin", description="生成线中心点的XYZ位置", default=(0, 0, 0), step=10,
-                                 update=LocEdit_update)
-    LocEditBool: BoolProperty(name="LocEdit", description="开/关显示生成线中心点位置", default=False)
-    Bevel0float: FloatProperty(name="width_pct", default=37, min=0, max=100, update=GenMechBevel0float_update)
-
-
-def register():
-    bpy.utils.register_class(AMProperties)
-    bpy.utils.register_class(AMOldPropertyGroup)
-
-    from bpy.props import PointerProperty
-    bpy.types.Scene.amProperties = PointerProperty(type=AMProperties)
-    bpy.types.Scene.AMOldPropertyGroup = PointerProperty(type=AMOldPropertyGroup)
-
-
-def unregister():
-    bpy.utils.register_class(AMProperties)
-    bpy.utils.register_class(AMOldPropertyGroup)
-
-    del bpy.types.Scene.amProperties
-    del bpy.types.Scene.AMOldPropertyGroup
