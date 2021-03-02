@@ -4277,6 +4277,8 @@ class GenMech(bpy.types.Operator):
                         Con.track_axis = Conparam[2+int(next(ConCount))]
                         Con.influence = float(Conparam[2+int(next(ConCount))])
 
+                bpy.ops.object.vertex_group_add()#给导入的预设物体默认添加一个空顶点组
+
                 for mod in ob.modifiers:
                     mod.show_expanded = False
                     mod.show_in_editmode = False
