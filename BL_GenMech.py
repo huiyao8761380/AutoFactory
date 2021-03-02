@@ -635,7 +635,11 @@ class GenMech(bpy.types.Operator):
                             #bpy.data.node_groups["GeometryNodes"].nodes["Point Distribute"].distribute_method = 'POISSON'
 
                         elif Node.type=='POINT_INSTANCE':
-                            Node.instance_type=NodeParm[8+int(next(NodeCount))]
+                            POINT_INSTANCE=8+int(next(NodeCount))
+                            #POINT_INSTANCE=NodeParm[8+int(next(NodeCount))]
+                            Node.instance_type=NodeParm[POINT_INSTANCE]
+                            if len(NodeParm[POINT_INSTANCE+1])>=4:#漏写补偿
+                                Node.use_whole_collection=str_to_bool(NodeParm[8+int(next(NodeCount))])
                             #bpy.data.node_groups["GeometryNodes"].nodes["Point Instance"].instance_type = 'OBJECT'
 
 

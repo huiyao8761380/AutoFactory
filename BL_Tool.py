@@ -3413,7 +3413,8 @@ def GeoNodeInput(node):
         #bpy.data.node_groups["GeometryNodes"].nodes["Point Distribute"].distribute_method = 'POISSON'
 
     elif Node.type=='POINT_INSTANCE':
-        GeoNodeList+='1|'+str(Node.instance_type)+'|'
+        GeoNodeList+='2|'+str(Node.instance_type)+'|'
+        GeoNodeList+=str(Node.use_whole_collection)+'|'
         #bpy.data.node_groups["GeometryNodes"].nodes["Point Instance"].instance_type = 'OBJECT'
 
 
