@@ -15,7 +15,7 @@ from . AutoRigify.RIG_2UE4type import UE4TypeBone
 from . AutoRigify.RIG_3ReBone import ReBone
 from . AutoRigify.RIG_4RePose import RePose
 from . AutoRigify.RIG_Tool import OneClickAddUE4Rig,RigMechByName,RemoveIKBoneGroup
-from . AutoRigify.AutoCharacter import AutoLatticeShape
+from . AutoRigify.AutoCharacter import AutoLatticeShape,DefaultShapekey
 
 
 from bpy.types import Panel, Operator, PropertyGroup, Menu, AddonPreferences
@@ -245,6 +245,7 @@ class AutoFactoryPanel(bpy.types.Panel):
             row10m.operator("am.autolatticeshape" , text = "",icon = 'MATCLOTH')
             row10m.prop(amProperty, 'LatticeMirrorBool',  text="",icon = 'LATTICE_DATA')
             row10m.prop(amProperty, 'DeleteShapeObjBool',  text="",icon = 'TRASH')
+            row10m.operator("am.defaultshapekey" , text = "",icon = 'SHAPEKEY_DATA')
             if amProperty.LatticeMirrorBool ==True:
                 row10m.prop(amProperty, 'LeftBodyGroupSTR')
                 row10m.prop(amProperty, 'RightBodyGroupSTR')

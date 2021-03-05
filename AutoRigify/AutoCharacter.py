@@ -159,3 +159,22 @@ class AutoLatticeShape(bpy.types.Operator):
 
         return {'FINISHED'}
 
+class DefaultShapekey(bpy.types.Operator):
+    bl_idname = "am.defaultshapekey"
+    bl_label = "DefaultShapekey"
+    bl_description = "将所选物体拥有的所有形状键设为0" 
+    bl_options = {'REGISTER', 'UNDO'}
+    def execute(self, context):
+
+        #obj=bpy.context.object
+
+        RealObj=bpy.context.object
+        RealObjData=RealObj.data
+        for shapekey in bpy.data.shape_keys:
+            if shapekey.user == RealObjData:
+                for key in shapekey.key_blocks:#bpy.data.shape_keys["Key.002"].key_blocks["Hand"].name = "Hand"
+                    key.value = 0
+
+        self.report({'INFO'}, "Done")
+
+        return {'FINISHED'}
