@@ -63,7 +63,7 @@ class AutoLatticeShape(bpy.types.Operator):
                     if RealObj.name.split('.')[0] in bpy.context.object.name:
                         bpy.ops.object.apply_all_modifiers()
                         #if mirror：
-                        bpy.context.object.name=bpy.context.object.name.split('.')[0]+'_'+key.name
+                        bpy.context.object.name=bpy.context.object.name.split('.')[0]+'_'+key.name#若包含下划线会去掉。。
                         key.value = 0
                         ObjShapeKeyList.append(bpy.context.object.name)
                         
@@ -186,7 +186,7 @@ class DefaultShapekey(bpy.types.Operator):
 class ShapekeyDriver(bpy.types.Operator):
     bl_idname = "am.shapekeydriver"
     bl_label = "ShapekeyDriver"
-    bl_description = "选择至少两个物体，同步所选物体至活动物体的形状键" 
+    bl_description = "选择至少两个物体，同步所选物体至活动物体的重名形状键" 
     bl_options = {'REGISTER', 'UNDO'}
     def execute(self, context):
         #Driver
