@@ -396,3 +396,9 @@ class AMProperties(PropertyGroup):
 
     GeoNodeBeforeSTR: StringProperty(name='',description='需要替换的输入节点属性名')
     GeoNodeAfterSTR: StringProperty(name='',description='替换后的输入节点属性名')
+
+    LatticeMirrorBool: BoolProperty(name="LatticeMirror",description="晶格体是否仅包围一半的物体，是则需要添加左右顶点组名称",default = False)
+    LeftBodyGroupSTR: StringProperty(name='',description='Left Body Vertex Group')
+    RightBodyGroupSTR: StringProperty(name='',description='Right Body Vertex Group')
+
+    DeleteShapeObjBool: BoolProperty(name="DeleteShapeObj",description="删除生成的形状键网格",default = True)

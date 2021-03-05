@@ -15,6 +15,7 @@ from . AutoRigify.RIG_2UE4type import UE4TypeBone
 from . AutoRigify.RIG_3ReBone import ReBone
 from . AutoRigify.RIG_4RePose import RePose
 from . AutoRigify.RIG_Tool import OneClickAddUE4Rig,RigMechByName,RemoveIKBoneGroup
+from . AutoRigify.AutoCharacter import AutoLatticeShape
 
 
 from bpy.types import Panel, Operator, PropertyGroup, Menu, AddonPreferences
@@ -224,6 +225,7 @@ class AutoFactoryPanel(bpy.types.Panel):
 
         col10 = layout.column(align=True)
         row4a = col10.row(align=True)
+        row10m = col10.row(align=True)
         row10a = col10.row(align=True)
         row10b = col10.row(align=True)
         row10c = col10.row(align=True)
@@ -240,6 +242,13 @@ class AutoFactoryPanel(bpy.types.Panel):
 
         row4a.prop(amProperty, 'AutoRigifyBool',  text="Auto Rigify",icon = 'TRIA_DOWN' if amProperty.AutoRigifyBool else 'TRIA_RIGHT')
         if amProperty.AutoRigifyBool:
+            row10m.operator("am.autolatticeshape" , text = "",icon = 'MATCLOTH')
+            row10m.prop(amProperty, 'LatticeMirrorBool',  text="",icon = 'LATTICE_DATA')
+            row10m.prop(amProperty, 'DeleteShapeObjBool',  text="",icon = 'TRASH')
+            if amProperty.LatticeMirrorBool ==True:
+                row10m.prop(amProperty, 'LeftBodyGroupSTR')
+                row10m.prop(amProperty, 'RightBodyGroupSTR')
+
             row10a.operator("am.mirrorselect" , text = "MirrorX Select")
             if 'rigify' in OpenScripts:
                 if amProperty.GenMechEnum =='Mechfy':
