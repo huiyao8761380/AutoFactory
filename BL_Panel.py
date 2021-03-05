@@ -15,7 +15,7 @@ from . AutoRigify.RIG_2UE4type import UE4TypeBone
 from . AutoRigify.RIG_3ReBone import ReBone
 from . AutoRigify.RIG_4RePose import RePose
 from . AutoRigify.RIG_Tool import OneClickAddUE4Rig,RigMechByName,RemoveIKBoneGroup
-from . AutoRigify.AutoCharacter import AutoLatticeShape,DefaultShapekey,ShapekeyDriver
+from . AutoRigify.AutoCharacter import AutoLatticeShape,DefaultShapekey,ShapekeyDriver,TransferAllKey,BlendKey
 
 
 from bpy.types import Panel, Operator, PropertyGroup, Menu, AddonPreferences
@@ -226,6 +226,7 @@ class AutoFactoryPanel(bpy.types.Panel):
         col10 = layout.column(align=True)
         row4a = col10.row(align=True)
         row10m = col10.row(align=True)
+        row10n = col10.row(align=True)
         row10a = col10.row(align=True)
         row10b = col10.row(align=True)
         row10c = col10.row(align=True)
@@ -244,13 +245,20 @@ class AutoFactoryPanel(bpy.types.Panel):
         if amProperty.AutoRigifyBool:
             row10m.operator("am.autolatticeshape" , text = "",icon = 'MATCLOTH')
             row10m.prop(amProperty, 'LatticeMirrorBool',  text="",icon = 'LATTICE_DATA')
+            row10m.prop(amProperty, 'DoubleLatticeBool',  text="",icon = 'MOD_MIRROR')
             row10m.prop(amProperty, 'DeleteShapeObjBool',  text="",icon = 'TRASH')
             row10m.operator("am.defaultshapekey" , text = "",icon = 'SHAPEKEY_DATA')
             row10m.operator("am.shapekeydriver" , text = "",icon = 'DRIVER')
+            row10m.operator("am.transferallkey" , text = "",icon = 'EVENT_T')
+            row10m.operator("am.blendkey" , text = "",icon = 'EVENT_B')
+
+
 
             if amProperty.LatticeMirrorBool ==True:
-                row10m.prop(amProperty, 'LeftBodyGroupSTR')
-                row10m.prop(amProperty, 'RightBodyGroupSTR')
+                row10n.prop(amProperty, 'LeftBodyGroupSTR')
+                row10n.prop(amProperty, 'RightBodyGroupSTR')
+            else:
+                row10n.prop(amProperty, 'VertexGroupSTR')
 
             row10a.operator("am.mirrorselect" , text = "MirrorX Select")
             if 'rigify' in OpenScripts:

@@ -34,7 +34,7 @@ from . AutoRigify.RIG_2UE4type import UE4TypeBone
 from . AutoRigify.RIG_3ReBone import ReBone
 from . AutoRigify.RIG_4RePose import RePose
 from . AutoRigify.RIG_Tool import OneClickAddUE4Rig,RigMechByName,RemoveIKBoneGroup
-from . AutoRigify.AutoCharacter import AutoLatticeShape,DefaultShapekey,ShapekeyDriver
+from . AutoRigify.AutoCharacter import AutoLatticeShape,DefaultShapekey,ShapekeyDriver,TransferAllKey,BlendKey
 
 from bpy.types import Panel, Operator, PropertyGroup, Menu, AddonPreferences
 from bpy.props import FloatProperty, PointerProperty, StringProperty, IntProperty, BoolProperty
@@ -146,7 +146,9 @@ classes = ( AMOldPropertyGroup,
         GeoNodeReplaceSTR,
         AutoLatticeShape,
         DefaultShapekey,
-        ShapekeyDriver
+        ShapekeyDriver,
+        TransferAllKey,
+        BlendKey
         )
 #register, unregister = bpy.utils.register_classes_factory(classes)
 
