@@ -4305,7 +4305,7 @@ def ObjCon(Con):
 #Drivers|MESH|Cube|constraints["Floor"].offset|d.array_index|SCRIPTED|var -0.4|d.driver.variables|       var|SINGLE_PROP|NODETREE|Node1|nodes["Vector"].vector[2]|LOC_X|WORLD_SPACE|AUTO|
                                                                 #var_001|TRANSFORMS|OBJECT|Cube||ROT_Z|TRANSFORM_SPACE|AUTO|
 ##Drviers|sourceType(id_type)|source|prop|driver.type|expression           |Func1Name|Func1Type           target1Type(id_type)|target1(id)|dataPath1||
-'''
+
 def add_driver(SourceType,Source,SourceDataPath,SourceIndex,expType,exp,TargetNum,FuncName,FuncType,TargetType,targetName,TargetDataPath,transform_type,transform_space,rotation_mode):
     if SourceType=='OBJECT':
         if Source in bpy.data.objects:
@@ -4313,7 +4313,7 @@ def add_driver(SourceType,Source,SourceDataPath,SourceIndex,expType,exp,TargetNu
     elif SourceType=='TEXTURE':
         if Source in bpy.data.textures:
             source=bpy.data.textures[Source]
-    elif SourceType=='GEOMETRY':
+    elif (SourceType=='NODETREE') and (bpy.app.version >= (2, 92, 0)):
         if Source in bpy.data.node_groups:
             source=bpy.data.node_groups[Source]
     
@@ -4327,7 +4327,7 @@ def add_driver(SourceType,Source,SourceDataPath,SourceIndex,expType,exp,TargetNu
         if targetName in bpy.data.node_groups:
             target=bpy.data.node_groups[Source]
 
-    if int(SourceIndex) != 0:
+    if (int(SourceIndex) != 0) or ('.vector' in SourceDataPath):
         d = source.driver_add( SourceDataPath, int(SourceIndex) ).driver
     else:
         d = source.driver_add( SourceDataPath ).driver
@@ -4337,6 +4337,7 @@ def add_driver(SourceType,Source,SourceDataPath,SourceIndex,expType,exp,TargetNu
         d.expression = exp
 
     varnum=int(TargetNum)
+    '''
     for var in range(varnum):
         v = d.variables.new()
         v.name                 = FuncName
@@ -4346,7 +4347,46 @@ def add_driver(SourceType,Source,SourceDataPath,SourceIndex,expType,exp,TargetNu
         v.targets[0].transform_type=transform_type
         v.targets[0].transform_space=transform_space
         v.targets[0].rotation_mode=rotation_mode
-'''
+    '''
+
+    for var in range(varnum):
+        #nextCount=7+int(next(DriverCount)) 
+        if (TargetType=='OBJECT') and (targetName!=''):
+            if targetName in bpy.data.objects:
+                target=bpy.data.objects[targetName]
+                #TargetDiver=True
+        elif (TargetType=='TEXTURE') and (targetName!=''):
+            if targetName in bpy.data.textures:
+                target=bpy.data.textures[targetName]
+                #TargetDiver=True
+        elif (TargetType=='NODETREE') and (targetName!='') and (bpy.app.version >= (2, 92, 0)):
+            if targetName in bpy.data.node_groups:
+                target=bpy.data.node_groups[targetName]
+                #TargetDiver=True
+        else:
+            target=None
+            #WeAddDiver=False   
+        v = d.variables.new()
+        v.name = FuncName
+        v.type = FuncType
+        if v.type== 'SINGLE_PROP':#SINGLE_PROP才会出现选择物体类型
+            v.targets[0].id_type   = TargetType
+            v.targets[0].id        = target
+            v.targets[0].data_path = TargetDataPath
+            v.targets[0].transform_type=transform_type
+            v.targets[0].transform_space=transform_space
+            v.targets[0].rotation_mode=rotation_mode    
+        elif v.type=='TRANSFORMS':
+            v.targets[0].id        = target
+            v.targets[0].data_path = TargetDataPath
+            v.targets[0].transform_type=transform_type
+            v.targets[0].transform_space=transform_space
+            v.targets[0].rotation_mode=rotation_mode
+
+
+
+
+
 
 #add_driver( cube, Node, 'constraints["Floor"].offset', 'nodes["Vector"].vector[2]',-1,False,'constraints["Floor"].offset-0.4' )
 

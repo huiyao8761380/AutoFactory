@@ -16,6 +16,8 @@ class AutoLatticeShape(bpy.types.Operator):
         ObjL_vertex_group=amProperty.LeftBodyGroupSTR#'LeftBody'#给予各个中心边缘点50%权重，且不要漏选
         ObjR_vertex_group=amProperty.RightBodyGroupSTR#'RightBody'#给予各个中心边缘点50%权重，且不要漏选
         
+
+        #sel.remove(bpy.context.active_object)
         for ob in sel:
             if (ob.name!=ObjName) and (ob.type=='LATTICE'):
                 Latticename=ob.name
@@ -174,6 +176,48 @@ class DefaultShapekey(bpy.types.Operator):
             if shapekey.user == RealObjData:
                 for key in shapekey.key_blocks:#bpy.data.shape_keys["Key.002"].key_blocks["Hand"].name = "Hand"
                     key.value = 0
+
+        self.report({'INFO'}, "Done")
+
+        return {'FINISHED'}
+
+
+
+class ShapekeyDriver(bpy.types.Operator):
+    bl_idname = "am.shapekeydriver"
+    bl_label = "ShapekeyDriver"
+    bl_description = "选择至少两个物体，同步所选物体至活动物体的形状键" 
+    bl_options = {'REGISTER', 'UNDO'}
+    def execute(self, context):
+        #Driver
+        #obj=bpy.context.object
+        #啊这 直接拿来用了https://blender.stackexchange.com/questions/86757/python-how-to-connect-shapekeys-via-drivers
+
+        selected_obj = bpy.context.selected_objects
+        active_obj = bpy.context.active_object
+        shapekey_list_string = str(active_obj.data.shape_keys.key_blocks.keys())
+
+
+        for obj in selected_obj:
+            if not obj == active_obj:
+                for key in obj.data.shape_keys.key_blocks:
+                    if key.name.lstrip(obj.name) in shapekey_list_string:
+                        if not key.name == "Basis":
+                            skey_driver = key.driver_add('value')
+                            skey_driver.driver.type = 'AVERAGE'
+                        # skey_driver.driver.show_debug_info = True
+                            newVar = skey_driver.driver.variables.new()
+                            newVar.name = "var"
+                            newVar.type = 'SINGLE_PROP'
+                            newVar.targets[0].id_type = 'KEY'
+                            newVar.targets[0].id = active_obj.data.shape_keys
+                            newVar.targets[0].data_path = 'key_blocks["' + key.name.lstrip(obj.name)+ '"].value' 
+                            # litlle change was made here by deleting the active object name for the path
+
+
+        #add_driver(SourceType,Source,SourceDataPath,SourceIndex,expType,exp,TargetNum,FuncName,FuncType,TargetType,targetName,TargetDataPath,transform_type,transform_space,rotation_mode)
+        #add_driver('OBJECT',RealObj.name,0,SourceIndex,expType,exp,TargetNum,FuncName,FuncType,TargetType,targetName,TargetDataPath,transform_type,transform_space,rotation_mode)
+
 
         self.report({'INFO'}, "Done")
 
