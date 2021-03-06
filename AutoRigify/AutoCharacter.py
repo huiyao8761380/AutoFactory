@@ -87,31 +87,7 @@ class AutoLatticeShape(bpy.types.Operator):
 
 
             #如果是晶格体包围全身非镜像的：
-            if (amProperty.LatticeMirrorBool==False) and (amProperty.DoubleLatticeBool==False):
-                for shapekey in bpy.data.shape_keys:
-                    if shapekey.user == RealObjData:
-                        for ObjShapeName in ObjShapeKeyList:
-                            
-                            bpy.context.view_layer.objects.active = RealObj
-                            RealObj.select_set(True)
-                            #if mirror：
-                            bpy.data.objects[ObjShapeName].select_set(True)
-                            bpy.ops.object.join_shapes()
-                            bpy.data.objects[ObjShapeName].select_set(False)
-                            bpy.ops.object.select_all(action='DESELECT')
-                            
-                            RealObj.active_shape_key_index+=1
-                            shapename=RealObj.active_shape_key.name.split('_')[1]
-                            RealObj.active_shape_key.value=0
-                            RealObj.active_shape_key.slider_min = -1
-                            RealObj.active_shape_key.name=shapename
-
-                        for key in shapekey.key_blocks:
-                            key.value = 0
-
-
-            
-            elif amProperty.DoubleLatticeBool==True:
+            if amProperty.LatticeMirrorBool==False:
                 RealObj.active_shape_key_index=0
 
                 for shapekey in bpy.data.shape_keys:
@@ -140,8 +116,6 @@ class AutoLatticeShape(bpy.types.Operator):
                             RealObj.active_shape_key.slider_min = -1
                             RealObj.active_shape_key.name=shapename
                             RealObj.active_shape_key.vertex_group = vertex_group
-            
-
 
 
                 #否则执行以下
@@ -301,6 +275,8 @@ class TransferAllKey(bpy.types.Operator):
 
             bpy.ops.object.shape_key_transfer()
             ActObj.active_shape_key.vertex_group = selObj.active_shape_key.vertex_group
+            #bpy.data.shape_keys["Key.015"].key_blocks["TriangleUP"].slider_min = -1
+            ActObj.active_shape_key.slider_min = -1
             #bpy.context.object.active_shape_key_index = 0
         bpy.context.object.show_only_shape_key = False
         

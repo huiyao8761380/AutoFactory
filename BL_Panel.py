@@ -245,7 +245,7 @@ class AutoFactoryPanel(bpy.types.Panel):
         if amProperty.AutoRigifyBool:
             row10m.operator("am.autolatticeshape" , text = "",icon = 'MATCLOTH')
             row10m.prop(amProperty, 'LatticeMirrorBool',  text="",icon = 'LATTICE_DATA')
-            row10m.prop(amProperty, 'DoubleLatticeBool',  text="",icon = 'MOD_MIRROR')
+            #row10m.prop(amProperty, 'DoubleLatticeBool',  text="",icon = 'MOD_MIRROR')
             row10m.prop(amProperty, 'DeleteShapeObjBool',  text="",icon = 'TRASH')
             row10m.operator("am.defaultshapekey" , text = "",icon = 'SHAPEKEY_DATA')
             row10m.operator("am.shapekeydriver" , text = "",icon = 'DRIVER')

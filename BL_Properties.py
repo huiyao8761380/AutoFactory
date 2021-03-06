@@ -400,8 +400,8 @@ class AMProperties(PropertyGroup):
     LatticeMirrorBool: BoolProperty(name="LatticeMirror",description="晶格体是否仅包围一半的物体，是则需要添加左右顶点组名称",default = False)
     LeftBodyGroupSTR: StringProperty(name='',description='Left Body Vertex Group')
     RightBodyGroupSTR: StringProperty(name='',description='Right Body Vertex Group')
-    VertexGroupSTR: StringProperty(name='',description='Vertex Group')
+    VertexGroupSTR: StringProperty(name='',description='Vertex Group,输入后自动在物体的各个形状键中设置顶点组')
 
     DeleteShapeObjBool: BoolProperty(name="DeleteShapeObj",description="删除生成的形状键网格",default = True)
-    DoubleLatticeBool: BoolProperty(name="DoubleLattice",description="当某些物体形态键被识别为非镜像物体时可以使用双重晶格体",default = False)
+    #DoubleLatticeBool: BoolProperty(name="DoubleLattice",description="当某些物体形态键被识别为非镜像物体时可以使用双重晶格体",default = False)
     
