@@ -404,4 +404,6 @@ class AMProperties(PropertyGroup):
 
     DeleteShapeObjBool: BoolProperty(name="DeleteShapeObj",description="删除生成的形状键网格",default = True)
     #DoubleLatticeBool: BoolProperty(name="DoubleLattice",description="当某些物体形态键被识别为非镜像物体时可以使用双重晶格体",default = False)
+
+    BoneSTR: StringProperty(name='',description='Bone Name')
     

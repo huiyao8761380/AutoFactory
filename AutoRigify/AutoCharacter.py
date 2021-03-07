@@ -1,5 +1,6 @@
 import bpy
 from AutoFactory import BL_Properties#AMProperties
+from .RIG_Tool import *
 
 
 class AutoLatticeShape(bpy.types.Operator):
@@ -111,6 +112,7 @@ class AutoLatticeShape(bpy.types.Operator):
                             #int(next(ShapeCount))
                             
                             RealObj.active_shape_key_index+=1
+                            
                             shapename=RealObj.active_shape_key.name.split('_')[1]
                             RealObj.active_shape_key.value=0
                             RealObj.active_shape_key.slider_min = -1
@@ -338,6 +340,55 @@ class BlendKey(bpy.types.Operator):
 
         for key in ActObj.data.shape_keys.key_blocks:
             key.name=key.name.split('_')[0]
+
+
+
+        self.report({'INFO'}, "Done")
+
+        return {'FINISHED'}
+
+
+
+class Bonelayered(bpy.types.Operator):
+    bl_idname = "am.bonelayered"
+    bl_label = "Bonelayered"
+    bl_description = "开关形变，将名称或所选骨骼及子集通过开关形变的方式进行骨骼分层切换，有助于更换身体部位，例如头与身体的分离，随时替换修改导出" 
+    bl_options = {'REGISTER', 'UNDO'}
+    def execute(self, context):
+        amProperty = context.scene.amProperties
+
+
+        #bpy.ops.object.mode_set(mode='OBJECT')
+
+        bpy.ops.object.mode_set(mode='EDIT')
+        if amProperty.BoneSTR!='':
+            SelectBone(amProperty.BoneSTR)
+        parentbone=bpy.context.active_bone
+        parentbonename=bpy.context.active_bone.name
+
+
+        #选择face
+        #alt 点击 形变
+        bpy.ops.armature.select_similar(type='CHILDREN')
+        if parentbone.use_deform == True:#bpy.context.object.data.edit_bones[parentbonename]
+
+            for bone in bpy.context.selected_bones:
+                #if bone.use_deform == True:
+                bone.use_deform = False
+                #else:
+        else:
+            for bone in bpy.context.selected_bones:
+                bone.use_deform = True
+
+        bpy.ops.armature.select_all(action='DESELECT')
+        SelectBone(parentbonename)
+        bpy.context.object.data.edit_bones[parentbonename]
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        
+
+
+
 
 
 

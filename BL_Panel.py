@@ -15,7 +15,7 @@ from . AutoRigify.RIG_2UE4type import UE4TypeBone
 from . AutoRigify.RIG_3ReBone import ReBone
 from . AutoRigify.RIG_4RePose import RePose
 from . AutoRigify.RIG_Tool import OneClickAddUE4Rig,RigMechByName,RemoveIKBoneGroup
-from . AutoRigify.AutoCharacter import AutoLatticeShape,DefaultShapekey,ShapekeyDriver,TransferAllKey,BlendKey
+from . AutoRigify.AutoCharacter import AutoLatticeShape,DefaultShapekey,ShapekeyDriver,TransferAllKey,BlendKey,Bonelayered
 
 
 from bpy.types import Panel, Operator, PropertyGroup, Menu, AddonPreferences
@@ -239,7 +239,7 @@ class AutoFactoryPanel(bpy.types.Panel):
         row10i = col10.row(align=True)
         row10l = col10.row(align=True)
         row10k = col10.row(align=True)
-        
+        row10o = col10.row(align=True)
 
         row4a.prop(amProperty, 'AutoRigifyBool',  text="Auto Rigify",icon = 'TRIA_DOWN' if amProperty.AutoRigifyBool else 'TRIA_RIGHT')
         if amProperty.AutoRigifyBool:
@@ -277,6 +277,11 @@ class AutoFactoryPanel(bpy.types.Panel):
                 row10l.operator("am.rigmechbyname" , text = "RigMechByName")
                 row10l.prop(amProperty, 'FakeRigBool',  text="",icon = 'MOD_ARMATURE')
                 row10k.operator("am.removeikbonegroup" , text = "Reset IK Weight")
+
+
+                row10o.operator("am.bonelayered" , text = "Bone layered",icon = 'GROUP_BONE')
+                row10o.prop(amProperty, 'BoneSTR',  text="")
+
 
 
 '''
