@@ -6,7 +6,7 @@ from .RIG_Tool import *
 class AutoLatticeShape(bpy.types.Operator):
     bl_idname = "am.autolatticeshape"
     bl_label = "AutoLatticeShape"
-    bl_description = "选择多个物体，其中活动物体为晶格体，其他的为网格" 
+    bl_description = "选择多个物体，其中活动物体为晶格体，其他的为网格(在编辑模式N键工具-选项中关闭镜像)" 
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -120,7 +120,7 @@ class AutoLatticeShape(bpy.types.Operator):
                             RealObj.active_shape_key.vertex_group = vertex_group
 
 
-                #否则执行以下
+                #否则执行以下 修改器也需要分割左右顶点组 在编辑模式下关闭镜像!
             else:
                 RealObj.active_shape_key_index=0
 
@@ -136,9 +136,6 @@ class AutoLatticeShape(bpy.types.Operator):
                             bpy.ops.object.join_shapes()
                             bpy.data.objects[ObjShapeName].select_set(False)
                             bpy.ops.object.select_all(action='DESELECT')
-                            
-                            
-                            
 
                         for key in shapekey.key_blocks:
                             key.value = 0
@@ -352,7 +349,7 @@ class BlendKey(bpy.types.Operator):
 class Bonelayered(bpy.types.Operator):
     bl_idname = "am.bonelayered"
     bl_label = "Bonelayered"
-    bl_description = "开关形变，将名称或所选骨骼及子集通过开关形变的方式进行骨骼分层切换，有助于更换身体部位，例如头与身体的分离，随时替换修改导出" 
+    bl_description = "开关形变，将名称或所选骨骼及子集通过开关形变的方式进行骨骼分层切换，有助于更换身体部位，例如头与身体的分离，随时替换修改导出" #（对于带形状键的物体无法应用修改器。。）
     bl_options = {'REGISTER', 'UNDO'}
     def execute(self, context):
         amProperty = context.scene.amProperties
@@ -368,7 +365,7 @@ class Bonelayered(bpy.types.Operator):
 
 
         #选择face
-        #alt 点击 形变
+        #alt 点击 形变，
         bpy.ops.armature.select_similar(type='CHILDREN')
         if parentbone.use_deform == True:#bpy.context.object.data.edit_bones[parentbonename]
 

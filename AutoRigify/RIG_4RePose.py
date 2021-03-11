@@ -400,3 +400,10 @@ class RePose(bpy.types.Operator):
 
         self.report({'INFO'}, "RePose")
         return {'FINISHED'}
+
+
+#for bone in bpy.context.selected_bones:
+#    if '_l.01' in bone.name:
+#        bone.name=bone.name.replace('_l.01','_twist_01_l')
+#    elif '_r.01' in bone.name:
+#        bone.name=bone.name.replace('_r.01','_twist_01_r')

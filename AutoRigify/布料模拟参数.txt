@@ -29,3 +29,4 @@ bpy.context.object.modifiers["布料"].settings.compression_stiffness_max = 15
 bpy.context.object.modifiers["布料"].settings.shear_stiffness_max = 5
 bpy.context.object.modifiers["布料"].settings.bending_stiffness_max = 0.5
 bpy.context.object.modifiers["布料"].settings.shrink_max = 1
+#衣服先贴合，赋空顶点组 传递顶点数据权重 缩裹 最后添加形态键
