@@ -349,7 +349,7 @@ class BlendKey(bpy.types.Operator):
 class Bonelayered(bpy.types.Operator):
     bl_idname = "am.bonelayered"
     bl_label = "Bonelayered"
-    bl_description = "开关形变，将名称或所选骨骼及子集通过开关形变的方式进行骨骼分层切换，有助于更换身体部位，例如头与身体的分离，随时替换修改导出" #（对于带形状键的物体无法应用修改器。。）
+    bl_description = "切换形变,将名称或所选骨骼及子集通过开关形变的方式进行骨骼分层切换，有助于更换身体部位，例如头与身体的分离，随时替换修改导出"#开关形变不太理想"切换形变，例如：输入数字'22,23'为切换22，23层形变，输入骨骼名称Face则将切换它与子集的形变"# #（对于带形状键的物体无法应用修改器。。）
     bl_options = {'REGISTER', 'UNDO'}
     def execute(self, context):
         amProperty = context.scene.amProperties
@@ -358,28 +358,68 @@ class Bonelayered(bpy.types.Operator):
         #bpy.ops.object.mode_set(mode='OBJECT')
 
         bpy.ops.object.mode_set(mode='EDIT')
-        if amProperty.BoneSTR!='':
+        if amProperty.BoneSTR.isdigit() :
+            bpy.context.object.data.edit_bones.active=None
+            bpy.ops.armature.select_all(action='DESELECT')
+
+            for i in range(31):
+                bpy.context.object.data.layers[i] = False
+            #MakeSureSelectOneLayer(int(amProperty.BoneSTR))
+            bpy.context.object.data.layers[int(amProperty.BoneSTR)]=True
+
+            bpy.ops.armature.select_all(action='SELECT')
+            for bone in bpy.context.selected_bones:
+                #if bone.layer[int(amProperty.BoneSTR)] == True:
+                bpy.context.object.data.edit_bones.active=bone
+                if bone.use_deform == False:
+                    bone.use_deform = True
+                else:
+                    bone.use_deform = False
+            bpy.context.object.data.layers[int(amProperty.BoneSTR)]=False
+
+        elif ',' in amProperty.BoneSTR:
+            bpy.context.object.data.edit_bones.active=None
+            bpy.ops.armature.select_all(action='DESELECT')
+            Boneslayer=amProperty.BoneSTR.split(',')
+            for bonelayer in Boneslayer:
+
+                for i in range(31):
+                    bpy.context.object.data.layers[i] = False
+                bpy.context.object.data.layers[int(bonelayer)]=True
+
+                bpy.ops.armature.select_all(action='SELECT')
+                for bone in bpy.context.selected_bones:
+                    bpy.context.object.data.edit_bones.active=bone
+                    if bone.use_deform == False:
+                        bone.use_deform = True
+                    else:
+                        bone.use_deform = False
+                bpy.context.object.data.layers[int(bonelayer)]=False
+
+
+        elif amProperty.BoneSTR!='':
             SelectBone(amProperty.BoneSTR)
-        parentbone=bpy.context.active_bone
-        parentbonename=bpy.context.active_bone.name
+            parentbone=bpy.context.active_bone
+            parentbonename=bpy.context.active_bone.name
 
 
-        #选择face
-        #alt 点击 形变，
-        bpy.ops.armature.select_similar(type='CHILDREN')
-        if parentbone.use_deform == True:#bpy.context.object.data.edit_bones[parentbonename]
+            #选择face
+            #alt 点击 形变，
+            bpy.ops.armature.select_similar(type='CHILDREN')
 
-            for bone in bpy.context.selected_bones:
-                #if bone.use_deform == True:
-                bone.use_deform = False
-                #else:
-        else:
-            for bone in bpy.context.selected_bones:
-                bone.use_deform = True
+            if parentbone.use_deform == True:#bpy.context.object.data.edit_bones[parentbonename]
 
-        bpy.ops.armature.select_all(action='DESELECT')
-        SelectBone(parentbonename)
-        bpy.context.object.data.edit_bones[parentbonename]
+                for bone in bpy.context.selected_bones:
+                    #if bone.use_deform == True:
+                    bone.use_deform = False
+                    #else:
+            else:
+                for bone in bpy.context.selected_bones:
+                    bone.use_deform = True
+
+            bpy.ops.armature.select_all(action='DESELECT')
+            SelectBone(parentbonename)
+            bpy.context.object.data.edit_bones[parentbonename]
         bpy.ops.object.mode_set(mode='OBJECT')
 
         

@@ -30,3 +30,13 @@ bpy.context.object.modifiers["布料"].settings.shear_stiffness_max = 5
 bpy.context.object.modifiers["布料"].settings.bending_stiffness_max = 0.5
 bpy.context.object.modifiers["布料"].settings.shrink_max = 1
 #衣服先贴合，赋空顶点组 传递顶点数据权重 缩裹 最后添加形态键
+
+
+导出参数：
+import bpy
+path="E://BlenderProject//Human.fbx"
+bpy.ops.export_scene.fbx(filepath=path, check_existing=True, filter_glob='*.fbx', 
+use_selection=True, use_active_collection=False, global_scale=1.0, apply_unit_scale=True, apply_scale_options='FBX_SCALE_NONE', 
+use_space_transform=True, bake_space_transform=False, object_types={'ARMATURE', 'CAMERA', 'EMPTY', 'LIGHT', 'MESH', 'OTHER'}, 
+use_mesh_modifiers=False, use_mesh_modifiers_render=False, mesh_smooth_type='FACE', use_subsurf=False, use_mesh_edges=False, use_tspace=False, 
+use_custom_props=False, add_leaf_bones=False, primary_bone_axis='Y', secondary_bone_axis='X', use_armature_deform_only=True, armature_nodetype='NULL', bake_anim=True, bake_anim_use_all_bones=True, bake_anim_use_nla_strips=True, bake_anim_use_all_actions=True, bake_anim_force_startend_keying=True, bake_anim_step=1.0, bake_anim_simplify_factor=1.0, path_mode='AUTO', embed_textures=False, batch_mode='OFF', use_batch_own_dir=True, use_metadata=True, axis_forward='-Z', axis_up='Y')

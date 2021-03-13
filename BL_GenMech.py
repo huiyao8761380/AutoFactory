@@ -803,10 +803,10 @@ class GenMech(bpy.types.Operator):
 
             outputNode=[]
             #print('节点组: '+str(nodegroupName))#列出来 节点1连节点2尾
-            print('节点1: '+str(OutName))
-            print('节点1出口: '+str(OutLink))#0
-            print('节点2: '+str(IntName))
-            print('节点2进口: '+str(IntLink))
+            print('节点1总: '+str(OutName))
+            print('节点1出口总: '+str(OutLink))#0
+            print('节点2总: '+str(IntName))
+            print('节点2进口总: '+str(IntLink))
             print(NodeInputsName)
             #try:
             LinkNum=len(OutName)
@@ -816,6 +816,7 @@ class GenMech(bpy.types.Operator):
 
                 
                 OutNode=Link_group.nodes[OutName[NodeLink]]
+                LinkOut=OutNode.outputs[OutLink[NodeLink]]#尾outputs
                 '''
                 if (OutNode.type=='GROUP_INPUT') and (NodeInputsNum!=0) and (OutName[NodeLink] !='Geometry'):# and (LinkOut.type!='GEOMETRY'):
                     outputNode.append(OutNode)
@@ -831,11 +832,70 @@ class GenMech(bpy.types.Operator):
                     #LinkOut=OutNode.outputs[LinkOutint]
                 else:
                 '''
-                LinkOut=OutNode.outputs[OutLink[NodeLink]]#尾outputs
+
+
 
                 IntNode=Link_group.nodes[IntName[NodeLink]]
                 if IntLink[NodeLink].isdigit():
                     LinkInt=IntNode.inputs[int(IntLink[NodeLink])]#头inputs
+                
+                elif IntNode.type=='ATTRIBUTE_MIX':
+                    if LinkOut.type=='STRING':
+                        if IntLink[NodeLink]=='A':
+                            LinkInt=IntNode.inputs[3]
+                        elif IntLink[NodeLink]=='B':
+                            LinkInt=IntNode.inputs[7]
+                    elif LinkOut.type=='VALUE':
+                        if IntLink[NodeLink]=='A':
+                            LinkInt=IntNode.inputs[4]
+                        elif IntLink[NodeLink]=='B':
+                            LinkInt=IntNode.inputs[8]
+                    elif LinkOut.type=='VECTOR':
+                        if IntLink[NodeLink]=='A':
+                            LinkInt=IntNode.inputs[5]
+                        elif IntLink[NodeLink]=='B':
+                            LinkInt=IntNode.inputs[9]
+                    elif LinkOut.type=='RGBA':
+                        if IntLink[NodeLink]=='A':
+                            LinkInt=IntNode.inputs[6]
+                        elif IntLink[NodeLink]=='B':
+                            LinkInt=IntNode.inputs[10]
+                    else:
+                        LinkInt=IntNode.inputs[IntLink[NodeLink]]
+
+
+
+                elif IntNode.type=='ATTRIBUTE_COMPARE':
+                    if LinkOut.type=='STRING':
+                        if IntLink[NodeLink]=='A':
+                            LinkInt=IntNode.inputs[1]
+                        elif IntLink[NodeLink]=='B':
+                            LinkInt=IntNode.inputs[5]
+                    elif LinkOut.type=='VALUE':
+                        if IntLink[NodeLink]=='A':
+                            LinkInt=IntNode.inputs[2]
+                        elif IntLink[NodeLink]=='B':
+                            LinkInt=IntNode.inputs[6]
+                    elif LinkOut.type=='VECTOR':
+                        if IntLink[NodeLink]=='A':
+                            LinkInt=IntNode.inputs[3]
+                        elif IntLink[NodeLink]=='B':
+                            LinkInt=IntNode.inputs[7]
+                    elif LinkOut.type=='RGBA':
+                        if IntLink[NodeLink]=='A':
+                            LinkInt=IntNode.inputs[4]
+                        elif IntLink[NodeLink]=='B':
+                            LinkInt=IntNode.inputs[8]
+                    else:
+                        LinkInt=IntNode.inputs[IntLink[NodeLink]]
+
+
+                
+
+                elif IntLink[NodeLink]=='B':
+                    LinkInt=IntNode.inputs[4]
+                elif IntLink[NodeLink]=='A':
+                    LinkInt=IntNode.inputs[2]
                 else:
                     LinkInt=IntNode.inputs[IntLink[NodeLink]]
 
