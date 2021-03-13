@@ -840,16 +840,21 @@ class GenMech(bpy.types.Operator):
                     LinkInt=IntNode.inputs[int(IntLink[NodeLink])]#头inputs
                 
                 elif IntNode.type=='ATTRIBUTE_MIX':
+
                     if LinkOut.type=='STRING':
                         if IntLink[NodeLink]=='A':
                             LinkInt=IntNode.inputs[3]
                         elif IntLink[NodeLink]=='B':
                             LinkInt=IntNode.inputs[7]
+                        elif IntLink[NodeLink]=='Factor':
+                            LinkInt=IntNode.inputs[1]
                     elif LinkOut.type=='VALUE':
                         if IntLink[NodeLink]=='A':
                             LinkInt=IntNode.inputs[4]
                         elif IntLink[NodeLink]=='B':
                             LinkInt=IntNode.inputs[8]
+                        elif IntLink[NodeLink]=='Factor':
+                            LinkInt=IntNode.inputs[2]
                     elif LinkOut.type=='VECTOR':
                         if IntLink[NodeLink]=='A':
                             LinkInt=IntNode.inputs[5]
