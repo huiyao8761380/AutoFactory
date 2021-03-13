@@ -3292,7 +3292,7 @@ def ReNodeType(type):
             NewType=NewType.replace('Xyz','XYZ')
 
 
-    if (Type == 'VECT_MATH') or (Type == 'SEPXYZ') or (Type == 'COMBXYZ') or (Type == 'CLAMP') or (Type == 'MATH') or (Type == 'MAP_RANGE') or (Type == 'VALUE') or (Type == 'COMBRGB') or (Type == 'SEPRGB') or (Type == 'VALTORGB'):
+    if (Type == 'VECT_MATH') or (Type == 'SEPXYZ') or (Type == 'COMBXYZ') or (Type == 'CLAMP') or (Type == 'MATH') or (Type == 'MAP_RANGE') or (Type == 'VALUE') or (Type == 'COMBRGB') or (Type == 'SEPRGB') or (Type == 'VALTORGB') or (Type == 'VECTOR_ROTATE'):
         FinalType='ShaderNode'+NewType#ValToRGB
     elif (Type == 'BOOLEAN_MATH') or (Type == 'FLOAT_COMPARE') or (Type == 'RANDOM_FLOAT') or (Type == 'INPUT_VECTOR') or (Type == 'INPUT_STRING'):
         FinalType='FunctionNode'+NewType
@@ -3478,6 +3478,8 @@ def GeoNodeInput(node):
     elif Node.type=='VOLUME_TO_MESH':
         GeoNodeList+='1|'+str(Node.resolution_mode)+'|'
 
+    elif Node.type=='VECTOR_ROTATE':
+        GeoNodeList+='2|'+str(Node.rotation_type)+'|'+str(Node.invert)+'|'
         #bpy.data.node_groups["Nodes"].nodes["Volume to Mesh"].resolution_mode = 'GRID'
 
     #elif Node.type=='FRAME':

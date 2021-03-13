@@ -698,8 +698,10 @@ class GenMech(bpy.types.Operator):
                         elif (Node.type=='VOLUME_TO_MESH') and (bpy.app.version >= (2, 93, 0)):
                             Node.resolution_mode = NodeParm[8+int(next(NodeCount))]
 
-
-
+                        elif (Node.type=='VECTOR_ROTATE') and (bpy.app.version >= (2, 93, 0)):
+                            Node.rotation_type = NodeParm[8+int(next(NodeCount))]
+                            Node.invert = str_to_bool(NodeParm[8+int(next(NodeCount))])
+                            
                         
                         #if (bpy.app.version < (2, 93, 0)) and (Node.type=='ATTRIBUTE_RANDOMIZE'):
                             #InputsNum=int(NodeParm[6])-2
